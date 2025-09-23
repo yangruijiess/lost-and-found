@@ -1,0 +1,511 @@
+<!DOCTYPE html><html lang="zh-CN"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>私信 - 拾物通</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+        body {
+            background-color: #f8fafc;
+            font-family: 'Noto Sans SC', sans-serif;
+            color: #334155;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+        }
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background-color: #1e3a8a;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+        .btn-secondary {
+            border: 1px solid #cbd5e1;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+        .btn-secondary:hover {
+            background-color: #f1f5f9;
+        }
+        .tag {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+        .tag-found {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .tag-lost {
+            background-color: #ffedd5;
+            color: #9a3412;
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+        .nav-link {
+            position: relative;
+            padding-bottom: 5px;
+        }
+        .nav-link.active:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #ff7d00;
+        }
+        .chat-sidebar {
+            border-right: 1px solid #e2e8f0;
+            height: calc(100vh - 132px);
+        }
+        .chat-item {
+            border-bottom: 1px solid #f1f5f9;
+            transition: background-color 0.2s ease;
+        }
+        .chat-item:hover {
+            background-color: #f8fafc;
+        }
+        .chat-item.active {
+            background-color: #eef2ff;
+        }
+        .chat-content {
+            height: calc(100vh - 132px);
+            display: flex;
+            flex-direction: column;
+        }
+        .message-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+        .message-input-area {
+            border-top: 1px solid #e2e8f0;
+            padding: 1rem;
+        }
+        .message-bubble {
+            max-width: 70%;
+            border-radius: 18px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+        }
+        .message-bubble.sent {
+            background-color: #1e3a8a;
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+        .message-bubble.received {
+            background-color: #e2e8f0;
+            color: #334155;
+            margin-right: auto;
+            border-bottom-left-radius: 4px;
+        }
+        .message-time {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            text-align: right;
+            margin-top: 0.25rem;
+        }
+        .unread-badge {
+            background-color: #ef4444;
+            color: white;
+            border-radius: 10px;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-6 py-4 max-w-7xl">
+            <div class="flex items-center justify-between">
+                <!-- Logo -->
+                <div class="flex items-center space-x-2">
+                    <span class="iconify text-2xl text-blue-800" data-icon="mdi:hand-heart"></span>
+                    <h1 class="text-xl font-bold text-blue-800">拾物通</h1>
+                </div>
+                
+                <!-- 主导航菜单 -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="失物招领平台设计方案_原型界面_V1.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">首页</a>
+                    <a href="失物招领平台_失物页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">失物</a>
+                    <a href="失物招领平台_招领页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">招领</a>
+                    <a href="失物招领平台_发布信息页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">发布信息</a>
+                    <a href="失物招领平台_私信页面.html" class="nav-link active font-medium text-blue-800">私信</a>
+                    <a href="失物招领平台_个人中心页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">个人中心</a>
+                </nav>
+                
+                <!-- 搜索框 -->
+                <div class="hidden lg:flex items-center border border-gray-300 rounded-lg px-3 py-2 w-64">
+                    <input type="text" placeholder="搜索物品或地点..." class="flex-1 focus:ring-0 border-none">
+                    <span class="iconify text-gray-500" data-icon="mdi:magnify"></span>
+                </div>
+                
+                <!-- 用户入口 -->
+                <div class="flex items-center space-x-4">
+                    <button class="btn-secondary text-sm hidden lg:block">登录/注册</button>
+                    <div class="lg:hidden">
+                        <span class="iconify text-2xl text-gray-700" data-icon="mdi:menu"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主体内容 -->
+    <main class="container mx-auto px-6 py-8 max-w-7xl">
+        <div class="bg-white card overflow-hidden">
+            <div class="flex flex-col lg:flex-row h-[calc(100vh-220px)]">
+                <!-- 左侧聊天列表 -->
+                <div class="chat-sidebar w-full lg:w-80 p-0">
+                    <!-- 搜索框 -->
+                    <div class="p-4 border-b">
+                        <div class="relative">
+                            <input type="text" placeholder="搜索对话..." class="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-0">
+                            <span class="iconify absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" data-icon="mdi:magnify"></span>
+                        </div>
+                    </div>
+                    
+                    <!-- 对话列表 -->
+                    <div class="overflow-y-auto h-full">
+                        <!-- 对话项1 - 活跃状态 -->
+                        <div class="chat-item p-4 flex items-center active">
+                            <div class="relative mr-3">
+                                <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="用户头像" class="w-12 h-12 rounded-full object-cover">
+                                <span class="absolute bottom-0 right-0 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></span>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-center mb-1">
+                                    <h3 class="font-medium text-gray-900">李明</h3>
+                                    <span class="text-xs text-gray-500">15:30</span>
+                                </div>
+                                <p class="text-sm text-gray-600 truncate">您好，我在平台上看到您发布的黑色钱包招领信息，我想确认一下是不是我的...</p>
+                            </div>
+                        </div>
+                        
+                        <!-- 对话项2 - 有未读消息 -->
+                        <div class="chat-item p-4 flex items-center">
+                            <div class="relative mr-3">
+                                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="用户头像" class="w-12 h-12 rounded-full object-cover">
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-center mb-1">
+                                    <h3 class="font-medium text-gray-900">王芳</h3>
+                                    <div class="flex items-center">
+                                        <span class="text-xs text-gray-500 mr-2">昨天</span>
+                                        <span class="unread-badge">2</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm font-medium text-gray-700 truncate">我找到了您丢失的蓝色书包</p>
+                            </div>
+                        </div>
+                        
+                        <!-- 对话项3 -->
+                        <div class="chat-item p-4 flex items-center">
+                            <div class="relative mr-3">
+                                <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="用户头像" class="w-12 h-12 rounded-full object-cover">
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-center mb-1">
+                                    <h3 class="font-medium text-gray-900">张伟</h3>
+                                    <span class="text-xs text-gray-500">周一</span>
+                                </div>
+                                <p class="text-sm text-gray-600 truncate">谢谢您，我已经收到了失物，非常感谢您的帮助！</p>
+                            </div>
+                        </div>
+                        
+                        <!-- 对话项4 -->
+                        <div class="chat-item p-4 flex items-center">
+                            <div class="relative mr-3">
+                                <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="用户头像" class="w-12 h-12 rounded-full object-cover">
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-center mb-1">
+                                    <h3 class="font-medium text-gray-900">陈静</h3>
+                                    <span class="text-xs text-gray-500">上周</span>
+                                </div>
+                                <p class="text-sm text-gray-600 truncate">关于我丢失的身份证，请问有什么进展吗？</p>
+                            </div>
+                        </div>
+                        
+                        <!-- 对话项5 -->
+                        <div class="chat-item p-4 flex items-center">
+                            <div class="relative mr-3">
+                                <img src="https://randomuser.me/api/portraits/men/22.jpg" alt="用户头像" class="w-12 h-12 rounded-full object-cover">
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-center mb-1">
+                                    <h3 class="font-medium text-gray-900">刘强</h3>
+                                    <span class="text-xs text-gray-500">上周</span>
+                                </div>
+                                <p class="text-sm text-gray-600 truncate">我在操场捡到了一个篮球，请问是您的吗？</p>
+                            </div>
+                        </div>
+                        
+                        <!-- 对话项6 -->
+                        <div class="chat-item p-4 flex items-center">
+                            <div class="relative mr-3">
+                                <img src="https://randomuser.me/api/portraits/women/54.jpg" alt="用户头像" class="w-12 h-12 rounded-full object-cover">
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-center mb-1">
+                                    <h3 class="font-medium text-gray-900">赵琳</h3>
+                                    <span class="text-xs text-gray-500">两周前</span>
+                                </div>
+                                <p class="text-sm text-gray-600 truncate">您好，我想咨询一下关于物品认领的流程</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 右侧聊天内容 -->
+                <div class="chat-content w-full">
+                    <!-- 聊天头部 -->
+                    <div class="p-4 border-b flex items-center justify-between">
+                        <div class="flex items-center">
+                            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="当前聊天用户头像" class="w-10 h-10 rounded-full object-cover mr-3">
+                            <div>
+                                <h3 class="font-medium">李明</h3>
+                                <p class="text-xs text-green-500 flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-1 inline-block"></span>
+                                    在线
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <button class="p-2 text-gray-500 hover:text-blue-800">
+                                <span class="iconify text-lg" data-icon="mdi:phone"></span>
+                            </button>
+                            <button class="p-2 text-gray-500 hover:text-blue-800">
+                                <span class="iconify text-lg" data-icon="mdi:video"></span>
+                            </button>
+                            <button class="p-2 text-gray-500 hover:text-blue-800">
+                                <span class="iconify text-lg" data-icon="mdi:more-vert"></span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 聊天内容区域 -->
+                    <div class="message-list">
+                        <!-- 系统消息 -->
+                        <div class="text-center mb-6">
+                            <span class="text-xs bg-gray-100 text-gray-600 py-1 px-3 rounded-full">今天 14:25</span>
+                        </div>
+                        
+                        <!-- 收到的消息 -->
+                        <div class="message-bubble received">
+                            <p>您好，我在平台上看到您发布的黑色钱包招领信息，我想确认一下是不是我的</p>
+                            <div class="message-time">14:25</div>
+                        </div>
+                        
+                        <!-- 发送的消息 -->
+                        <div class="message-bubble sent">
+                            <p>您好，我确实捡到了一个黑色钱包，请问您能描述一下钱包的具体特征吗？比如品牌、里面有什么物品等</p>
+                            <div class="message-time">14:27</div>
+                        </div>
+                        
+                        <!-- 收到的消息 -->
+                        <div class="message-bubble received">
+                            <p>钱包是Coach品牌的，黑色皮质，里面有我的身份证（姓名：李明）、一张工商银行信用卡、一张饭卡和200元现金</p>
+                            <div class="message-time">14:30</div>
+                        </div>
+                        
+                        <!-- 发送的消息 -->
+                        <div class="message-bubble sent">
+                            <p>描述基本符合，请问您什么时候方便来认领？我现在在图书馆二楼自习室</p>
+                            <div class="message-time">14:32</div>
+                        </div>
+                        
+                        <!-- 收到的消息 -->
+                        <div class="message-bubble received">
+                            <p>太好了！我大约半小时后可以到图书馆，我们在二楼大厅见面可以吗？</p>
+                            <div class="message-time">15:30</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 输入区域 -->
+                    <div class="message-input-area">
+                        <div class="flex space-x-3">
+                            <div class="flex items-center space-x-2 text-gray-500">
+                                <button class="p-2 hover:text-blue-800 hover:bg-blue-50 rounded-full">
+                                    <span class="iconify" data-icon="mdi:paperclip"></span>
+                                </button>
+                                <button class="p-2 hover:text-blue-800 hover:bg-blue-50 rounded-full">
+                                    <span class="iconify" data-icon="mdi:image"></span>
+                                </button>
+                                <button class="p-2 hover:text-blue-800 hover:bg-blue-50 rounded-full">
+                                    <span class="iconify" data-icon="mdi:smile"></span>
+                                </button>
+                            </div>
+                            <div class="flex-1 relative">
+                                <textarea placeholder="输入消息..." class="w-full p-3 border rounded-lg resize-none focus:ring-0" rows="2"></textarea>
+                            </div>
+                            <button class="btn-primary self-end">发送</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚区域 -->
+    <footer class="bg-gray-100 py-10 mt-8">
+        <div class="container mx-auto px-6 max-w-7xl">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <span class="iconify text-2xl text-blue-800" data-icon="mdi:hand-heart"></span>
+                        <h2 class="text-xl font-bold text-blue-800">拾物通</h2>
+                    </div>
+                    <p class="text-gray-600 mb-4">连接失物与主人的公益平台</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-600 hover:text-blue-800">
+                            <span class="iconify text-xl" data-icon="mdi:wechat"></span>
+                        </a>
+                        <a href="#" class="text-gray-600 hover:text-blue-800">
+                            <span class="iconify text-xl" data-icon="mdi:weibo"></span>
+                        </a>
+                        <a href="#" class="text-gray-600 hover:text-blue-800">
+                            <span class="iconify text-xl" data-icon="mdi:qqchat"></span>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="font-bold text-lg mb-4">快速链接</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800">关于我们</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800">失物认领流程</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800">招领物品指南</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800">联系我们</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-bold text-lg mb-4">帮助中心</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800">常见问题</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800">用户协议</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800">隐私政策</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800">使用指南</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-bold text-lg mb-4">联系方式</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-center text-gray-600">
+                            <span class="iconify mr-2" data-icon="mdi:email"></span>
+                            contact@shiwutong.com
+                        </li>
+                        <li class="flex items-center text-gray-600">
+                            <span class="iconify mr-2" data-icon="mdi:phone"></span>
+                            400-123-4567
+                        </li>
+                        <li class="flex items-center text-gray-600">
+                            <span class="iconify mr-2" data-icon="mdi:map-marker"></span>
+                            北京市海淀区学院路38号
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-200 mt-8 pt-6 text-center text-gray-500 text-sm">
+                <p>© 2025 拾物通 失物招领平台 版权所有 京ICP备12345678号</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 简单的聊天功能 -->
+    <script>
+        // 点击不同聊天项切换聊天内容
+        document.querySelectorAll('.chat-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // 移除所有项的活跃状态
+                document.querySelectorAll('.chat-item').forEach(el => el.classList.remove('active'));
+                // 添加当前项的活跃状态
+                this.classList.add('active');
+                
+                // 在实际应用中，这里会加载对应聊天的历史消息
+                // 这里为了演示简化处理
+            });
+        });
+        
+        // 发送消息功能
+        document.querySelector('.message-input-area button').addEventListener('click', function() {
+            const textarea = document.querySelector('.message-input-area textarea');
+            const messageText = textarea.value.trim();
+            
+            if (messageText) {
+                const messageList = document.querySelector('.message-list');
+                
+                // 创建新消息元素
+                const messageBubble = document.createElement('div');
+                messageBubble.className = 'message-bubble sent';
+                
+                const now = new Date();
+                const hours = now.getHours().toString().padStart(2, '0');
+                const minutes = now.getMinutes().toString().padStart(2, '0');
+                const timeString = `${hours}:${minutes}`;
+                
+                messageBubble.innerHTML = `
+                    <p>${messageText}</p>
+                    <div class="message-time">${timeString}</div>
+                `;
+                
+                // 添加到消息列表
+                messageList.appendChild(messageBubble);
+                
+                // 清空输入框
+                textarea.value = '';
+                
+                // 滚动到底部
+                messageList.scrollTop = messageList.scrollHeight;
+                
+                // 在实际应用中，这里会发送消息到服务器
+                // 这里为了演示简化处理，模拟自动回复
+                setTimeout(() => {
+                    const replyBubble = document.createElement('div');
+                    replyBubble.className = 'message-bubble received';
+                    replyBubble.innerHTML = `
+                        <p>感谢您的回复，我会尽快查看！</p>
+                        <div class="message-time">${timeString}</div>
+                    `;
+                    messageList.appendChild(replyBubble);
+                    messageList.scrollTop = messageList.scrollHeight;
+                }, 1000);
+            }
+        });
+        
+        // 按Enter发送消息
+        document.querySelector('.message-input-area textarea').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                document.querySelector('.message-input-area button').click();
+            }
+        });
+    </script>
+
+</body></html>

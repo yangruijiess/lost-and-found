@@ -1,0 +1,510 @@
+<!DOCTYPE html><html lang="zh-CN"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人中心 - 拾物通</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+        body {
+            background-color: #f8fafc;
+            font-family: 'Noto Sans SC', sans-serif;
+            color: #334155;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+        }
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background-color: #1e3a8a;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+        .btn-secondary {
+            border: 1px solid #cbd5e1;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+        .btn-secondary:hover {
+            background-color: #f1f5f9;
+        }
+        .tag {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+        .tag-found {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .tag-lost {
+            background-color: #ffedd5;
+            color: #9a3412;
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+        .nav-link {
+            position: relative;
+            padding-bottom: 5px;
+        }
+        .nav-link.active:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #ff7d00;
+        }
+        .sidebar-link {
+            padding: 10px 16px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+        .sidebar-link:hover {
+            background-color: #f1f5f9;
+        }
+        .sidebar-link.active {
+            background-color: #eef2ff;
+            color: #1e3a8a;
+            font-weight: 500;
+        }
+        .profile-stats {
+            border-radius: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .avatar-upload {
+            position: relative;
+        }
+        .avatar-upload .avatar-upload-icon {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background-color: #1e3a8a;
+            color: white;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .notification-badge {
+            background-color: #ef4444;
+            color: white;
+            border-radius: 10px;
+            padding: 1px 6px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-6 py-4 max-w-7xl">
+            <div class="flex items-center justify-between">
+                <!-- Logo -->
+                <div class="flex items-center space-x-2">
+                    <span class="iconify text-2xl text-blue-800" data-icon="mdi:hand-heart"></span>
+                    <h1 class="text-xl font-bold text-blue-800">拾物通</h1>
+                </div>
+                
+                <!-- 主导航菜单 -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="失物招领平台设计方案_原型界面_V1.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">首页</a>
+                    <a href="失物招领平台_失物页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">失物</a>
+                    <a href="失物招领平台_招领页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">招领</a>
+                    <a href="失物招领平台_发布信息页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">发布信息</a>
+                    <a href="失物招领平台_私信页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">私信</a>
+                    <a href="失物招领平台_个人中心页面.html" class="nav-link active font-medium text-blue-800">个人中心</a>
+                </nav>
+                
+                <!-- 搜索框 -->
+                <div class="hidden lg:flex items-center border border-gray-300 rounded-lg px-3 py-2 w-64">
+                    <input type="text" placeholder="搜索物品或地点..." class="flex-1 focus:ring-0 border-none">
+                    <span class="iconify text-gray-500" data-icon="mdi:magnify"></span>
+                </div>
+                
+                <!-- 用户入口 -->
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button class="p-2 text-gray-600 hover:text-blue-800">
+                            <span class="iconify text-xl" data-icon="mdi:bell"></span>
+                            <span class="absolute top-0 right-0 notification-badge">3</span>
+                        </button>
+                    </div>
+                    <div class="hidden lg:block">
+                        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="用户头像" class="w-10 h-10 rounded-full object-cover">
+                    </div>
+                    <div class="lg:hidden">
+                        <span class="iconify text-2xl text-gray-700" data-icon="mdi:menu"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主体内容 -->
+    <main class="container mx-auto px-6 py-8 max-w-7xl">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <!-- 左侧边栏 -->
+            <div class="lg:col-span-1">
+                <!-- 用户信息卡片 -->
+                <div class="bg-white card p-6 mb-6">
+                    <div class="avatar-upload flex flex-col items-center mb-4">
+                        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="用户头像" class="w-24 h-24 rounded-full object-cover mb-2">
+                        <div class="avatar-upload-icon">
+                            <span class="iconify" data-icon="mdi:camera"></span>
+                        </div>
+                        <h2 class="font-bold text-lg">陈静</h2>
+                        <p class="text-sm text-gray-500">普通用户</p>
+                    </div>
+                    
+                    <!-- 个人统计 -->
+                    <div class="profile-stats text-white p-4 mb-4">
+                        <div class="grid grid-cols-3 gap-2 text-center">
+                            <div>
+                                <p class="text-2xl font-bold">12</p>
+                                <p class="text-xs">发布</p>
+                            </div>
+                            <div>
+                                <p class="text-2xl font-bold">5</p>
+                                <p class="text-xs">找回</p>
+                            </div>
+                            <div>
+                                <p class="text-2xl font-bold">24</p>
+                                <p class="text-xs">收藏</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 侧边栏导航 -->
+                <div class="bg-white card p-4">
+                    <h3 class="font-bold text-lg mb-4">个人中心</h3>
+                    <ul class="space-y-1">
+                        <li><a href="#" class="sidebar-link active"><span class="iconify mr-3" data-icon="mdi:user-circle"></span>基本信息</a></li>
+                        <li><a href="#" class="sidebar-link"><span class="iconify mr-3" data-icon="mdi:clipboard-list"></span>发布历史</a></li>
+                        <li><a href="#" class="sidebar-link"><span class="iconify mr-3" data-icon="mdi:heart"></span>我的收藏</a></li>
+                        <li><a href="#" class="sidebar-link"><span class="iconify mr-3" data-icon="mdi:message-circle"></span>消息通知</a></li>
+                        <li><a href="#" class="sidebar-link"><span class="iconify mr-3" data-icon="mdi:settings"></span>账户设置</a></li>
+                        <li><a href="#" class="sidebar-link"><span class="iconify mr-3" data-icon="mdi:shield-check"></span>安全中心</a></li>
+                        <li><a href="#" class="sidebar-link"><span class="iconify mr-3" data-icon="mdi:help-circle"></span>帮助与反馈</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- 右侧内容区 -->
+            <div class="lg:col-span-3">
+                <!-- 选项卡导航 -->
+                <div class="bg-white card p-4 mb-6">
+                    <div class="flex flex-wrap border-b">
+                        <button class="tab-btn px-4 py-2 font-medium text-blue-800 border-b-2 border-blue-800" data-tab="basic-info">基本信息</button>
+                        <button class="tab-btn px-4 py-2 font-medium text-gray-600" data-tab="contact-info">联系方式</button>
+                        <button class="tab-btn px-4 py-2 font-medium text-gray-600" data-tab="privacy-settings">隐私设置</button>
+                    </div>
+                </div>
+                
+                <!-- 基本信息选项卡内容 -->
+                <div id="basic-info" class="tab-content active bg-white card p-6 mb-6">
+                    <h3 class="font-bold text-lg mb-6">基本信息</h3>
+                    <form>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">用户名</label>
+                                <input type="text" value="陈静" class="w-full px-4 py-2 border rounded-lg focus:ring-0">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">昵称</label>
+                                <input type="text" value="静心如水" class="w-full px-4 py-2 border rounded-lg focus:ring-0">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">性别</label>
+                                <div class="flex space-x-4 pt-2">
+                                    <label class="flex items-center">
+                                        <input type="radio" name="gender" value="female" checked class="mr-2">
+                                        <span>女</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="radio" name="gender" value="male" class="mr-2">
+                                        <span>男</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="radio" name="gender" value="other" class="mr-2">
+                                        <span>保密</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">生日</label>
+                                <input type="date" value="1995-05-15" class="w-full px-4 py-2 border rounded-lg focus:ring-0">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">个人简介</label>
+                                <textarea rows="4" class="w-full px-4 py-2 border rounded-lg focus:ring-0">热爱生活，乐于助人。希望通过这个平台帮助更多人找回失物，也感谢每一位拾金不昧的好心人。</textarea>
+                            </div>
+                        </div>
+                        <div class="flex justify-end">
+                            <button type="button" class="btn-secondary mr-3">取消</button>
+                            <button type="submit" class="btn-primary">保存更改</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- 联系方式选项卡内容 -->
+                <div id="contact-info" class="tab-content bg-white card p-6 mb-6">
+                    <h3 class="font-bold text-lg mb-6">联系方式</h3>
+                    <form>
+                        <div class="space-y-6 mb-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">手机号码</label>
+                                <div class="flex">
+                                    <input type="tel" value="138****5678" disabled class="w-full px-4 py-2 border rounded-l-lg focus:ring-0 bg-gray-100">
+                                    <button type="button" class="btn-secondary rounded-r-lg border-l-0">修改</button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">电子邮箱</label>
+                                <div class="flex">
+                                    <input type="email" value="chenj***@example.com" disabled class="w-full px-4 py-2 border rounded-l-lg focus:ring-0 bg-gray-100">
+                                    <button type="button" class="btn-secondary rounded-r-lg border-l-0">修改</button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">微信</label>
+                                <input type="text" value="chen_jing2023" class="w-full px-4 py-2 border rounded-lg focus:ring-0">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">常用地址</label>
+                                <textarea rows="3" class="w-full px-4 py-2 border rounded-lg focus:ring-0">北京市海淀区学院路38号北京大学学生公寓5号楼302室</textarea>
+                            </div>
+                        </div>
+                        <div class="flex justify-end">
+                            <button type="button" class="btn-secondary mr-3">取消</button>
+                            <button type="submit" class="btn-primary">保存更改</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- 隐私设置选项卡内容 -->
+                <div id="privacy-settings" class="tab-content bg-white card p-6 mb-6">
+                    <h3 class="font-bold text-lg mb-6">隐私设置</h3>
+                    <form>
+                        <div class="space-y-6 mb-6">
+                            <div class="flex items-center justify-between p-4 border rounded-lg">
+                                <div>
+                                    <h4 class="font-medium">谁可以查看我的个人信息</h4>
+                                    <p class="text-sm text-gray-500">控制其他用户是否可以看到您的基本资料</p>
+                                </div>
+                                <select class="border rounded-lg px-3 py-1 focus:ring-0">
+                                    <option>仅自己可见</option>
+                                    <option>已认证用户可见</option>
+                                    <option>所有人可见</option>
+                                </select>
+                            </div>
+                            
+                            <div class="flex items-center justify-between p-4 border rounded-lg">
+                                <div>
+                                    <h4 class="font-medium">谁可以给我发送私信</h4>
+                                    <p class="text-sm text-gray-500">控制哪些用户可以与您私信联系</p>
+                                </div>
+                                <select class="border rounded-lg px-3 py-1 focus:ring-0">
+                                    <option>所有人</option>
+                                    <option>仅已认证用户</option>
+                                    <option>仅关注的用户</option>
+                                </select>
+                            </div>
+                            
+                            <div class="flex items-center justify-between p-4 border rounded-lg">
+                                <div>
+                                    <h4 class="font-medium">消息通知设置</h4>
+                                    <p class="text-sm text-gray-500">控制哪些类型的消息可以通知到您</p>
+                                </div>
+                                <button type="button" class="text-blue-800">设置</button>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h4 class="font-medium">允许搜索我的发布记录</h4>
+                                        <p class="text-sm text-gray-500">允许其他用户通过搜索找到您发布的信息</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" value="" class="sr-only peer" checked>
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-800"></div>
+                                    </label>
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h4 class="font-medium">发布信息时默认匿名</h4>
+                                        <p class="text-sm text-gray-500">设置后，您发布的所有信息将默认以匿名形式展示</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" value="" class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-800"></div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-end">
+                            <button type="button" class="btn-secondary mr-3">取消</button>
+                            <button type="submit" class="btn-primary">保存设置</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚区域 -->
+    <footer class="bg-gray-100 py-10 mt-8">
+        <div class="container mx-auto px-6 max-w-7xl">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <span class="iconify text-2xl text-blue-800" data-icon="mdi:hand-heart"></span>
+                        <h2 class="text-xl font-bold text-blue-800">拾物通</h2>
+                    </div>
+                    <p class="text-gray-600 mb-4">连接失物与主人的公益平台</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-600 hover:text-blue-800">
+                            <span class="iconify text-xl" data-icon="mdi:wechat"></span>
+                        </a>
+                        <a href="#" class="text-gray-600 hover:text-blue-800">
+                            <span class="iconify text-xl" data-icon="mdi:weibo"></span>
+                        </a>
+                        <a href="#" class="text-gray-600 hover:text-blue-800">
+                            <span class="iconify text-xl" data-icon="mdi:qqchat"></span>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="font-bold text-lg mb-4">快速链接</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800">关于我们</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800">失物认领流程</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800">招领物品指南</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800">联系我们</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-bold text-lg mb-4">帮助中心</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800">常见问题</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800">用户协议</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800">隐私政策</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800">使用指南</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-bold text-lg mb-4">联系方式</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-center text-gray-600">
+                            <span class="iconify mr-2" data-icon="mdi:email"></span>
+                            contact@shiwutong.com
+                        </li>
+                        <li class="flex items-center text-gray-600">
+                            <span class="iconify mr-2" data-icon="mdi:phone"></span>
+                            400-123-4567
+                        </li>
+                        <li class="flex items-center text-gray-600">
+                            <span class="iconify mr-2" data-icon="mdi:map-marker"></span>
+                            北京市海淀区学院路38号
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-200 mt-8 pt-6 text-center text-gray-500 text-sm">
+                <p>© 2025 拾物通 失物招领平台 版权所有 京ICP备12345678号</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 选项卡切换功能 -->
+    <script>
+        // 选项卡切换
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // 移除所有选项卡按钮的活跃状态
+                document.querySelectorAll('.tab-btn').forEach(b => {
+                    b.classList.remove('text-blue-800', 'border-b-2', 'border-blue-800');
+                    b.classList.add('text-gray-600');
+                });
+                
+                // 添加当前选项卡按钮的活跃状态
+                this.classList.remove('text-gray-600');
+                this.classList.add('text-blue-800', 'border-b-2', 'border-blue-800');
+                
+                // 隐藏所有选项卡内容
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                // 显示对应的选项卡内容
+                const tabId = this.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+        
+        // 侧边栏导航点击效果
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                // 移除所有链接的活跃状态
+                document.querySelectorAll('.sidebar-link').forEach(l => {
+                    l.classList.remove('active');
+                });
+                
+                // 添加当前链接的活跃状态
+                this.classList.add('active');
+            });
+        });
+        
+        // 表单提交处理
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                // 这里可以添加表单验证和提交逻辑
+                alert('设置已保存！');
+            });
+        });
+        
+        // 头像上传功能
+        document.querySelector('.avatar-upload-icon').addEventListener('click', function() {
+            // 在实际应用中，这里会触发文件选择对话框
+            // 这里为了演示简化处理
+            alert('请选择要上传的头像图片');
+        });
+    </script>
+
+</body></html>
