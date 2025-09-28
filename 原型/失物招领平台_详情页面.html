@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>详情页面 - 拾物通</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+        body {
+            background-color: #f8fafc;
+            font-family: 'Noto Sans SC', sans-serif;
+            color: #334155;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+        }
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background-color: #1e3a8a;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+        .btn-secondary {
+            border: 1px solid #cbd5e1;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+        .btn-secondary:hover {
+            background-color: #f1f5f9;
+        }
+        .tag {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+        .tag-found {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .tag-lost {
+            background-color: #ffedd5;
+            color: #9a3412;
+        }
+        .nav-link {
+            position: relative;
+            padding-bottom: 5px;
+        }
+        .nav-link.active:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #ff7d00;
+        }
+        .image-gallery {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .image-gallery img {
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .image-gallery img:hover {
+            transform: scale(1.05);
+        }
+        .detail-item {
+            display: flex;
+            margin-bottom: 1rem;
+            align-items: flex-start;
+        }
+        .detail-item-label {
+            min-width: 80px;
+            color: #64748b;
+            font-weight: 500;
+        }
+        .detail-item-value {
+            flex: 1;
+        }
+        .contact-method {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .contact-method span {
+            margin-left: 0.5rem;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-6 py-4 max-w-7xl">
+            <div class="flex items-center justify-between">
+                <!-- Logo -->
+                <div class="flex items-center space-x-2">
+                    <span class="iconify text-2xl text-blue-800" data-icon="mdi:hand-heart"></span>
+                    <h1 class="text-xl font-bold text-blue-800">拾物通</h1>
+                </div>
+                
+                <!-- 主导航菜单 -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="失物招领平台_失物页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">失物</a>
+                    <a href="失物招领平台_招领页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">招领</a>
+                    <a href="失物招领平台_发布信息页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">发布信息</a>
+                    <a href="失物招领平台_私信页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">私信</a>
+                    <a href="失物招领平台_个人中心页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">个人中心</a>
+                </nav>
+                
+                <!-- 搜索框 -->
+                <div class="hidden lg:flex items-center border border-gray-300 rounded-lg px-3 py-2 w-64">
+                    <input type="text" placeholder="搜索物品或地点..." class="flex-1 focus:ring-0 border-none">
+                    <span class="iconify text-gray-500" data-icon="mdi:magnify"></span>
+                </div>
+                
+                <!-- 用户入口 -->
+                <div class="flex items-center space-x-4">
+                    <a href="失物招领平台_登录注册页面.html" class="btn-secondary text-sm hidden lg:block">登录/注册</a>
+                    <div class="lg:hidden">
+                        <span class="iconify text-2xl text-gray-700" data-icon="mdi:menu"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主体内容 -->
+    <main class="container mx-auto px-6 py-8 max-w-7xl">
+        <!-- 返回按钮 -->
+        <div class="mb-6">
+            <button id="backButton" class="btn-secondary flex items-center">
+                <span class="iconify mr-2" data-icon="mdi:arrow-left"></span>
+                返回列表
+            </button>
+        </div>
+
+        <!-- 物品详情卡片 -->
+        <div class="bg-white card p-6 mb-6">
+            <div class="flex flex-col md:flex-row gap-6">
+                <!-- 左侧图片区域 -->
+                <div class="md:w-1/2">
+                    <div class="relative">
+                        <img id="mainImage" src="https://modao.cc/ai/uploads/ai_pics/30/302277/aigp_1758618096.jpeg" alt="银色笔记本电脑" class="w-full h-80 object-cover rounded-lg">
+                        <div id="itemTag" class="absolute top-4 right-4">
+                            <span class="tag tag-lost">寻找中</span>
+                        </div>
+                    </div>
+                    <div class="image-gallery mt-4 overflow-x-auto pb-2">
+                        <img src="https://modao.cc/ai/uploads/ai_pics/30/302277/aigp_1758618096.jpeg" alt="银色笔记本电脑" class="h-20 object-cover cursor-pointer border-2 border-blue-800">
+                        <img src="https://modao.cc/ai/uploads/ai_pics/30/302277/aigp_1758618097.jpeg" alt="笔记本电脑侧面" class="h-20 object-cover cursor-pointer">
+                        <img src="https://modao.cc/ai/uploads/ai_pics/30/302277/aigp_1758618098.jpeg" alt="笔记本电脑键盘" class="h-20 object-cover cursor-pointer">
+                    </div>
+                </div>
+
+                <!-- 右侧信息区域 -->
+                <div class="md:w-1/2">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 id="itemTitle" class="text-2xl font-bold">银色笔记本电脑</h2>
+                        <span id="publishDate" class="text-gray-500">发布于：2024-01-15</span>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h3 class="font-medium text-lg mb-2">物品描述</h3>
+                        <p id="itemDescription" class="text-gray-600 leading-relaxed">
+                            在图书馆3楼自习室丢失，联想小新系列，银色外壳，有轻微划痕。电脑贴有星空贴纸，
+                            内有重要的学习资料和毕业论文。请捡到的同学联系我，必有重谢！
+                        </p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="detail-item">
+                            <div class="detail-item-label">物品分类：</div>
+                            <div id="itemCategory" class="detail-item-value">电子设备</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-item-label">丢失地点：</div>
+                            <div id="itemLocation" class="detail-item-value">图书馆3楼自习室A区靠窗座位</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-item-label">丢失时间：</div>
+                            <div id="itemTime" class="detail-item-value">2024-01-15 14:30-16:00</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-item-label">物品特征：</div>
+                            <div id="itemFeatures" class="detail-item-value">
+                                <ul class="list-disc pl-5">
+                                    <li>银色联想小新系列笔记本电脑</li>
+                                    <li>外壳有轻微划痕</li>
+                                    <li>贴有星空贴纸</li>
+                                    <li>电脑包为黑色双肩包</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 发布者信息 -->
+        <div class="bg-white card p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4">发布者信息</h2>
+            <div class="flex items-center space-x-4">
+                <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
+                    <span class="iconify text-3xl text-blue-800" data-icon="mdi:account-circle"></span>
+                </div>
+                <div>
+                    <h3 id="publisherName" class="font-medium text-lg">李同学</h3>
+                    <p class="text-gray-500">经济学院 · 2022级</p>
+                </div>
+                <button id="contactPublisher" class="ml-auto btn-primary">
+                    <span class="iconify mr-2" data-icon="mdi:message"></span>
+                    联系发布者
+                </button>
+            </div>
+        </div>
+
+        <!-- 联系方式 -->
+        <div class="bg-white card p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4">联系方式</h2>
+            <div class="space-y-3">
+                <div id="contactPhone" class="contact-method">
+                    <span class="iconify text-gray-500" data-icon="mdi:phone"></span>
+                    <span>手机号：138****1234</span>
+                </div>
+                <div id="contactEmail" class="contact-method">
+                    <span class="iconify text-gray-500" data-icon="mdi:email"></span>
+                    <span>邮箱：student****@university.edu.cn</span>
+                </div>
+                <div class="contact-method">
+                    <span class="iconify text-gray-500" data-icon="mdi:information"></span>
+                    <span class="text-sm text-gray-500">注：联系方式已脱敏处理，联系前请确认物品信息</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 相关物品推荐 -->
+        <div class="mb-6">
+            <h2 class="text-xl font-bold mb-4">相关物品推荐</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- 推荐物品1 -->
+                <div class="bg-white card overflow-hidden recommendation-item" data-id="1">
+                    <img src="https://modao.cc/ai/uploads/ai_pics/30/302277/aigp_1758618099.jpeg" alt="笔记本电脑包" class="w-full h-32 object-cover">
+                    <div class="p-3">
+                        <h3 class="font-medium text-sm">黑色笔记本电脑包</h3>
+                        <p class="text-gray-500 text-xs mt-1">体育馆附近</p>
+                    </div>
+                </div>
+                <!-- 推荐物品2 -->
+                <div class="bg-white card overflow-hidden recommendation-item" data-id="2">
+                    <img src="https://modao.cc/ai/uploads/ai_pics/30/302277/aigp_1758618100.jpeg" alt="校园卡" class="w-full h-32 object-cover">
+                    <div class="p-3">
+                        <h3 class="font-medium text-sm">校园卡（李**）</h3>
+                        <p class="text-gray-500 text-xs mt-1">图书馆</p>
+                    </div>
+                </div>
+                <!-- 推荐物品3 -->
+                <div class="bg-white card overflow-hidden recommendation-item" data-id="3">
+                    <img src="https://modao.cc/ai/uploads/ai_pics/30/302277/aigp_1758618101.jpeg" alt="U盘" class="w-full h-32 object-cover">
+                    <div class="p-3">
+                        <h3 class="font-medium text-sm">金属U盘</h3>
+                        <p class="text-gray-500 text-xs mt-1">图书馆3楼</p>
+                    </div>
+                </div>
+                <!-- 推荐物品4 -->
+                <div class="bg-white card overflow-hidden recommendation-item" data-id="4">
+                    <img src="https://modao.cc/ai/uploads/ai_pics/30/302277/aigp_1758618102.jpeg" alt="笔记本" class="w-full h-32 object-cover">
+                    <div class="p-3">
+                        <h3 class="font-medium text-sm">蓝色笔记本</h3>
+                        <p class="text-gray-500 text-xs mt-1">第三教学楼</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚区域 -->
+    <footer class="bg-gray-100 py-10 mt-12">
+        <div class="container mx-auto px-6 max-w-7xl">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <span class="iconify text-2xl text-blue-800" data-icon="mdi:hand-heart"></span>
+                        <h2 class="text-xl font-bold text-blue-800">拾物通</h2>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-4">
+                        拾物通是一个致力于帮助失主找回失物、拾主归还物品的公益平台，
+                        让每一件遗失的物品都能找到回家的路。
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-500 hover:text-blue-800">
+                            <span class="iconify text-xl" data-icon="mdi:wechat"></span>
+                        </a>
+                        <a href="#" class="text-gray-500 hover:text-blue-800">
+                            <span class="iconify text-xl" data-icon="mdi:weibo"></span>
+                        </a>
+                        <a href="#" class="text-gray-500 hover:text-blue-800">
+                            <span class="iconify text-xl" data-icon="mdi:qq"></span>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="font-medium text-gray-800 mb-4">快速链接</h3>
+                    <ul class="space-y-2">
+                        <li><a href="失物招领平台_失物页面.html" class="text-gray-600 hover:text-blue-800 text-sm">失物信息</a></li>
+                        <li><a href="失物招领平台_招领页面.html" class="text-gray-600 hover:text-blue-800 text-sm">招领信息</a></li>
+                        <li><a href="失物招领平台_发布信息页面.html" class="text-gray-600 hover:text-blue-800 text-sm">发布信息</a></li>
+                        <li><a href="失物招领平台_私信页面.html" class="text-gray-600 hover:text-blue-800 text-sm">私信中心</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-medium text-gray-800 mb-4">帮助中心</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800 text-sm">使用指南</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800 text-sm">常见问题</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800 text-sm">平台规则</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800 text-sm">关于我们</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-medium text-gray-800 mb-4">联系我们</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-center text-gray-600 text-sm">
+                            <span class="iconify mr-2" data-icon="mdi:map-marker"></span>
+                            <span>中国·某某大学学生活动中心</span>
+                        </li>
+                        <li class="flex items-center text-gray-600 text-sm">
+                            <span class="iconify mr-2" data-icon="mdi:phone"></span>
+                            <span>010-12345678</span>
+                        </li>
+                        <li class="flex items-center text-gray-600 text-sm">
+                            <span class="iconify mr-2" data-icon="mdi:email"></span>
+                            <span>contact@shiwutong.com</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-200 mt-8 pt-8 text-center text-gray-500 text-sm">
+                <p>© 2024 拾物通 - 让每一件物品都能回家 版权所有</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 交互脚本 -->
+    <script>
+        // 从URL参数获取物品ID和类型
+        function getQueryParams() {
+            const params = {};
+            window.location.search.substring(1).split('&').forEach(param => {
+                const [key, value] = param.split('=');
+                params[decodeURIComponent(key)] = decodeURIComponent(value || '');
+            });
+            return params;
+        }
+
+        // 根据参数加载不同的物品信息
+        function loadItemDetails() {
+            const params = getQueryParams();
+            const itemId = params.id || '1';
+            const itemType = params.type || 'lost'; // 'lost' 或 'found'
+
+            // 根据类型更新标签和按钮
+            const tagElement = document.getElementById('itemTag');
+            const contactButton = document.getElementById('contactPublisher');
+            
+            if (itemType === 'found') {
+                tagElement.innerHTML = '<span class="tag tag-found">招领中</span>';
+                contactButton.innerHTML = '<span class="iconify mr-2" data-icon="mdi:message"></span>联系认领';
+            } else {
+                tagElement.innerHTML = '<span class="tag tag-lost">寻找中</span>';
+                contactButton.innerHTML = '<span class="iconify mr-2" data-icon="mdi:message"></span>联系发布者';
+            }
+
+            // 在实际应用中，这里会根据itemId从服务器获取数据
+            console.log('加载物品详情:', { itemId, itemType });
+        }
+
+        // 图片切换功能
+        function setupImageGallery() {
+            const thumbnails = document.querySelectorAll('.image-gallery img');
+            const mainImage = document.getElementById('mainImage');
+            
+            thumbnails.forEach(thumbnail => {
+                thumbnail.addEventListener('click', function() {
+                    // 更新主图
+                    mainImage.src = this.src;
+                    
+                    // 更新缩略图边框
+                    thumbnails.forEach(img => img.classList.remove('border-2', 'border-blue-800'));
+                    this.classList.add('border-2', 'border-blue-800');
+                });
+            });
+        }
+
+        // 返回按钮功能
+        function setupBackButton() {
+            document.getElementById('backButton').addEventListener('click', function() {
+                window.history.back();
+            });
+        }
+
+        // 联系发布者功能
+        function setupContactButton() {
+            document.getElementById('contactPublisher').addEventListener('click', function() {
+                const publisherName = document.getElementById('publisherName').textContent;
+                // 跳转到私信页面
+                window.location.href = '失物招领平台_私信页面.html';
+            });
+        }
+
+        // 相关物品点击功能
+        function setupRecommendationItems() {
+            document.querySelectorAll('.recommendation-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const itemId = this.getAttribute('data-id');
+                    // 重新加载当前页面，但使用新的物品ID
+                    window.location.href = `失物招领平台_详情页面.html?id=${itemId}`;
+                });
+            });
+        }
+
+        // 初始化页面
+        function init() {
+            loadItemDetails();
+            setupImageGallery();
+            setupBackButton();
+            setupContactButton();
+            setupRecommendationItems();
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

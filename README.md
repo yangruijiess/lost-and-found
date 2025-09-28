@@ -2,7 +2,7 @@
 
 ## How to work
 
-- Create a folder named DeepCNN on your own computer
+- Create a folder named Lost And Found on your own computer
 - Run these commands in your shell:
 ```shell
 git init

@@ -77,6 +77,8 @@
         .chat-item {
             border-bottom: 1px solid #f1f5f9;
             transition: background-color 0.2s ease;
+            display: flex;
+            align-items: center;
         }
         .chat-item:hover {
             background-color: #f8fafc;
@@ -98,20 +100,70 @@
             border-top: 1px solid #e2e8f0;
             padding: 1rem;
         }
+        /* 头像样式优化 */
+        .avatar-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            min-width: 48px;
+            min-height: 48px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: #f1f5f9;
+            flex-shrink: 0;
+            border: 2px solid white;
+        }
+        .avatar-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        .avatar-small {
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            min-height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            background-color: #f1f5f9;
+            border: 2px solid white;
+        }
+        .avatar-status {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid white;
+            background-color: #10b981;
+        }
+        /* 确保相对定位容器正确 */
+        .avatar-container-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
         .message-bubble {
             max-width: 70%;
             border-radius: 18px;
             padding: 0.75rem 1rem;
             margin-bottom: 1rem;
+            word-wrap: break-word;
         }
         .message-bubble.sent {
-            background-color: #1e3a8a;
+            background-color: #3b82f6;
             color: white;
             margin-left: auto;
             border-bottom-right-radius: 4px;
         }
         .message-bubble.received {
-            background-color: #e2e8f0;
+            background-color: #f1f5f9;
             color: #334155;
             margin-right: auto;
             border-bottom-left-radius: 4px;
@@ -121,6 +173,13 @@
             opacity: 0.7;
             text-align: right;
             margin-top: 0.25rem;
+        }
+        .message-list {
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            padding: 1rem;
+            height: calc(100% - 80px);
         }
         .unread-badge {
             background-color: #ef4444;
@@ -149,7 +208,6 @@
                 
                 <!-- 主导航菜单 -->
                 <nav class="hidden md:flex space-x-8">
-                    <a href="失物招领平台设计方案_原型界面_V1.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">首页</a>
                     <a href="失物招领平台_失物页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">失物</a>
                     <a href="失物招领平台_招领页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">招领</a>
                     <a href="失物招领平台_发布信息页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">发布信息</a>
@@ -165,7 +223,7 @@
                 
                 <!-- 用户入口 -->
                 <div class="flex items-center space-x-4">
-                    <button class="btn-secondary text-sm hidden lg:block">登录/注册</button>
+                    <a href="失物招领平台_登录注册页面.html" class="btn-secondary text-sm hidden lg:block">登录/注册</a>
                     <div class="lg:hidden">
                         <span class="iconify text-2xl text-gray-700" data-icon="mdi:menu"></span>
                     </div>
@@ -191,10 +249,12 @@
                     <!-- 对话列表 -->
                     <div class="overflow-y-auto h-full">
                         <!-- 对话项1 - 活跃状态 -->
-                        <div class="chat-item p-4 flex items-center active">
-                            <div class="relative mr-3">
-                                <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="用户头像" class="w-12 h-12 rounded-full object-cover">
-                                <span class="absolute bottom-0 right-0 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></span>
+                        <div class="chat-item p-4 flex items-center active" data-id="1" data-name="李明" data-avatar="https://randomuser.me/api/portraits/women/44.jpg" data-status="online">
+                            <div class="avatar-container-wrapper">
+                                <div class="avatar-container">
+                                    <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="用户头像" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23cbd5e1%22><path d=%22M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z%22/></svg>';">
+                                </div>
+                                <span class="avatar-status"></span>
                             </div>
                             <div class="flex-1">
                                 <div class="flex justify-between items-center mb-1">
@@ -206,9 +266,11 @@
                         </div>
                         
                         <!-- 对话项2 - 有未读消息 -->
-                        <div class="chat-item p-4 flex items-center">
-                            <div class="relative mr-3">
-                                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="用户头像" class="w-12 h-12 rounded-full object-cover">
+                        <div class="chat-item p-4 flex items-center" data-id="2" data-name="王芳" data-avatar="https://randomuser.me/api/portraits/men/32.jpg" data-status="offline">
+                            <div class="avatar-container-wrapper">
+                                <div class="avatar-container">
+                                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="用户头像" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23cbd5e1%22><path d=%22M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z%22/></svg>';">
+                                </div>
                             </div>
                             <div class="flex-1">
                                 <div class="flex justify-between items-center mb-1">
@@ -223,9 +285,11 @@
                         </div>
                         
                         <!-- 对话项3 -->
-                        <div class="chat-item p-4 flex items-center">
-                            <div class="relative mr-3">
-                                <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="用户头像" class="w-12 h-12 rounded-full object-cover">
+                        <div class="chat-item p-4 flex items-center" data-id="3" data-name="张伟" data-avatar="https://randomuser.me/api/portraits/men/75.jpg" data-status="offline">
+                            <div class="avatar-container-wrapper">
+                                <div class="avatar-container">
+                                    <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="用户头像" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23cbd5e1%22><path d=%22M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z%22/></svg>';">
+                                </div>
                             </div>
                             <div class="flex-1">
                                 <div class="flex justify-between items-center mb-1">
@@ -237,9 +301,11 @@
                         </div>
                         
                         <!-- 对话项4 -->
-                        <div class="chat-item p-4 flex items-center">
-                            <div class="relative mr-3">
-                                <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="用户头像" class="w-12 h-12 rounded-full object-cover">
+                        <div class="chat-item p-4 flex items-center" data-id="4" data-name="陈静" data-avatar="https://randomuser.me/api/portraits/women/68.jpg" data-status="offline">
+                            <div class="avatar-container-wrapper">
+                                <div class="avatar-container">
+                                    <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="用户头像" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23cbd5e1%22><path d=%22M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z%22/></svg>';">
+                                </div>
                             </div>
                             <div class="flex-1">
                                 <div class="flex justify-between items-center mb-1">
@@ -251,9 +317,11 @@
                         </div>
                         
                         <!-- 对话项5 -->
-                        <div class="chat-item p-4 flex items-center">
-                            <div class="relative mr-3">
-                                <img src="https://randomuser.me/api/portraits/men/22.jpg" alt="用户头像" class="w-12 h-12 rounded-full object-cover">
+                        <div class="chat-item p-4 flex items-center" data-id="5" data-name="刘强" data-avatar="https://randomuser.me/api/portraits/men/22.jpg" data-status="offline">
+                            <div class="avatar-container-wrapper">
+                                <div class="avatar-container">
+                                    <img src="https://randomuser.me/api/portraits/men/22.jpg" alt="用户头像" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23cbd5e1%22><path d=%22M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z%22/></svg>';">
+                                </div>
                             </div>
                             <div class="flex-1">
                                 <div class="flex justify-between items-center mb-1">
@@ -265,9 +333,11 @@
                         </div>
                         
                         <!-- 对话项6 -->
-                        <div class="chat-item p-4 flex items-center">
-                            <div class="relative mr-3">
-                                <img src="https://randomuser.me/api/portraits/women/54.jpg" alt="用户头像" class="w-12 h-12 rounded-full object-cover">
+                        <div class="chat-item p-4 flex items-center" data-id="6" data-name="赵琳" data-avatar="https://randomuser.me/api/portraits/women/54.jpg" data-status="offline">
+                            <div class="avatar-container-wrapper">
+                                <div class="avatar-container">
+                                    <img src="https://randomuser.me/api/portraits/women/54.jpg" alt="用户头像" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23cbd5e1%22><path d=%22M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z%22/></svg>';">
+                                </div>
                             </div>
                             <div class="flex-1">
                                 <div class="flex justify-between items-center mb-1">
@@ -285,10 +355,10 @@
                     <!-- 聊天头部 -->
                     <div class="p-4 border-b flex items-center justify-between">
                         <div class="flex items-center">
-                            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="当前聊天用户头像" class="w-10 h-10 rounded-full object-cover mr-3">
+                            <img id="current-chat-avatar" src="https://randomuser.me/api/portraits/women/44.jpg" alt="当前聊天用户头像" class="avatar-small mr-3" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23cbd5e1%22><path d=%22M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z%22/></svg>';">
                             <div>
-                                <h3 class="font-medium">李明</h3>
-                                <p class="text-xs text-green-500 flex items-center">
+                                <h3 id="current-chat-name" class="font-medium">李明</h3>
+                                <p id="current-chat-status" class="text-xs text-green-500 flex items-center">
                                     <span class="w-2 h-2 bg-green-500 rounded-full mr-1 inline-block"></span>
                                     在线
                                 </p>
@@ -438,8 +508,91 @@
         </div>
     </footer>
 
-    <!-- 简单的聊天功能 -->
+    <!-- 聊天功能 -->
     <script>
+        // 模拟聊天数据
+        const chatData = {
+            1: {
+                messages: [
+                    { text: '您好，我在平台上看到您发布的黑色钱包招领信息，我想确认一下是不是我的', time: '14:25', sender: 'received' },
+                    { text: '您好，我确实捡到了一个黑色钱包，请问您能描述一下钱包的具体特征吗？比如品牌、里面有什么物品等', time: '14:27', sender: 'sent' },
+                    { text: '钱包是Coach品牌的，黑色皮质，里面有我的身份证（姓名：李明）、一张工商银行信用卡、一张饭卡和200元现金', time: '14:30', sender: 'received' },
+                    { text: '描述基本符合，请问您什么时候方便来认领？我现在在图书馆二楼自习室', time: '14:32', sender: 'sent' },
+                    { text: '太好了！我大约半小时后可以到图书馆，我们在二楼大厅见面可以吗？', time: '15:30', sender: 'received' }
+                ],
+                date: '今天'
+            },
+            2: {
+                messages: [
+                    { text: '您好，请问您发布的是蓝色书包的招领信息吗？', time: '昨天 19:45', sender: 'sent' },
+                    { text: '是的，我在教学楼A栋捡到了一个蓝色书包', time: '昨天 19:50', sender: 'received' },
+                    { text: '我找到了您丢失的蓝色书包', time: '昨天 19:55', sender: 'received' }
+                ],
+                date: '昨天'
+            },
+            3: {
+                messages: [
+                    { text: '非常感谢您捡到了我的笔记本电脑！', time: '周一 13:20', sender: 'sent' },
+                    { text: '不客气，很高兴能帮到您！', time: '周一 13:30', sender: 'received' },
+                    { text: '谢谢您，我已经收到了失物，非常感谢您的帮助！', time: '周一 15:40', sender: 'sent' }
+                ],
+                date: '周一'
+            },
+            4: {
+                messages: [
+                    { text: '您好，我想咨询一下关于我丢失的身份证的情况', time: '上周 10:15', sender: 'sent' },
+                    { text: '我们已经在系统中登记了您的失物信息，如果有消息会第一时间通知您', time: '上周 10:20', sender: 'received' },
+                    { text: '关于我丢失的身份证，请问有什么进展吗？', time: '上周 16:30', sender: 'sent' }
+                ],
+                date: '上周'
+            },
+            5: {
+                messages: [
+                    { text: '我在操场捡到了一个篮球，请问是您的吗？', time: '上周 17:45', sender: 'received' },
+                    { text: '您好，我确实在操场丢失了一个篮球，能描述一下它的特征吗？', time: '上周 18:00', sender: 'sent' }
+                ],
+                date: '上周'
+            },
+            6: {
+                messages: [
+                    { text: '您好，我想咨询一下关于物品认领的流程', time: '两周前 09:30', sender: 'received' },
+                    { text: '您好，认领流程很简单，您需要提供物品的详细描述并出示有效证件确认身份', time: '两周前 09:40', sender: 'sent' }
+                ],
+                date: '两周前'
+            }
+        };
+        
+        // 加载聊天历史消息
+        function loadChatMessages(chatId) {
+            const messageList = document.querySelector('.message-list');
+            const chatHistory = chatData[chatId] || { messages: [], date: '今天' };
+            
+            // 清空当前消息列表
+            messageList.innerHTML = '';
+            
+            // 添加日期信息
+            const dateElement = document.createElement('div');
+            dateElement.className = 'text-center mb-6';
+            dateElement.innerHTML = `<span class="text-xs bg-gray-100 text-gray-600 py-1 px-3 rounded-full">${chatHistory.date} ${chatHistory.messages.length > 0 ? chatHistory.messages[0].time.split(' ')[0] : ''}</span>`;
+            messageList.appendChild(dateElement);
+            
+            // 添加消息
+            chatHistory.messages.forEach(msg => {
+                const messageBubble = document.createElement('div');
+                messageBubble.className = `message-bubble ${msg.sender}`;
+                
+                messageBubble.innerHTML = `
+                    <p>${msg.text}</p>
+                    <div class="message-time">${msg.time.split(' ')[1] || msg.time}</div>
+                `;
+                
+                messageList.appendChild(messageBubble);
+            });
+            
+            // 滚动到底部
+            messageList.scrollTop = messageList.scrollHeight;
+        }
+        
         // 点击不同聊天项切换聊天内容
         document.querySelectorAll('.chat-item').forEach(item => {
             item.addEventListener('click', function() {
@@ -448,8 +601,44 @@
                 // 添加当前项的活跃状态
                 this.classList.add('active');
                 
-                // 在实际应用中，这里会加载对应聊天的历史消息
-                // 这里为了演示简化处理
+                // 获取当前聊天项的数据
+                const chatId = this.getAttribute('data-id');
+                const name = this.getAttribute('data-name');
+                const avatar = this.getAttribute('data-avatar');
+                const status = this.getAttribute('data-status');
+                
+                // 更新聊天头部信息
+                document.getElementById('current-chat-name').textContent = name;
+                const avatarElement = document.getElementById('current-chat-avatar');
+                avatarElement.src = avatar;
+                // 确保头像使用正确的样式类
+                avatarElement.className = 'avatar-small mr-3';
+                
+                // 更新在线状态
+                const statusElement = document.getElementById('current-chat-status');
+                if (status === 'online') {
+                    statusElement.className = 'text-xs text-green-500 flex items-center';
+                    statusElement.innerHTML = '<span class="w-2 h-2 bg-green-500 rounded-full mr-1 inline-block"></span>在线';
+                } else {
+                    statusElement.className = 'text-xs text-gray-500 flex items-center';
+                    statusElement.innerHTML = '<span class="w-2 h-2 bg-gray-400 rounded-full mr-1 inline-block"></span>离线';
+                }
+                
+                // 更新头像容器样式
+                const avatarContainer = avatarElement.parentElement;
+                if (avatarContainer && avatarContainer.classList.contains('flex')) {
+                    avatarContainer.style.alignItems = 'center';
+                    avatarContainer.style.justifyContent = 'center';
+                }
+                
+                // 加载聊天历史
+                loadChatMessages(chatId);
+                
+                // 移除未读消息标记（如果有）
+                const unreadBadge = this.querySelector('.unread-badge');
+                if (unreadBadge) {
+                    unreadBadge.remove();
+                }
             });
         });
         

@@ -136,7 +136,6 @@
                 
                 <!-- 主导航菜单 -->
                 <nav class="hidden md:flex space-x-8">
-                    <a href="失物招领平台设计方案_原型界面_V1.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">首页</a>
                     <a href="失物招领平台_失物页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">失物</a>
                     <a href="失物招领平台_招领页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">招领</a>
                     <a href="失物招领平台_发布信息页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">发布信息</a>
@@ -159,7 +158,7 @@
                         </button>
                     </div>
                     <div class="hidden lg:block">
-                        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="用户头像" class="w-10 h-10 rounded-full object-cover">
+                        <a href="失物招领平台_登录注册页面.html" class="btn-secondary text-sm">登录/注册</a>
                     </div>
                     <div class="lg:hidden">
                         <span class="iconify text-2xl text-gray-700" data-icon="mdi:menu"></span>
@@ -208,13 +207,11 @@
                 <div class="bg-white card p-4">
                     <h3 class="font-bold text-lg mb-4">个人中心</h3>
                     <ul class="space-y-1">
-                        <li><a href="#" class="sidebar-link active"><span class="iconify mr-3" data-icon="mdi:user-circle"></span>基本信息</a></li>
-                        <li><a href="#" class="sidebar-link"><span class="iconify mr-3" data-icon="mdi:clipboard-list"></span>发布历史</a></li>
-                        <li><a href="#" class="sidebar-link"><span class="iconify mr-3" data-icon="mdi:heart"></span>我的收藏</a></li>
-                        <li><a href="#" class="sidebar-link"><span class="iconify mr-3" data-icon="mdi:message-circle"></span>消息通知</a></li>
-                        <li><a href="#" class="sidebar-link"><span class="iconify mr-3" data-icon="mdi:settings"></span>账户设置</a></li>
-                        <li><a href="#" class="sidebar-link"><span class="iconify mr-3" data-icon="mdi:shield-check"></span>安全中心</a></li>
-                        <li><a href="#" class="sidebar-link"><span class="iconify mr-3" data-icon="mdi:help-circle"></span>帮助与反馈</a></li>
+                        <li><a href="失物招领平台_发布历史页面.html" class="sidebar-link" onclick="event.preventDefault(); window.location.href='失物招领平台_发布历史页面.html';"><span class="iconify mr-3" data-icon="mdi:clipboard-list"></span>发布历史</a></li>
+                        <li><a href="失物招领平台_我的收藏页面.html" class="sidebar-link" onclick="event.preventDefault(); window.location.href='失物招领平台_我的收藏页面.html';"><span class="iconify mr-3" data-icon="mdi:heart"></span>我的收藏</a></li>
+                        <li class="mt-6 pt-4 border-t border-gray-200">
+                            <a href="失物招领平台_登录注册页面.html" class="sidebar-link text-red-600 hover:bg-red-50"><span class="iconify mr-3" data-icon="mdi:logout"></span>退出登录</a>
+                        </li>
                     </ul>
                 </div>
             </div>

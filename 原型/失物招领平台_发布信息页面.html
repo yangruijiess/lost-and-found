@@ -135,7 +135,6 @@
                 
                 <!-- 主导航菜单 -->
                 <nav class="hidden md:flex space-x-8">
-                    <a href="失物招领平台设计方案_原型界面_V1.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">首页</a>
                     <a href="失物招领平台_失物页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">失物</a>
                     <a href="失物招领平台_招领页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">招领</a>
                     <a href="失物招领平台_发布信息页面.html" class="nav-link active font-medium text-blue-800">发布信息</a>
@@ -151,7 +150,7 @@
                 
                 <!-- 用户入口 -->
                 <div class="flex items-center space-x-4">
-                    <button class="btn-secondary text-sm hidden lg:block">登录/注册</button>
+                    <a href="失物招领平台_登录注册页面.html" class="btn-secondary text-sm hidden lg:block">登录/注册</a>
                     <div class="lg:hidden">
                         <span class="iconify text-2xl text-gray-700" data-icon="mdi:menu"></span>
                     </div>
@@ -414,11 +413,70 @@
             }
         });
         
-        // 表单提交处理
+        // 表单验证和提交处理
         document.getElementById('publishForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            // 在实际应用中这里会发送表单数据到服务器
+            
+            // 获取表单数据
+            const infoType = document.querySelector('input[name="infoType"]:checked').value;
+            const itemName = document.getElementById('itemName').value;
+            const itemCategory = document.getElementById('itemCategory').value;
+            const itemDescription = document.getElementById('itemDescription').value;
+            const location = document.getElementById('location').value;
+            const locationDetail = document.getElementById('locationDetail').value;
+            const datetime = document.getElementById('datetime').value;
+            const contactName = document.getElementById('contactName').value;
+            const contactPhone = document.getElementById('contactPhone').value;
+            const contactEmail = document.getElementById('contactEmail').value;
+            
+            // 简单验证
+            if (!itemName || !itemCategory || !itemDescription || !location || !datetime || !contactName || !contactPhone) {
+                alert('请填写所有必填项！');
+                return;
+            }
+            
+            // 验证电话号码格式
+            const phoneRegex = /^1[3-9]\d{9}$/;
+            if (!phoneRegex.test(contactPhone)) {
+                alert('请输入正确的手机号码！');
+                return;
+            }
+            
+            // 验证邮箱格式（如果填写）
+            if (contactEmail) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(contactEmail)) {
+                    alert('请输入正确的邮箱地址！');
+                    return;
+                }
+            }
+            
+            // 显示提交的数据（在实际应用中这里会发送到服务器）
+            console.log('提交的信息:', {
+                infoType,
+                itemName,
+                itemCategory,
+                itemDescription,
+                location,
+                locationDetail,
+                datetime,
+                contactName,
+                contactPhone,
+                contactEmail
+            });
+            
             alert('信息发布成功！我们将尽快审核您的信息。');
+            // 重置表单
+            this.reset();
+            document.getElementById('imagePreview').innerHTML = '';
+        });
+        
+        // 取消按钮功能
+        document.querySelector('button[type="button"]:not(:last-child)').addEventListener('click', function() {
+            if (confirm('确定要取消发布吗？已填写的内容将会丢失。')) {
+                document.getElementById('publishForm').reset();
+                document.getElementById('imagePreview').innerHTML = '';
+            }
         });
     </script>
 
