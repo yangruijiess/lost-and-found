@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物品验证 - 失物招领平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E40AF',
+                        secondary: '#3B82F6',
+                        accent: '#60A5FA',
+                        neutral: '#64748B',
+                        light: '#F8FAFC'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-shadow {
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            }
+            .btn-primary {
+                @apply bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary/50;
+            }
+            .btn-secondary {
+                @apply bg-white hover:bg-gray-100 text-gray-700 font-medium border border-gray-300 py-2 px-4 rounded transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-200;
+            }
+            .input-field {
+                @apply w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300;
+            }
+            .form-label {
+                @apply block text-sm font-medium text-gray-700 mb-1;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <button id="backButton" class="text-gray-600 hover:text-primary transition-colors">
+                        <i class="fa fa-arrow-left text-xl"></i>
+                    </button>
+                    <h1 class="text-xl font-bold text-primary">物品验证</h1>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6 card-shadow">
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 text-primary mb-4">
+                    <i class="fa fa-shield text-2xl"></i>
+                </div>
+                <h2 class="text-xl font-bold text-gray-800">身份验证</h2>
+                <p class="text-gray-600 mt-2">请回答关于物品的详细描述以验证您的身份</p>
+            </div>
+
+            <form id="verificationForm" class="space-y-4">
+                <!-- 隐藏的物品ID和类型 -->
+                <input type="hidden" id="itemId" value="">
+                <input type="hidden" id="itemType" value="">
+
+                <!-- 验证问题区域 -->
+                <div id="verificationQuestions" class="space-y-6">
+                    <!-- 问题1：物品颜色 -->
+                    <div>
+                        <label class="form-label">该物品的颜色是什么？</label>
+                        <input type="text" id="colorQuestion" class="input-field" placeholder="请输入物品的颜色" required>
+                    </div>
+
+                    <!-- 问题2：物品特征 -->
+                    <div>
+                        <label class="form-label">该物品有哪些明显的特征或标记？</label>
+                        <textarea id="featuresQuestion" class="input-field" rows="3" placeholder="请描述物品的明显特征" required></textarea>
+                    </div>
+
+                    <!-- 问题3：发现地点细节 -->
+                    <div>
+                        <label class="form-label">请描述发现该物品的确切位置细节（如附近的地标、具体区域等）</label>
+                        <textarea id="locationDetailsQuestion" class="input-field" rows="3" placeholder="请详细描述发现位置" required></textarea>
+                    </div>
+                </div>
+
+                <div class="pt-4">
+                    <button type="submit" class="btn-primary w-full">
+                        <i class="fa fa-check mr-2"></i>提交验证
+                    </button>
+                </div>
+            </form>
+
+            <div class="text-center mt-6 text-sm text-gray-500">
+                <p>此验证步骤用于确保物品能够归还到真正的失主手中</p>
+                <p class="mt-1">如有疑问，请联系平台客服</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-white border-t mt-12">
+        <div class="container mx-auto px-4 py-6 text-center text-gray-600">
+            <p>© 2024 失物招领平台 - 让每一件物品都能找到回家的路</p>
+        </div>
+    </footer>
+
+    <script>
+        // 获取URL参数
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                id: params.get('id'),
+                type: params.get('type')
+            };
+        }
+
+        // 返回按钮功能
+        document.getElementById('backButton').addEventListener('click', function() {
+            window.location.href = '失物招领平台_招领页面.html';
+        });
+
+        // 初始化页面
+        function initPage() {
+            const params = getUrlParams();
+            document.getElementById('itemId').value = params.id || '1';
+            document.getElementById('itemType').value = params.type || 'found';
+            
+            console.log('验证物品ID:', params.id, '类型:', params.type);
+        }
+
+        // 表单提交处理
+        document.getElementById('verificationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const itemId = document.getElementById('itemId').value;
+            const itemType = document.getElementById('itemType').value;
+            
+            // 获取用户回答
+            const colorAnswer = document.getElementById('colorQuestion').value.trim();
+            const featuresAnswer = document.getElementById('featuresQuestion').value.trim();
+            const locationDetailsAnswer = document.getElementById('locationDetailsQuestion').value.trim();
+            
+            // 预设答案（在实际应用中，这些答案应该从服务器获取）
+            const correctAnswers = {
+                color: '红色',
+                features: '有一个小标签',
+                locationDetails: '图书馆二楼'  
+            };
+            
+            // 在实际应用中，这里会发送到服务器进行验证
+            console.log('验证答案:', {
+                color: colorAnswer,
+                features: featuresAnswer,
+                locationDetails: locationDetailsAnswer
+            });
+            
+            // 验证逻辑：检查答案是否包含正确关键词
+            // 为了更好的匹配效果，转换为小写进行比较（对英文有效，但中文无影响）
+            const isColorCorrect = colorAnswer.toLowerCase().includes(correctAnswers.color.toLowerCase()) || 
+                                 correctAnswers.color.toLowerCase().includes(colorAnswer.toLowerCase());
+            const isFeaturesCorrect = featuresAnswer.toLowerCase().includes(correctAnswers.features.toLowerCase()) || 
+                                    correctAnswers.features.toLowerCase().includes(featuresAnswer.toLowerCase());
+            const isLocationCorrect = locationDetailsAnswer.toLowerCase().includes(correctAnswers.locationDetails.toLowerCase()) || 
+                                    correctAnswers.locationDetails.toLowerCase().includes(locationDetailsAnswer.toLowerCase());
+            
+            // 全部答案都正确才算验证通过
+            const isVerificationPassed = isColorCorrect && isFeaturesCorrect && isLocationCorrect;
+            
+            if (isVerificationPassed) {
+                // 验证通过
+                alert('验证通过！正在跳转到详情页面...');
+                window.location.href = `失物招领平台_详情页面.html?id=${itemId}&type=${itemType}`;
+            } else {
+                // 验证失败
+                alert('验证失败！请确保您了解该物品的详细信息。');
+                window.location.href = '失物招领平台_招领页面.html';
+            }
+        });
+
+        // 页面加载时初始化
+        window.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+</html>

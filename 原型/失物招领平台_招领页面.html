@@ -435,8 +435,8 @@
                 btn.addEventListener('click', function() {
                     const itemId = this.getAttribute('data-id') || '1';
                     console.log('查看详情:', itemId);
-                    // 跳转到详情页面，并传递物品ID和类型
-                    window.location.href = `失物招领平台_详情页面.html?id=${itemId}&type=found`;
+                    // 先跳转到验证页面，验证通过后再跳转到详情页面
+                    window.location.href = `失物招领平台_验证页面.html?id=${itemId}&type=found`;
                 });
             });
         }
