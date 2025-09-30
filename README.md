@@ -26,3 +26,8 @@ git push origin master
   - test: add test examples
 
 **Remember: Don't push before carefully checking your modification on codes!**
+
+## 关于管理员界面
+
+- 进入方式：在登录界面输入用户名administrator，密码password，点击登录后可进入管理员界面。
+- 管理员界面功能：帖子管理，用户管理，帖子审核和用户移除。

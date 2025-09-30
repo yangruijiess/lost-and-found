@@ -430,10 +430,17 @@
                 // 在实际应用中，这里会发送登录请求到服务器
                 console.log('登录数据:', { username, password });
                 
-                // 模拟登录成功
-                alert('登录成功！');
-                // 登录成功后可以跳转到首页或个人中心
-                window.location.href = '失物招领平台_失物页面.html';
+                // 检查是否是管理员账号
+                if (username === 'administrator' && password === 'password') {
+                    // 管理员登录成功
+                    alert('管理员登录成功！');
+                    window.location.href = '失物招领平台_管理员页面.html';
+                } else {
+                    // 普通用户登录成功
+                    alert('登录成功！');
+                    // 登录成功后可以跳转到首页或个人中心
+                    window.location.href = '失物招领平台_失物页面.html';
+                }
             }
         }
         
