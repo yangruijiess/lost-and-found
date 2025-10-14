@@ -1,0 +1,670 @@
+<!DOCTYPE html><html lang="zh-CN"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>招领信息 - 拾物通</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+        body {
+            background-color: #f8fafc;
+            font-family: 'Noto Sans SC', sans-serif;
+            color: #334155;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+        }
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background-color: #1e3a8a;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+        .btn-secondary {
+            border: 1px solid #cbd5e1;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+        .btn-secondary:hover {
+            background-color: #f1f5f9;
+        }
+        .tag {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+        .tag-found {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .tag-lost {
+            background-color: #ffedd5;
+            color: #9a3412;
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+        .nav-link {
+            position: relative;
+            padding-bottom: 5px;
+        }
+        .nav-link.active:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #ff7d00;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-6 py-4 max-w-7xl">
+            <div class="flex items-center justify-between">
+                <!-- Logo -->
+                <div class="flex items-center space-x-2">
+                    <span class="iconify text-2xl text-blue-800" data-icon="mdi:hand-heart"></span>
+                    <h1 class="text-xl font-bold text-blue-800">拾物通</h1>
+                </div>
+                
+                <!-- 主导航菜单 -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="失物招领平台_失物页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">失物</a>
+                    <a href="失物招领平台_招领页面.html" class="nav-link active font-medium text-blue-800">招领</a>
+                    <a href="失物招领平台_发布信息页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">发布信息</a>
+                    <a href="失物招领平台_私信页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">私信</a>
+                    <a href="失物招领平台_个人中心页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">个人中心</a>
+                </nav>
+                
+                <!-- 搜索框 -->
+                <div class="hidden lg:flex items-center border border-gray-300 rounded-lg px-3 py-2 w-64">
+                    <input type="text" placeholder="搜索物品或地点..." class="flex-1 focus:ring-0 border-none">
+                    <span class="iconify text-gray-500" data-icon="mdi:magnify"></span>
+                </div>
+                
+                <!-- 用户入口 -->
+                <div class="flex items-center space-x-4">
+                    <a href="失物招领平台_登录注册页面.html" class="btn-secondary text-sm hidden lg:block">登录/注册</a>
+                    <div class="lg:hidden">
+                        <span class="iconify text-2xl text-gray-700" data-icon="mdi:menu"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主体内容 -->
+    <main class="container mx-auto px-6 py-8 max-w-7xl">
+        <div class="flex flex-col lg:flex-row gap-6">
+            <!-- 左侧筛选栏 -->
+            <aside class="w-full lg:w-72 bg-white card p-5 h-fit flex-shrink-0">
+                <h2 class="font-bold text-lg mb-4">筛选条件</h2>
+                
+
+                
+                <div class="mb-6">
+                    <h3 class="font-medium mb-3">物品分类</h3>
+                    <select class="w-full border rounded-md px-3 py-2">
+                        <option>全部类别</option>
+                        <option>电子设备</option>
+                        <option>证件卡类</option>
+                        <option>包袋箱包</option>
+                        <option>衣物配饰</option>
+                        <option>书籍文具</option>
+                        <option>其他物品</option>
+                    </select>
+                </div>
+                
+                <div class="mb-6">
+                    <h3 class="font-medium mb-3">时间范围</h3>
+                    <select class="w-full border rounded-md px-3 py-2">
+                        <option>全部时间</option>
+                        <option>今天</option>
+                        <option>近3天</option>
+                        <option>近1周</option>
+                        <option>近1个月</option>
+                    </select>
+                </div>
+                
+                <div class="mb-6">
+                    <h3 class="font-medium mb-3">地点区域</h3>
+                    <select class="w-full border rounded-md px-3 py-2">
+                        <option>全部区域</option>
+                        <option>教学楼</option>
+                        <option>图书馆</option>
+                        <option>体育馆</option>
+                        <option>食堂</option>
+                        <option>宿舍区</option>
+                        <option>校门口</option>
+                    </select>
+                </div>
+                
+                <button class="btn-primary w-full">应用筛选</button>
+            </aside>
+            
+            <!-- 右侧主内容区 -->
+            <div class="flex-1">
+                <!-- 功能区域 -->
+                <div class="bg-white card p-6 mb-6">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <h2 class="text-xl font-bold">最新招领信息</h2>
+                        <div class="flex space-x-3">
+                            <button class="btn-secondary flex items-center">
+                                <span class="iconify mr-2" data-icon="mdi:sort"></span>
+                                排序
+                            </button>
+                            <button class="btn-primary flex items-center">
+                                <span class="iconify mr-2" data-icon="mdi:plus"></span>
+                                发布招领
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 信息卡片网格 -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- 卡片1 -->
+                    <div class="bg-white card overflow-hidden">
+                        <div class="relative">
+                            <img src="https://modao.cc/ai/uploads/ai_pics/30/302276/aigp_1758618094.jpeg" alt="黑色皮质钱包" class="w-full h-48 object-cover">
+                            <div class="absolute top-3 right-3">
+                                <span class="tag tag-found">招领中</span>
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <h3 class="font-bold text-lg mb-2">黑色皮质钱包</h3>
+                            <p class="text-gray-600 mb-4">在图书馆二楼自习室发现，内有身份证、银行卡等贵重物品</p>
+                            <div class="flex items-center text-sm text-gray-500 mb-2">
+                                <span class="iconify mr-1" data-icon="mdi:account-circle"></span>
+                                <span class="text-blue-800 cursor-pointer hover:underline">林同学</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <span class="iconify mr-1" data-icon="mdi:map-marker"></span>
+                                    图书馆二楼
+                                </div>
+                                <div class="text-sm text-gray-500">9月22日</div>
+                            </div>
+                        </div>
+                        <div class="border-t px-5 py-3 flex justify-between items-center">
+                            <button class="btn-secondary">查看详情</button>
+                            <div class="flex items-center space-x-3">
+                                <button class="favorite-btn p-2 rounded-full hover:bg-gray-100" data-id="1">
+                                    <span class="iconify text-xl text-gray-500 hover:text-red-500" data-icon="mdi:heart-outline"></span>
+                                </button>
+                                <button class="btn-primary">联系认领</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 卡片2 -->
+                    <div class="bg-white card overflow-hidden">
+                        <div class="relative">
+                            <img src="https://modao.cc/ai/uploads/ai_pics/30/302278/aigp_1758618097.jpeg" alt="一串钥匙" class="w-full h-48 object-cover">
+                            <div class="absolute top-3 right-3">
+                                <span class="tag tag-found">招领中</span>
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <h3 class="font-bold text-lg mb-2">一串钥匙</h3>
+                            <p class="text-gray-600 mb-4">在食堂门口拾得，包含三把钥匙和一个蓝色小熊挂件</p>
+                            <div class="flex items-center text-sm text-gray-500 mb-2">
+                                <span class="iconify mr-1" data-icon="mdi:account-circle"></span>
+                                <span class="text-blue-800 cursor-pointer hover:underline">郑同学</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <span class="iconify mr-1" data-icon="mdi:map-marker"></span>
+                                    第一食堂
+                                </div>
+                                <div class="text-sm text-gray-500">9月21日</div>
+                            </div>
+                        </div>
+                        <div class="border-t px-5 py-3 flex justify-between items-center">
+                            <button class="btn-secondary">查看详情</button>
+                            <div class="flex items-center space-x-3">
+                                <button class="favorite-btn p-2 rounded-full hover:bg-gray-100" data-id="2">
+                                    <span class="iconify text-xl text-gray-500 hover:text-red-500" data-icon="mdi:heart-outline"></span>
+                                </button>
+                                <button class="btn-primary">联系认领</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 卡片3 -->
+                    <div class="bg-white card overflow-hidden">
+                        <div class="relative">
+                            <img src="https://modao.cc/ai/uploads/ai_pics/30/302280/aigp_1758618100.jpeg" alt="黄色雨伞" class="w-full h-48 object-cover">
+                            <div class="absolute top-3 right-3">
+                                <span class="tag tag-found">招领中</span>
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <h3 class="font-bold text-lg mb-2">黄色雨伞</h3>
+                            <p class="text-gray-600 mb-4">在二号教学楼门口拾得，伞柄有特殊定制刻字</p>
+                            <div class="flex items-center text-sm text-gray-500 mb-2">
+                                <span class="iconify mr-1" data-icon="mdi:account-circle"></span>
+                                <span class="text-blue-800 cursor-pointer hover:underline">王同学</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <span class="iconify mr-1" data-icon="mdi:map-marker"></span>
+                                    二号教学楼
+                                </div>
+                                <div class="text-sm text-gray-500">9月23日</div>
+                            </div>
+                        </div>
+                        <div class="border-t px-5 py-3 flex justify-between items-center">
+                            <button class="btn-secondary">查看详情</button>
+                            <div class="flex items-center space-x-3">
+                                <button class="favorite-btn p-2 rounded-full hover:bg-gray-100" data-id="3">
+                                    <span class="iconify text-xl text-gray-500 hover:text-red-500" data-icon="mdi:heart-outline"></span>
+                                </button>
+                                <button class="btn-primary">联系认领</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 卡片4 -->
+                    <div class="bg-white card overflow-hidden">
+                        <div class="relative">
+                            <img src="https://img.alicdn.com/imgextra/i1/4611686018427382574/O1CN01XwFcbv1wmM6hgdAFs_!!4611686018427382574-0-rate.jpg_960x960.jpg_.webp" alt="白色耳机" class="w-full h-48 object-cover">
+                            <div class="absolute top-3 right-3">
+                                <span class="tag tag-found">招领中</span>
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <h3 class="font-bold text-lg mb-2">白色无线耳机</h3>
+                            <p class="text-gray-600 mb-4">在体育馆看台下拾得，带有充电盒，品牌为AirPods Pro</p>
+                            <div class="flex items-center text-sm text-gray-500 mb-2">
+                                <span class="iconify mr-1" data-icon="mdi:account-circle"></span>
+                                <span class="text-blue-800 cursor-pointer hover:underline">赵同学</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <span class="iconify mr-1" data-icon="mdi:map-marker"></span>
+                                    体育馆
+                                </div>
+                                <div class="text-sm text-gray-500">9月21日</div>
+                            </div>
+                        </div>
+                        <div class="border-t px-5 py-3 flex justify-between">
+                            <button class="btn-secondary">查看详情</button>
+                            <div class="flex items-center space-x-3">
+                                <button class="favorite-btn p-2 rounded-full hover:bg-gray-100" data-id="4">
+                                    <span class="iconify text-xl text-gray-500 hover:text-red-500" data-icon="mdi:heart-outline"></span>
+                                </button>
+                                <button class="btn-primary">联系认领</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 卡片5 -->
+                    <div class="bg-white card overflow-hidden">
+                        <div class="relative">
+                            <img src="https://gw.alicdn.com/bao/uploaded/i1/2212434396385/O1CN01qTiSK71x2Nqoof626_!!2212434396385.jpg_.webp" alt="红色笔记本" class="w-full h-48 object-cover">
+                            <div class="absolute top-3 right-3">
+                                <span class="tag tag-found">招领中</span>
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <h3 class="font-bold text-lg mb-2">红色笔记本</h3>
+                            <p class="text-gray-600 mb-4">在第二教学楼205教室拾得，封面上有姓名缩写"LY"</p>
+                            <div class="flex items-center text-sm text-gray-500 mb-2">
+                                <span class="iconify mr-1" data-icon="mdi:account-circle"></span>
+                                <span class="text-blue-800 cursor-pointer hover:underline">孙同学</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <span class="iconify mr-1" data-icon="mdi:map-marker"></span>
+                                    第二教学楼
+                                </div>
+                                <div class="text-sm text-gray-500">9月20日</div>
+                            </div>
+                        </div>
+                        <div class="border-t px-5 py-3 flex justify-between">
+                            <button class="btn-secondary">查看详情</button>
+                            <button class="btn-primary">联系认领</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 卡片6 -->
+                    <div class="bg-white card overflow-hidden">
+                        <div class="relative">
+                            <img src="https://gw.alicdn.com/imgextra/i1/1749077007/O1CN01TkLjFs21dGK7OFQ6L_!!1749077007.jpg" alt="灰色外套" class="w-full h-48 object-cover">
+                            <div class="absolute top-3 right-3">
+                                <span class="tag tag-found">招领中</span>
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <h3 class="font-bold text-lg mb-2">灰色连帽外套</h3>
+                            <p class="text-gray-600 mb-4">在图书馆三楼休息区沙发上拾得，尺码为M码</p>
+                            <div class="flex items-center text-sm text-gray-500 mb-2">
+                                <span class="iconify mr-1" data-icon="mdi:account-circle"></span>
+                                <span class="text-blue-800 cursor-pointer hover:underline">李同学</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <span class="iconify mr-1" data-icon="mdi:map-marker"></span>
+                                    图书馆
+                                </div>
+                                <div class="text-sm text-gray-500">9月19日</div>
+                            </div>
+                        </div>
+                        <div class="border-t px-5 py-3 flex justify-between">
+                            <button class="btn-secondary">查看详情</button>
+                            <button class="btn-primary">联系认领</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 分页控件 -->
+                <div class="mt-8 flex justify-center">
+                    <div class="flex space-x-2">
+                        <button class="px-4 py-2 bg-blue-800 text-white rounded-lg page-btn" data-page="1">1</button>
+                        <button class="px-4 py-2 border rounded-lg hover:bg-gray-100 page-btn" data-page="2">2</button>
+                        <button class="px-4 py-2 border rounded-lg hover:bg-gray-100 page-btn" data-page="3">3</button>
+                        <button class="px-4 py-2 border rounded-lg hover:bg-gray-100 next-page">
+                            <span class="iconify" data-icon="mdi:chevron-right"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 交互脚本 -->
+    <script>
+        // 筛选功能
+        document.querySelector('.btn-primary.w-full').addEventListener('click', function() {
+            const itemCategory = document.querySelector('select:nth-of-type(1)').value;
+            const timeRange = document.querySelector('select:nth-of-type(2)').value;
+            const locationArea = document.querySelector('select:nth-of-type(3)').value;
+            
+            console.log('应用筛选条件:', {
+                itemCategory,
+                timeRange,
+                locationArea
+            });
+            
+            // 这里可以添加筛选后的数据刷新逻辑
+            alert('筛选条件已应用！在实际应用中，这里会根据筛选条件刷新列表数据。');
+        });
+        
+        // 点击发布者名称跳转到私信页面
+        document.querySelectorAll('.text-blue-800.cursor-pointer').forEach(username => {
+            username.addEventListener('click', function() {
+                const publisherName = this.textContent;
+                // 在实际应用中，这里会跳转到私信页面并预设聊天对象
+                window.location.href = '失物招领平台_私信页面.html';
+            });
+        });
+        
+        // 排序功能
+        document.querySelector('.btn-secondary.flex.items-center').addEventListener('click', function() {
+            alert('排序功能：在实际应用中，这里会提供不同的排序选项（如按时间、按相关性等）。');
+        });
+        
+        // 发布招领按钮
+        document.querySelector('.btn-primary.flex.items-center').addEventListener('click', function() {
+            // 跳转到发布信息页面，并预设为招领类型
+            window.location.href = '失物招领平台_发布信息页面.html';
+        });
+        
+        // 查看详情功能
+        function setupViewDetailButtons() {
+            document.querySelectorAll('.btn-secondary:not(.flex)').forEach((btn, index) => {
+                // 为每个按钮添加data-id属性
+                btn.setAttribute('data-id', (index + 1).toString());
+                btn.addEventListener('click', function() {
+                    const itemId = this.getAttribute('data-id') || '1';
+                    console.log('查看详情:', itemId);
+                    // 先跳转到验证页面，验证通过后再跳转到详情页面
+                    window.location.href = `失物招领平台_验证页面.html?id=${itemId}&type=found`;
+                });
+            });
+        }
+        
+        // 调用函数初始化查看详情按钮
+        setupViewDetailButtons();
+        
+        // 联系认领按钮
+        document.querySelectorAll('.btn-primary:not(.flex):not(.w-full)').forEach(button => {
+            button.addEventListener('click', function() {
+                const itemName = this.closest('.card').querySelector('h3').textContent;
+                alert(`联系认领"${itemName}"`);
+                // 在实际应用中，这里会跳转到联系认领的表单页面或私信界面
+            });
+        });
+        
+        // 分页功能
+        document.querySelectorAll('.page-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const page = this.getAttribute('data-page');
+                
+                // 更新分页按钮样式
+                document.querySelectorAll('.page-btn').forEach(btn => {
+                    btn.classList.remove('bg-blue-800', 'text-white');
+                    btn.classList.add('border', 'hover:bg-gray-100');
+                });
+                
+                this.classList.remove('border', 'hover:bg-gray-100');
+                this.classList.add('bg-blue-800', 'text-white');
+                
+                console.log('切换到第', page, '页');
+                alert(`切换到第${page}页`);
+                // 在实际应用中，这里会加载对应页的数据
+            });
+        });
+        
+        // 下一页按钮
+        document.querySelector('.next-page').addEventListener('click', function() {
+            alert('下一页');
+            // 在实际应用中，这里会加载下一页的数据
+        });
+        
+        // 搜索功能
+        document.querySelector('input[placeholder="搜索物品或地点..."]').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const searchText = this.value.trim();
+                if (searchText) {
+                    console.log('搜索:', searchText);
+                    alert(`搜索：${searchText}`);
+                    // 在实际应用中，这里会执行搜索逻辑
+                }
+            }
+        });
+        
+        // 收藏功能实现
+        document.addEventListener('DOMContentLoaded', function() {
+            // 从localStorage获取已收藏的项目
+            let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+            
+            // 初始化收藏按钮状态
+            function initFavoriteButtons() {
+                document.querySelectorAll('.favorite-btn').forEach(btn => {
+                    const itemId = btn.getAttribute('data-id');
+                    const icon = btn.querySelector('span');
+                    
+                    // 添加空值检查
+                    if (!itemId || !icon) {
+                        console.warn('收藏按钮缺少必要信息', { hasItemId: !!itemId, hasIcon: !!icon });
+                        return;
+                    }
+                    
+                    if (favorites.includes(itemId)) {
+                        icon.setAttribute('data-icon', 'mdi:heart');
+                        icon.classList.remove('text-gray-500', 'hover:text-red-500');
+                        icon.classList.add('text-red-500');
+                    } else {
+                        icon.setAttribute('data-icon', 'mdi:heart-outline');
+                        icon.classList.remove('text-red-500');
+                        icon.classList.add('text-gray-500', 'hover:text-red-500');
+                    }
+                });
+            }
+            
+            // 初始化收藏按钮
+            initFavoriteButtons();
+            
+            // 收藏按钮点击事件
+            document.querySelectorAll('.favorite-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    
+                    const itemId = this.getAttribute('data-id');
+                    const icon = this.querySelector('span');
+                    
+                    // 确保itemId存在
+                    if (!itemId) {
+                        console.error('收藏按钮缺少data-id属性');
+                        return;
+                    }
+                    
+                    // 重新获取最新的收藏列表
+                    let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+                    console.log('点击收藏按钮，ID:', itemId, '当前收藏列表:', favorites);
+                    
+                    // 检查是否已收藏
+                    if (favorites.includes(itemId)) {
+                        // 取消收藏
+                        favorites = favorites.filter(id => id !== itemId);
+                        icon.setAttribute('data-icon', 'mdi:heart-outline');
+                        icon.classList.remove('text-red-500');
+                        icon.classList.add('text-gray-500', 'hover:text-red-500');
+                        showNotification('已取消收藏');
+                    } else {
+                        // 添加收藏
+                        favorites.push(itemId);
+                        icon.setAttribute('data-icon', 'mdi:heart');
+                        icon.classList.remove('text-gray-500', 'hover:text-red-500');
+                        icon.classList.add('text-red-500');
+                        showNotification('收藏成功，可在个人中心-我的收藏查看');
+                    }
+                    
+                    // 保存到localStorage
+                    localStorage.setItem('favorites', JSON.stringify(favorites));
+                    
+                    // 验证保存是否成功
+                    const savedFavorites = JSON.parse(localStorage.getItem('favorites')) || [];
+                    console.log('保存成功！更新后收藏列表:', savedFavorites);
+                });
+            });
+            
+            // 显示通知函数
+            function showNotification(message) {
+                // 检查是否已有通知元素
+                let notification = document.getElementById('notification');
+                if (!notification) {
+                    // 创建通知元素
+                    notification = document.createElement('div');
+                    notification.id = 'notification';
+                    notification.className = 'fixed bottom-5 right-5 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg opacity-0 transition-opacity duration-300 z-50';
+                    document.body.appendChild(notification);
+                }
+                
+                // 设置消息内容
+                notification.textContent = message;
+                
+                // 显示通知
+                setTimeout(() => {
+                    notification.style.opacity = '1';
+                }, 10);
+                
+                // 3秒后隐藏通知
+                setTimeout(() => {
+                    notification.style.opacity = '0';
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 300);
+                }, 3000);
+            }
+        });
+    </script>
+
+    <!-- 页脚区域 -->
+    <footer class="bg-gray-100 py-10 mt-12">
+        <div class="container mx-auto px-6 max-w-7xl">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <span class="iconify text-2xl text-blue-800" data-icon="mdi:hand-heart"></span>
+                        <h2 class="text-xl font-bold text-blue-800">拾物通</h2>
+                    </div>
+                    <p class="text-gray-600 mb-4">连接失物与主人的公益平台</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-600 hover:text-blue-800">
+                            <span class="iconify text-xl" data-icon="mdi:wechat"></span>
+                        </a>
+                        <a href="#" class="text-gray-600 hover:text-blue-800">
+                            <span class="iconify text-xl" data-icon="mdi:weibo"></span>
+                        </a>
+                        <a href="#" class="text-gray-600 hover:text-blue-800">
+                            <span class="iconify text-xl" data-icon="mdi:qqchat"></span>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="font-bold text-lg mb-4">快速链接</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800">关于我们</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800">失物认领流程</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800">招领物品指南</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800">联系我们</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-bold text-lg mb-4">帮助中心</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800">常见问题</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800">用户协议</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800">隐私政策</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800">使用指南</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-bold text-lg mb-4">联系方式</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-center text-gray-600">
+                            <span class="iconify mr-2" data-icon="mdi:email"></span>
+                            contact@shiwutong.com
+                        </li>
+                        <li class="flex items-center text-gray-600">
+                            <span class="iconify mr-2" data-icon="mdi:phone"></span>
+                            400-123-4567
+                        </li>
+                        <li class="flex items-center text-gray-600">
+                            <span class="iconify mr-2" data-icon="mdi:map-marker"></span>
+                            北京市海淀区学院路38号
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-200 mt-8 pt-6 text-center text-gray-500 text-sm">
+                <p>© 2025 拾物通 失物招领平台 版权所有 京ICP备12345678号</p>
+            </div>
+        </div>
+    </footer>
+
+</body></html>

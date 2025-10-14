@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录/注册 - 拾物通</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+        body {
+            background-color: #f8fafc;
+            font-family: 'Noto Sans SC', sans-serif;
+            color: #334155;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+        }
+        .btn-primary {
+            background-color: #1e3a8a;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+            font-weight: 500;
+        }
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+        .btn-secondary {
+            border: 1px solid #cbd5e1;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+        .btn-secondary:hover {
+            background-color: #f1f5f9;
+        }
+        .input-field {
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 10px 12px;
+            width: 100%;
+            transition: border-color 0.2s;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+        }
+        .form-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+        .input-with-icon {
+            position: relative;
+        }
+        .input-with-icon input {
+            padding-left: 36px;
+        }
+        .form-tabs {
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 24px;
+        }
+        .form-tabs button {
+            padding: 12px 24px;
+            border-bottom: 2px solid transparent;
+            font-weight: 500;
+        }
+        .form-tabs button.active {
+            color: #1e3a8a;
+            border-bottom-color: #1e3a8a;
+        }
+        .error-message {
+            color: #ef4444;
+            font-size: 0.75rem;
+            margin-top: 4px;
+        }
+        .success-message {
+            color: #10b981;
+            font-size: 0.75rem;
+            margin-top: 4px;
+        }
+        .social-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+        .social-button:hover {
+            background-color: #f8fafc;
+        }
+        .social-button .iconify {
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-6 py-4 max-w-7xl">
+            <div class="flex items-center justify-center">
+                <!-- Logo -->
+                <div class="flex items-center space-x-2">
+                    <span class="iconify text-2xl text-blue-800" data-icon="mdi:hand-heart"></span>
+                    <h1 class="text-xl font-bold text-blue-800">拾物通</h1>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主体内容 -->
+    <main class="container mx-auto px-6 py-12 max-w-7xl flex-grow flex items-center justify-center">
+        <div class="w-full max-w-md">
+            <!-- 登录/注册表单卡片 -->
+            <div class="bg-white card p-8">
+                <!-- 标题 -->
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800">欢迎使用拾物通</h2>
+                    <p class="text-gray-500 mt-2">登录或注册以开始您的失物招领体验</p>
+                </div>
+                
+                <!-- 表单标签页 -->
+                <div class="form-tabs flex justify-center">
+                    <button id="loginTab" class="active" onclick="switchTab('login')">登录</button>
+                    <button id="registerTab" onclick="switchTab('register')">注册</button>
+                </div>
+                
+                <!-- 登录表单 -->
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="mb-4">
+                        <label for="loginUsername" class="block text-sm font-medium text-gray-700 mb-1">用户名/学号</label>
+                        <div class="input-with-icon">
+                            <span class="form-icon iconify" data-icon="mdi:account"></span>
+                            <input type="text" id="loginUsername" class="input-field" required placeholder="请输入用户名或学号">
+                        </div>
+                        <div id="loginUsernameError" class="error-message"></div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label for="loginPassword" class="block text-sm font-medium text-gray-700 mb-1">密码</label>
+                        <div class="input-with-icon">
+                            <span class="form-icon iconify" data-icon="mdi:lock"></span>
+                            <input type="password" id="loginPassword" class="input-field" required placeholder="请输入密码">
+                        </div>
+                        <div id="loginPasswordError" class="error-message"></div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="rememberMe" class="rounded border-gray-300 text-blue-800 focus:ring-blue-800">
+                            <label for="rememberMe" class="ml-2 text-sm text-gray-600">记住我</label>
+                        </div>
+                        <a href="#" class="text-sm text-blue-800 hover:underline">忘记密码？</a>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary w-full mb-4">登录</button>
+                    
+                    <div class="text-center text-sm text-gray-500">
+                        还没有账号？ <a href="#" class="text-blue-800 hover:underline" onclick="switchTab('register')">立即注册</a>
+                    </div>
+                </form>
+                
+                <!-- 注册表单 -->
+                <form id="registerForm" style="display: none;" onsubmit="handleRegister(event)">
+                    <div class="mb-4">
+                        <label for="registerUsername" class="block text-sm font-medium text-gray-700 mb-1">用户名</label>
+                        <div class="input-with-icon">
+                            <span class="form-icon iconify" data-icon="mdi:account"></span>
+                            <input type="text" id="registerUsername" class="input-field" required placeholder="请设置用户名（2-20个字符）">
+                        </div>
+                        <div id="registerUsernameError" class="error-message"></div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="registerStudentId" class="block text-sm font-medium text-gray-700 mb-1">学号</label>
+                        <div class="input-with-icon">
+                            <span class="form-icon iconify" data-icon="mdi:card-account-details"></span>
+                            <input type="text" id="registerStudentId" class="input-field" required placeholder="请输入学号">
+                        </div>
+                        <div id="registerStudentIdError" class="error-message"></div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="registerEmail" class="block text-sm font-medium text-gray-700 mb-1">邮箱</label>
+                        <div class="input-with-icon">
+                            <span class="form-icon iconify" data-icon="mdi:email"></span>
+                            <input type="email" id="registerEmail" class="input-field" required placeholder="请输入邮箱地址">
+                        </div>
+                        <div id="registerEmailError" class="error-message"></div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="registerPhone" class="block text-sm font-medium text-gray-700 mb-1">手机号</label>
+                        <div class="input-with-icon">
+                            <span class="form-icon iconify" data-icon="mdi:phone"></span>
+                            <input type="tel" id="registerPhone" class="input-field" required placeholder="请输入手机号">
+                        </div>
+                        <div id="registerPhoneError" class="error-message"></div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="registerPassword" class="block text-sm font-medium text-gray-700 mb-1">设置密码</label>
+                        <div class="input-with-icon">
+                            <span class="form-icon iconify" data-icon="mdi:lock"></span>
+                            <input type="password" id="registerPassword" class="input-field" required placeholder="请设置密码（8-20位，包含字母和数字）">
+                        </div>
+                        <div id="registerPasswordError" class="error-message"></div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label for="registerConfirmPassword" class="block text-sm font-medium text-gray-700 mb-1">确认密码</label>
+                        <div class="input-with-icon">
+                            <span class="form-icon iconify" data-icon="mdi:lock-check"></span>
+                            <input type="password" id="registerConfirmPassword" class="input-field" required placeholder="请再次输入密码">
+                        </div>
+                        <div id="registerConfirmPasswordError" class="error-message"></div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <div class="flex items-start">
+                            <input type="checkbox" id="agreeTerms" class="mt-1 rounded border-gray-300 text-blue-800 focus:ring-blue-800">
+                            <label for="agreeTerms" class="ml-2 text-sm text-gray-600">
+                                我已阅读并同意 <a href="#" class="text-blue-800 hover:underline">服务条款</a> 和 <a href="#" class="text-blue-800 hover:underline">隐私政策</a>
+                            </label>
+                        </div>
+                        <div id="agreeTermsError" class="error-message"></div>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary w-full mb-4">注册</button>
+                    
+                    <div class="text-center text-sm text-gray-500">
+                        已有账号？ <a href="#" class="text-blue-800 hover:underline" onclick="switchTab('login')">立即登录</a>
+                    </div>
+                </form>
+                
+                <!-- 分割线 -->
+                <div class="flex items-center my-6">
+                    <div class="flex-grow border-t border-gray-200"></div>
+                    <span class="mx-4 text-gray-500 text-sm">或通过以下方式登录</span>
+                    <div class="flex-grow border-t border-gray-200"></div>
+                </div>
+                
+                <!-- 社交媒体登录 -->
+                <div class="grid grid-cols-3 gap-4">
+                    <button class="social-button">
+                        <span class="iconify text-green-600" data-icon="mdi:wechat"></span>
+                        <span class="text-sm">微信</span>
+                    </button>
+                    <button class="social-button">
+                        <span class="iconify text-red-600" data-icon="mdi:qq"></span>
+                        <span class="text-sm">QQ</span>
+                    </button>
+                    <button class="social-button">
+                        <span class="iconify text-blue-600" data-icon="mdi:microsoft"></span>
+                        <span class="text-sm">校园</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚区域 -->
+    <footer class="bg-gray-100 py-10 mt-12">
+        <div class="container mx-auto px-6 max-w-7xl">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <span class="iconify text-2xl text-blue-800" data-icon="mdi:hand-heart"></span>
+                        <h2 class="text-xl font-bold text-blue-800">拾物通</h2>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-4">
+                        拾物通是一个致力于帮助失主找回失物、拾主归还物品的公益平台，
+                        让每一件遗失的物品都能找到回家的路。
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-500 hover:text-blue-800">
+                            <span class="iconify text-xl" data-icon="mdi:wechat"></span>
+                        </a>
+                        <a href="#" class="text-gray-500 hover:text-blue-800">
+                            <span class="iconify text-xl" data-icon="mdi:weibo"></span>
+                        </a>
+                        <a href="#" class="text-gray-500 hover:text-blue-800">
+                            <span class="iconify text-xl" data-icon="mdi:qq"></span>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="font-medium text-gray-800 mb-4">快速链接</h3>
+                    <ul class="space-y-2">
+                        <li><a href="失物招领平台_失物页面.html" class="text-gray-600 hover:text-blue-800 text-sm">失物信息</a></li>
+                        <li><a href="失物招领平台_招领页面.html" class="text-gray-600 hover:text-blue-800 text-sm">招领信息</a></li>
+                        <li><a href="失物招领平台_发布信息页面.html" class="text-gray-600 hover:text-blue-800 text-sm">发布信息</a></li>
+                        <li><a href="失物招领平台_私信页面.html" class="text-gray-600 hover:text-blue-800 text-sm">私信中心</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-medium text-gray-800 mb-4">帮助中心</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800 text-sm">使用指南</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800 text-sm">常见问题</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800 text-sm">平台规则</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800 text-sm">关于我们</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-medium text-gray-800 mb-4">联系我们</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-center text-gray-600 text-sm">
+                            <span class="iconify mr-2" data-icon="mdi:map-marker"></span>
+                            <span>中国·某某大学学生活动中心</span>
+                        </li>
+                        <li class="flex items-center text-gray-600 text-sm">
+                            <span class="iconify mr-2" data-icon="mdi:phone"></span>
+                            <span>010-12345678</span>
+                        </li>
+                        <li class="flex items-center text-gray-600 text-sm">
+                            <span class="iconify mr-2" data-icon="mdi:email"></span>
+                            <span>contact@shiwutong.com</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-200 mt-8 pt-8 text-center text-gray-500 text-sm">
+                <p>© 2024 拾物通 - 让每一件物品都能回家 版权所有</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 交互脚本 -->
+    <script>
+        // 切换登录/注册标签
+        function switchTab(tab) {
+            const loginTab = document.getElementById('loginTab');
+            const registerTab = document.getElementById('registerTab');
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            
+            if (tab === 'login') {
+                loginTab.classList.add('active');
+                registerTab.classList.remove('active');
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+            } else {
+                loginTab.classList.remove('active');
+                registerTab.classList.add('active');
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+            }
+            
+            // 清除所有错误信息
+            document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+        }
+        
+        // 验证邮箱格式
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+        
+        // 验证手机号格式
+        function isValidPhone(phone) {
+            const phoneRegex = /^1[3-9]\d{9}$/;
+            return phoneRegex.test(phone);
+        }
+        
+        // 验证密码强度
+        function isValidPassword(password) {
+            // 至少8位，包含字母和数字
+            const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,20}$/;
+            return passwordRegex.test(password);
+        }
+        
+        // 处理登录表单提交
+        function handleLogin(event) {
+            event.preventDefault();
+            let isValid = true;
+            
+            // 清除错误信息
+            document.getElementById('loginUsernameError').textContent = '';
+            document.getElementById('loginPasswordError').textContent = '';
+            
+            // 获取表单数据
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            
+            // 验证用户名
+            if (!username) {
+                document.getElementById('loginUsernameError').textContent = '请输入用户名或学号';
+                isValid = false;
+            }
+            
+            // 验证密码
+            if (!password) {
+                document.getElementById('loginPasswordError').textContent = '请输入密码';
+                isValid = false;
+            }
+            
+            if (isValid) {
+                // 在实际应用中，这里会发送登录请求到服务器
+                console.log('登录数据:', { username, password });
+                
+                // 检查是否是管理员账号
+                if (username === 'administrator' && password === 'password') {
+                    // 管理员登录成功
+                    alert('管理员登录成功！');
+                    window.location.href = '失物招领平台_管理员页面.html';
+                } else {
+                    // 普通用户登录成功
+                    alert('登录成功！');
+                    // 登录成功后可以跳转到首页或个人中心
+                    window.location.href = '失物招领平台_失物页面.html';
+                }
+            }
+        }
+        
+        // 处理注册表单提交
+        function handleRegister(event) {
+            event.preventDefault();
+            let isValid = true;
+            
+            // 清除错误信息
+            document.querySelectorAll('#registerForm .error-message').forEach(el => el.textContent = '');
+            
+            // 获取表单数据
+            const username = document.getElementById('registerUsername').value.trim();
+            const studentId = document.getElementById('registerStudentId').value.trim();
+            const email = document.getElementById('registerEmail').value.trim();
+            const phone = document.getElementById('registerPhone').value.trim();
+            const password = document.getElementById('registerPassword').value.trim();
+            const confirmPassword = document.getElementById('registerConfirmPassword').value.trim();
+            const agreeTerms = document.getElementById('agreeTerms').checked;
+            
+            // 验证用户名
+            if (!username) {
+                document.getElementById('registerUsernameError').textContent = '请设置用户名';
+                isValid = false;
+            } else if (username.length < 2 || username.length > 20) {
+                document.getElementById('registerUsernameError').textContent = '用户名长度应在2-20个字符之间';
+                isValid = false;
+            }
+            
+            // 验证学号
+            if (!studentId) {
+                document.getElementById('registerStudentIdError').textContent = '请输入学号';
+                isValid = false;
+            }
+            
+            // 验证邮箱
+            if (!email) {
+                document.getElementById('registerEmailError').textContent = '请输入邮箱地址';
+                isValid = false;
+            } else if (!isValidEmail(email)) {
+                document.getElementById('registerEmailError').textContent = '请输入有效的邮箱地址';
+                isValid = false;
+            }
+            
+            // 验证手机号
+            if (!phone) {
+                document.getElementById('registerPhoneError').textContent = '请输入手机号';
+                isValid = false;
+            } else if (!isValidPhone(phone)) {
+                document.getElementById('registerPhoneError').textContent = '请输入有效的手机号';
+                isValid = false;
+            }
+            
+            // 验证密码
+            if (!password) {
+                document.getElementById('registerPasswordError').textContent = '请设置密码';
+                isValid = false;
+            } else if (!isValidPassword(password)) {
+                document.getElementById('registerPasswordError').textContent = '密码应至少8位，包含字母和数字';
+                isValid = false;
+            }
+            
+            // 验证确认密码
+            if (!confirmPassword) {
+                document.getElementById('registerConfirmPasswordError').textContent = '请确认密码';
+                isValid = false;
+            } else if (confirmPassword !== password) {
+                document.getElementById('registerConfirmPasswordError').textContent = '两次输入的密码不一致';
+                isValid = false;
+            }
+            
+            // 验证服务条款
+            if (!agreeTerms) {
+                document.getElementById('agreeTermsError').textContent = '请阅读并同意服务条款和隐私政策';
+                isValid = false;
+            }
+            
+            if (isValid) {
+                // 在实际应用中，这里会发送注册请求到服务器
+                console.log('注册数据:', { username, studentId, email, phone, password });
+                
+                // 模拟注册成功
+                alert('注册成功！');
+                // 注册成功后切换到登录标签
+                switchTab('login');
+            }
+        }
+    </script>
+</body>
+</html>

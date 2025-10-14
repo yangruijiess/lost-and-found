@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员后台 - 拾物通</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+        body {
+            background-color: #f8fafc;
+            font-family: 'Noto Sans SC', sans-serif;
+            color: #334155;
+        }
+        .sidebar {
+            background-color: #1e3a8a;
+            min-height: 100vh;
+        }
+        .sidebar-item {
+            transition: all 0.2s ease;
+        }
+        .sidebar-item:hover {
+            background-color: #1d4ed8;
+        }
+        .sidebar-item.active {
+            background-color: #1d4ed8;
+            border-left: 3px solid #3b82f6;
+        }
+        .card {
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background-color: #1e3a8a;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+            font-weight: 500;
+        }
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+        .btn-danger {
+            background-color: #ef4444;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+            font-weight: 500;
+        }
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+        .btn-secondary {
+            background-color: #64748b;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+            font-weight: 500;
+        }
+        .btn-secondary:hover {
+            background-color: #475569;
+        }
+        .input-field {
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 8px 12px;
+            width: 100%;
+            transition: border-color 0.2s;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+        }
+        .badge {
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .badge-success {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .badge-warning {
+            background-color: #fef9c3;
+            color: #92400e;
+        }
+        .badge-danger {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+<body class="flex">
+    <!-- 侧边栏 -->
+    <aside class="sidebar w-64 hidden md:block">
+        <div class="p-6 text-center">
+            <div class="flex items-center justify-center space-x-2 mb-2">
+                <span class="iconify text-2xl text-white" data-icon="mdi:shield-account"></span>
+                <h1 class="text-xl font-bold text-white">管理员后台</h1>
+            </div>
+            <p class="text-blue-200 text-sm">管理员控制面板</p>
+        </div>
+        
+        <nav class="px-4">
+            <ul class="space-y-1">
+                <li>
+                    <a href="#dashboard" class="sidebar-item active flex items-center space-x-3 px-4 py-3 text-white rounded-md">
+                        <span class="iconify" data-icon="mdi:view-dashboard"></span>
+                        <span>仪表盘</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#posts" class="sidebar-item flex items-center space-x-3 px-4 py-3 text-blue-200 rounded-md" onclick="switchTab('posts')">
+                        <span class="iconify" data-icon="mdi:post"></span>
+                        <span>管理帖子</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#users" class="sidebar-item flex items-center space-x-3 px-4 py-3 text-blue-200 rounded-md" onclick="switchTab('users')">
+                        <span class="iconify" data-icon="mdi:account-group"></span>
+                        <span>管理用户</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#settings" class="sidebar-item flex items-center space-x-3 px-4 py-3 text-blue-200 rounded-md" onclick="switchTab('settings')">
+                        <span class="iconify" data-icon="mdi:cog"></span>
+                        <span>系统设置</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <div class="absolute bottom-0 left-0 right-0 p-4">
+            <button class="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors" onclick="logout()">
+                <span class="iconify" data-icon="mdi:logout"></span>
+                <span>退出登录</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="flex-1 flex flex-col">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm py-4 px-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <button class="md:hidden text-gray-700">
+                        <span class="iconify text-xl" data-icon="mdi:menu"></span>
+                    </button>
+                    <h2 class="text-xl font-semibold text-gray-800" id="pageTitle">仪表盘</h2>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <span class="iconify text-xl text-gray-700" data-icon="mdi:bell"></span>
+                        <span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full"></span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span class="text-blue-800 font-medium">管</span>
+                        </div>
+                        <span class="font-medium text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 内容区域 -->
+        <div class="flex-1 p-6">
+            <!-- 仪表盘 -->
+            <div id="dashboardTab" class="tab-content">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="card bg-white p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm">总帖子数</p>
+                                <h3 class="text-3xl font-bold text-gray-800 mt-1">128</h3>
+                                <p class="text-green-600 text-sm mt-1 flex items-center">
+                                    <span class="iconify mr-1" data-icon="mdi:arrow-up"></span>
+                                    <span>12% 较上周</span>
+                                </p>
+                            </div>
+                            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                                <span class="iconify text-2xl text-blue-800" data-icon="mdi:post"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card bg-white p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm">总用户数</p>
+                                <h3 class="text-3xl font-bold text-gray-800 mt-1">512</h3>
+                                <p class="text-green-600 text-sm mt-1 flex items-center">
+                                    <span class="iconify mr-1" data-icon="mdi:arrow-up"></span>
+                                    <span>8% 较上周</span>
+                                </p>
+                            </div>
+                            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                                <span class="iconify text-2xl text-green-800" data-icon="mdi:account-group"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card bg-white p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm">待审核帖子</p>
+                                <h3 class="text-3xl font-bold text-gray-800 mt-1">7</h3>
+                                <p class="text-red-600 text-sm mt-1 flex items-center">
+                                    <span class="iconify mr-1" data-icon="mdi:arrow-up"></span>
+                                    <span>3% 较上周</span>
+                                </p>
+                            </div>
+                            <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                                <span class="iconify text-2xl text-yellow-800" data-icon="mdi:clock-alert"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="card bg-white p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">最近活动</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-start space-x-4">
+                                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <span class="iconify text-blue-800" data-icon="mdi:account-plus"></span>
+                                </div>
+                                <div>
+                                    <p class="text-gray-700"><span class="font-medium">用户123</span> 注册了账号</p>
+                                    <p class="text-gray-500 text-sm mt-1">10分钟前</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-4">
+                                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <span class="iconify text-green-800" data-icon="mdi:post-plus"></span>
+                                </div>
+                                <div>
+                                    <p class="text-gray-700"><span class="font-medium">小明</span> 发布了招领信息</p>
+                                    <p class="text-gray-500 text-sm mt-1">30分钟前</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-4">
+                                <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <span class="iconify text-yellow-800" data-icon="mdi:comment-text"></span>
+                                </div>
+                                <div>
+                                    <p class="text-gray-700"><span class="font-medium">小红</span> 评论了失物信息</p>
+                                    <p class="text-gray-500 text-sm mt-1">1小时前</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card bg-white p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">热门分类</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-700">电子产品</span>
+                                    <span class="text-gray-500">42%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-blue-600 h-2 rounded-full" style="width: 42%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-700">证件</span>
+                                    <span class="text-gray-500">28%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-600 h-2 rounded-full" style="width: 28%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-700">生活用品</span>
+                                    <span class="text-gray-500">18%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-yellow-600 h-2 rounded-full" style="width: 18%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-700">其他</span>
+                                    <span class="text-gray-500">12%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-gray-600 h-2 rounded-full" style="width: 12%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 管理帖子 -->
+            <div id="postsTab" class="tab-content hidden">
+                <div class="card bg-white mb-6">
+                    <div class="p-6 border-b border-gray-100">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <h3 class="text-lg font-semibold text-gray-800">帖子管理</h3>
+                            <div class="flex flex-col sm:flex-row gap-3">
+                                <div class="relative">
+                                    <input type="text" id="searchPosts" class="input-field pr-10" placeholder="搜索帖子...">
+                                    <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                        <span class="iconify" data-icon="mdi:magnify"></span>
+                                    </span>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <select id="filterPosts" class="input-field">
+                                        <option value="all">全部类型</option>
+                                        <option value="lost">失物</option>
+                                        <option value="found">招领</option>
+                                    </select>
+                                    <select id="statusPosts" class="input-field">
+                                        <option value="all">全部状态</option>
+                                        <option value="approved">已审核</option>
+                                        <option value="pending">待审核</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="bg-gray-50 border-b border-gray-200">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">标题</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">类型</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">发布者</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">发布时间</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="postsTableBody">
+                                <!-- 帖子数据将通过JavaScript动态生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="p-6 border-t border-gray-100 flex justify-between items-center">
+                        <p class="text-sm text-gray-500">显示 1 到 10，共 128 条</p>
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-500 hover:bg-gray-50">上一页</button>
+                            <button class="px-3 py-1 bg-blue-800 text-white rounded text-sm">1</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-500 hover:bg-gray-50">2</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-500 hover:bg-gray-50">3</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-500 hover:bg-gray-50">...</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-500 hover:bg-gray-50">13</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-500 hover:bg-gray-50">下一页</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 管理用户 -->
+            <div id="usersTab" class="tab-content hidden">
+                <div class="card bg-white mb-6">
+                    <div class="p-6 border-b border-gray-100">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <h3 class="text-lg font-semibold text-gray-800">用户管理</h3>
+                            <div class="flex space-x-3">
+                                <div class="relative">
+                                    <input type="text" id="searchUsers" class="input-field pr-10" placeholder="搜索用户...">
+                                    <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                        <span class="iconify" data-icon="mdi:magnify"></span>
+                                    </span>
+                                </div>
+                                <select id="filterUsers" class="input-field">
+                                    <option value="all">全部用户</option>
+                                    <option value="active">活跃用户</option>
+                                    <option value="inactive">非活跃用户</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="bg-gray-50 border-b border-gray-200">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">用户名</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">学号</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">邮箱</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">注册时间</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <!-- 用户数据将通过JavaScript动态生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="p-6 border-t border-gray-100 flex justify-between items-center">
+                        <p class="text-sm text-gray-500">显示 1 到 10，共 512 条</p>
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-500 hover:bg-gray-50">上一页</button>
+                            <button class="px-3 py-1 bg-blue-800 text-white rounded text-sm">1</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-500 hover:bg-gray-50">2</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-500 hover:bg-gray-50">3</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-500 hover:bg-gray-50">...</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-500 hover:bg-gray-50">52</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-500 hover:bg-gray-50">下一页</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 系统设置 -->
+            <div id="settingsTab" class="tab-content hidden">
+                <div class="card bg-white p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-6">系统设置</h3>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <h4 class="text-md font-medium text-gray-700 mb-4">基本设置</h4>
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div class="md:col-span-2">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">网站名称</label>
+                                        <input type="text" class="input-field" value="拾物通">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">是否开启注册</label>
+                                        <select class="input-field">
+                                            <option value="1">开启</option>
+                                            <option value="0">关闭</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">网站描述</label>
+                                    <textarea class="input-field h-24" placeholder="输入网站描述...">拾物通是一个致力于帮助失主找回失物、拾主归还物品的公益平台，让每一件遗失的物品都能找到回家的路。</textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-md font-medium text-gray-700 mb-4">审核设置</h4>
+                            <div class="space-y-4">
+                                <div class="flex items-center space-x-2">
+                                    <input type="checkbox" id="needApproval" class="rounded border-gray-300 text-blue-800 focus:ring-blue-800" checked>
+                                    <label for="needApproval" class="text-gray-700">发布信息需要审核</label>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <input type="checkbox" id="autoApprove" class="rounded border-gray-300 text-blue-800 focus:ring-blue-800">
+                                    <label for="autoApprove" class="text-gray-700">活跃用户自动审核</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="pt-4">
+                            <button class="btn-primary">保存设置</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 模态框 -->
+    <div id="confirmModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 max-w-md w-full">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4" id="modalTitle">确认操作</h3>
+            <p class="text-gray-600 mb-6" id="modalMessage">您确定要执行此操作吗？</p>
+            <div class="flex justify-end space-x-3">
+                <button class="btn-secondary" onclick="closeModal()">取消</button>
+                <button class="btn-danger" id="confirmButton" onclick="confirmAction()">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 交互脚本 -->
+    <script>
+        // 全局变量
+        let currentTab = 'dashboard';
+        let currentAction = null;
+        let currentId = null;
+        
+        // 模拟数据
+        const mockPosts = [
+            { id: 1, title: '丢失华为手机一部', type: 'lost', publisher: '张三', time: '2024-01-15 10:30', status: 'approved' },
+            { id: 2, title: '捡到学生证一个', type: 'found', publisher: '李四', time: '2024-01-15 09:15', status: 'approved' },
+            { id: 3, title: '丢失钥匙一串', type: 'lost', publisher: '王五', time: '2024-01-14 16:45', status: 'approved' },
+            { id: 4, title: '捡到钱包一个', type: 'found', publisher: '赵六', time: '2024-01-14 14:20', status: 'pending' },
+            { id: 5, title: '丢失笔记本电脑', type: 'lost', publisher: '钱七', time: '2024-01-13 11:10', status: 'approved' },
+            { id: 6, title: '捡到校园卡一张', type: 'found', publisher: '孙八', time: '2024-01-13 08:50', status: 'approved' },
+            { id: 7, title: '丢失雨伞一把', type: 'lost', publisher: '周九', time: '2024-01-12 17:30', status: 'pending' },
+            { id: 8, title: '捡到耳机一副', type: 'found', publisher: '吴十', time: '2024-01-12 15:40', status: 'approved' },
+            { id: 9, title: '丢失书包一个', type: 'lost', publisher: '郑十一', time: '2024-01-11 13:20', status: 'approved' },
+            { id: 10, title: '捡到水杯一个', type: 'found', publisher: '王十二', time: '2024-01-11 10:15', status: 'approved' }
+        ];
+        
+        const mockUsers = [
+            { id: 1, username: '张三', studentId: '2021001', email: 'zhangsan@example.com', registerTime: '2024-01-01 10:30', status: 'active' },
+            { id: 2, username: '李四', studentId: '2021002', email: 'lisi@example.com', registerTime: '2024-01-02 09:15', status: 'active' },
+            { id: 3, username: '王五', studentId: '2021003', email: 'wangwu@example.com', registerTime: '2024-01-03 16:45', status: 'active' },
+            { id: 4, username: '赵六', studentId: '2021004', email: 'zhaoliu@example.com', registerTime: '2024-01-04 14:20', status: 'inactive' },
+            { id: 5, username: '钱七', studentId: '2021005', email: 'qianqi@example.com', registerTime: '2024-01-05 11:10', status: 'active' },
+            { id: 6, username: '孙八', studentId: '2021006', email: 'sunba@example.com', registerTime: '2024-01-06 08:50', status: 'active' },
+            { id: 7, username: '周九', studentId: '2021007', email: 'zhoujiu@example.com', registerTime: '2024-01-07 17:30', status: 'inactive' },
+            { id: 8, username: '吴十', studentId: '2021008', email: 'wushi@example.com', registerTime: '2024-01-08 15:40', status: 'active' },
+            { id: 9, username: '郑十一', studentId: '2021009', email: 'zhengyishi@example.com', registerTime: '2024-01-09 13:20', status: 'active' },
+            { id: 10, username: '王十二', studentId: '2021010', email: 'wangshi2@example.com', registerTime: '2024-01-10 10:15', status: 'active' }
+        ];
+        
+        // 切换标签页
+        function switchTab(tab) {
+            // 隐藏所有标签内容
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            
+            // 移除所有侧边栏项的活跃状态
+            document.querySelectorAll('.sidebar-item').forEach(el => {
+                el.classList.remove('active');
+                el.classList.add('text-blue-200');
+                el.classList.remove('text-white');
+            });
+            
+            // 显示选中的标签内容
+            document.getElementById(`${tab}Tab`).classList.remove('hidden');
+            
+            // 设置侧边栏项为活跃状态
+            const activeItem = document.querySelector(`.sidebar-item[href="#${tab}"]`);
+            if (activeItem) {
+                activeItem.classList.add('active');
+                activeItem.classList.remove('text-blue-200');
+                activeItem.classList.add('text-white');
+            }
+            
+            // 更新页面标题
+            document.getElementById('pageTitle').textContent = {
+                'dashboard': '仪表盘',
+                'posts': '管理帖子',
+                'users': '管理用户',
+                'settings': '系统设置'
+            }[tab];
+            
+            currentTab = tab;
+            
+            // 加载对应的数据
+            if (tab === 'posts') {
+                loadPosts();
+            } else if (tab === 'users') {
+                loadUsers();
+            }
+        }
+        
+        // 加载帖子数据
+        function loadPosts() {
+            const tableBody = document.getElementById('postsTableBody');
+            tableBody.innerHTML = '';
+            
+            mockPosts.forEach(post => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-gray-100 hover:bg-gray-50';
+                
+                const statusBadge = post.status === 'approved' 
+                    ? '<span class="badge badge-success">已审核</span>' 
+                    : '<span class="badge badge-warning">待审核</span>';
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${post.id}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${post.title}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${post.type === 'lost' ? '失物' : '招领'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${post.publisher}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${post.time}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${statusBadge}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button class="text-blue-600 hover:text-blue-900 mr-3" onclick="viewPost(${post.id})"><span class="iconify mr-1" data-icon="mdi:eye"></span>查看</button>
+                        ${post.status === 'pending' ? `<button class="text-green-600 hover:text-green-900 mr-3" onclick="approvePost(${post.id})"><span class="iconify mr-1" data-icon="mdi:check-circle"></span>审核</button>` : ''}
+                        <button class="text-red-600 hover:text-red-900" onclick="deletePost(${post.id})"><span class="iconify mr-1" data-icon="mdi:delete"></span>删除</button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // 加载用户数据
+        function loadUsers() {
+            const tableBody = document.getElementById('usersTableBody');
+            tableBody.innerHTML = '';
+            
+            mockUsers.forEach(user => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-gray-100 hover:bg-gray-50';
+                
+                const statusBadge = user.status === 'active' 
+                    ? '<span class="badge badge-success">活跃</span>' 
+                    : '<span class="badge badge-danger">非活跃</span>';
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.id}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${user.username}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.studentId}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.email}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.registerTime}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${statusBadge}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button class="text-blue-600 hover:text-blue-900 mr-3" onclick="viewUser(${user.id})"><span class="iconify mr-1" data-icon="mdi:account"></span>详情</button>
+                        ${user.status === 'active' ? `<button class="text-yellow-600 hover:text-yellow-900 mr-3" onclick="deactivateUser(${user.id})"><span class="iconify mr-1" data-icon="mdi:account-off"></span>停用</button>` : `<button class="text-green-600 hover:text-green-900 mr-3" onclick="activateUser(${user.id})"><span class="iconify mr-1" data-icon="mdi:account-check"></span>启用</button>`}
+                        <button class="text-red-600 hover:text-red-900" onclick="deleteUser(${user.id})"><span class="iconify mr-1" data-icon="mdi:delete"></span>删除</button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // 打开确认模态框
+        function openModal(title, message, action, id) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalMessage').textContent = message;
+            document.getElementById('confirmModal').classList.remove('hidden');
+            currentAction = action;
+            currentId = id;
+        }
+        
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('confirmModal').classList.add('hidden');
+            currentAction = null;
+            currentId = null;
+        }
+        
+        // 确认操作
+        function confirmAction() {
+            switch (currentAction) {
+                case 'deletePost':
+                    performDeletePost();
+                    break;
+                case 'deleteUser':
+                    performDeleteUser();
+                    break;
+                case 'deactivateUser':
+                    performDeactivateUser();
+                    break;
+                case 'activateUser':
+                    performActivateUser();
+                    break;
+                case 'approvePost':
+                    performApprovePost();
+                    break;
+            }
+            closeModal();
+        }
+        
+        // 帖子操作函数
+        function viewPost(id) {
+            alert(`查看帖子ID: ${id} 的详细信息`);
+        }
+        
+        function approvePost(id) {
+            openModal('审核帖子', `确定要审核通过帖子ID: ${id} 吗？`, 'approvePost', id);
+        }
+        
+        function performApprovePost() {
+            const postIndex = mockPosts.findIndex(p => p.id === currentId);
+            if (postIndex !== -1) {
+                mockPosts[postIndex].status = 'approved';
+                loadPosts();
+                showNotification('帖子审核成功！');
+            }
+        }
+        
+        function deletePost(id) {
+            openModal('删除帖子', `确定要删除帖子ID: ${id} 吗？此操作不可恢复。`, 'deletePost', id);
+        }
+        
+        function performDeletePost() {
+            const postIndex = mockPosts.findIndex(p => p.id === currentId);
+            if (postIndex !== -1) {
+                mockPosts.splice(postIndex, 1);
+                loadPosts();
+                showNotification('帖子删除成功！');
+            }
+        }
+        
+        // 用户操作函数
+        function viewUser(id) {
+            alert(`查看用户ID: ${id} 的详细信息`);
+        }
+        
+        function deactivateUser(id) {
+            openModal('停用用户', `确定要停用用户ID: ${id} 吗？`, 'deactivateUser', id);
+        }
+        
+        function performDeactivateUser() {
+            const userIndex = mockUsers.findIndex(u => u.id === currentId);
+            if (userIndex !== -1) {
+                mockUsers[userIndex].status = 'inactive';
+                loadUsers();
+                showNotification('用户已停用！');
+            }
+        }
+        
+        function activateUser(id) {
+            openModal('启用用户', `确定要启用用户ID: ${id} 吗？`, 'activateUser', id);
+        }
+        
+        function performActivateUser() {
+            const userIndex = mockUsers.findIndex(u => u.id === currentId);
+            if (userIndex !== -1) {
+                mockUsers[userIndex].status = 'active';
+                loadUsers();
+                showNotification('用户已启用！');
+            }
+        }
+        
+        function deleteUser(id) {
+            openModal('删除用户', `确定要删除用户ID: ${id} 吗？此操作不可恢复。`, 'deleteUser', id);
+        }
+        
+        function performDeleteUser() {
+            const userIndex = mockUsers.findIndex(u => u.id === currentId);
+            if (userIndex !== -1) {
+                mockUsers.splice(userIndex, 1);
+                loadUsers();
+                showNotification('用户删除成功！');
+            }
+        }
+        
+        // 显示通知
+        function showNotification(message) {
+            // 创建通知元素
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-md shadow-lg transform transition-all duration-500 ease-in-out translate-x-full';
+            notification.textContent = message;
+            
+            // 添加到页面
+            document.body.appendChild(notification);
+            
+            // 显示通知
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+            }, 10);
+            
+            // 3秒后隐藏通知
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 500);
+            }, 3000);
+        }
+        
+        // 退出登录
+        function logout() {
+            if (confirm('确定要退出登录吗？')) {
+                window.location.href = '失物招领平台_登录注册页面.html';
+            }
+        }
+        
+        // 搜索功能
+        document.getElementById('searchPosts')?.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const filteredPosts = mockPosts.filter(post => 
+                post.title.toLowerCase().includes(searchTerm) || 
+                post.publisher.toLowerCase().includes(searchTerm)
+            );
+            
+            // 这里可以实现根据过滤结果重新渲染表格
+            console.log('搜索帖子:', searchTerm, filteredPosts);
+        });
+        
+        document.getElementById('searchUsers')?.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const filteredUsers = mockUsers.filter(user => 
+                user.username.toLowerCase().includes(searchTerm) || 
+                user.email.toLowerCase().includes(searchTerm) ||
+                user.studentId.includes(searchTerm)
+            );
+            
+            // 这里可以实现根据过滤结果重新渲染表格
+            console.log('搜索用户:', searchTerm, filteredUsers);
+        });
+        
+        // 过滤功能
+        document.getElementById('filterPosts')?.addEventListener('change', function() {
+            const filterValue = this.value;
+            // 这里可以实现根据过滤条件重新渲染表格
+            console.log('过滤帖子类型:', filterValue);
+        });
+        
+        document.getElementById('statusPosts')?.addEventListener('change', function() {
+            const statusValue = this.value;
+            // 这里可以实现根据状态条件重新渲染表格
+            console.log('过滤帖子状态:', statusValue);
+        });
+        
+        document.getElementById('filterUsers')?.addEventListener('change', function() {
+            const filterValue = this.value;
+            // 这里可以实现根据过滤条件重新渲染表格
+            console.log('过滤用户状态:', filterValue);
+        });
+        
+        // 初始化
+        window.addEventListener('DOMContentLoaded', function() {
+            // 如果是管理员页面，确保用户是管理员身份访问
+            // 这里可以添加额外的验证逻辑
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,480 @@
+<!DOCTYPE html><html lang="zh-CN"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的收藏 - 拾物通</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+        body {
+            background-color: #f8fafc;
+            font-family: 'Noto Sans SC', sans-serif;
+            color: #334155;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+        }
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background-color: #1e3a8a;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+        .btn-secondary {
+            border: 1px solid #cbd5e1;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+        .btn-secondary:hover {
+            background-color: #f1f5f9;
+        }
+        .tag {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+        .tag-found {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .tag-lost {
+            background-color: #ffedd5;
+            color: #9a3412;
+        }
+        .nav-link {
+            position: relative;
+            padding-bottom: 5px;
+        }
+        .nav-link.active:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #ff7d00;
+        }
+        .sidebar-link {
+            padding: 10px 16px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+        .sidebar-link:hover {
+            background-color: #f1f5f9;
+        }
+        .sidebar-link.active {
+            background-color: #eef2ff;
+            color: #1e3a8a;
+            font-weight: 500;
+        }
+        .notification-badge {
+            background-color: #ef4444;
+            color: white;
+            border-radius: 10px;
+            padding: 1px 6px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+        .item-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .item-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-6 py-4 max-w-7xl">
+            <div class="flex items-center justify-between">
+                <!-- Logo -->
+                <div class="flex items-center space-x-2">
+                    <span class="iconify text-2xl text-blue-800" data-icon="mdi:hand-heart"></span>
+                    <h1 class="text-xl font-bold text-blue-800">拾物通</h1>
+                </div>
+                
+                <!-- 主导航菜单 -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="失物招领平台_失物页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">失物</a>
+                    <a href="失物招领平台_招领页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">招领</a>
+                    <a href="失物招领平台_发布信息页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">发布信息</a>
+                    <a href="失物招领平台_私信页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">私信</a>
+                    <a href="失物招领平台_个人中心页面.html" class="nav-link active font-medium text-blue-800">个人中心</a>
+                </nav>
+                
+                <!-- 搜索框 -->
+                <div class="hidden lg:flex items-center border border-gray-300 rounded-lg px-3 py-2 w-64">
+                    <input type="text" placeholder="搜索物品或地点..." class="flex-1 focus:ring-0 border-none">
+                    <span class="iconify text-gray-500" data-icon="mdi:magnify"></span>
+                </div>
+                
+                <!-- 用户入口 -->
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button class="p-2 text-gray-600 hover:text-blue-800">
+                            <span class="iconify text-xl" data-icon="mdi:bell"></span>
+                            <span class="absolute top-0 right-0 notification-badge">3</span>
+                        </button>
+                    </div>
+                    <div class="hidden lg:block">
+                        <a href="失物招领平台_登录注册页面.html" class="btn-secondary text-sm">登录/注册</a>
+                    </div>
+                    <div class="lg:hidden">
+                        <span class="iconify text-2xl text-gray-700" data-icon="mdi:menu"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主体内容 -->
+    <main class="container mx-auto px-6 py-8 max-w-7xl">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <!-- 左侧边栏 -->
+            <div class="lg:col-span-1">
+                <!-- 用户信息卡片 -->
+                <div class="bg-white card p-6 mb-6">
+                    <div class="flex flex-col items-center mb-4">
+                        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="用户头像" class="w-24 h-24 rounded-full object-cover mb-2">
+                        <h2 class="font-bold text-lg">陈静</h2>
+                        <p class="text-sm text-gray-500">普通用户</p>
+                    </div>
+                </div>
+                
+                <!-- 侧边栏导航 -->
+                <div class="bg-white card p-4">
+                    <h3 class="font-bold text-lg mb-4">个人中心</h3>
+                    <ul class="space-y-1">
+                        <li><a href="失物招领平台_发布历史页面.html" class="sidebar-link"><span class="iconify mr-3" data-icon="mdi:clipboard-list"></span>发布历史</a></li>
+                        <li><a href="失物招领平台_我的收藏页面.html" class="sidebar-link active"><span class="iconify mr-3" data-icon="mdi:heart"></span>我的收藏</a></li>
+                        <li class="mt-6 pt-4 border-t border-gray-200">
+                            <a href="失物招领平台_登录注册页面.html" class="sidebar-link text-red-600 hover:bg-red-50"><span class="iconify mr-3" data-icon="mdi:logout"></span>退出登录</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- 右侧内容区 -->
+            <div class="lg:col-span-3">
+                <!-- 标题和筛选 -->
+                <div class="bg-white card p-6 mb-6">
+                    <h2 class="font-bold text-xl mb-4">我的收藏</h2>
+                    <div class="flex flex-wrap gap-3">
+                        <button class="btn-secondary active px-4 py-2 bg-blue-50 text-blue-800 border-blue-200">全部</button>
+                        <button class="btn-secondary px-4 py-2">失物信息</button>
+                        <button class="btn-secondary px-4 py-2">招领信息</button>
+                    </div>
+                </div>
+                
+                <!-- 收藏列表 -->
+                <div id="favorites-container" class="space-y-6">
+                    <!-- 这里将通过JavaScript动态加载收藏内容 -->
+                    <div class="empty-state">
+                        <span class="iconify text-6xl mb-4 block opacity-50" data-icon="mdi:heart-outline"></span>
+                        <h3 class="text-lg font-medium mb-2">暂无收藏</h3>
+                        <p class="mb-4">您还没有收藏任何物品信息</p>
+                        <a href="失物招领平台_招领页面.html" class="btn-primary inline-block">去看看</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚区域 -->
+    <footer class="bg-gray-100 py-10 mt-12">
+        <div class="container mx-auto px-6 max-w-7xl">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <span class="iconify text-2xl text-blue-800" data-icon="mdi:hand-heart"></span>
+                        <h2 class="text-xl font-bold text-blue-800">拾物通</h2>
+                    </div>
+                    <p class="text-gray-600 mb-4">连接失物与主人的公益平台</p>
+                </div>
+                <div>
+                    <h3 class="font-bold mb-4">快速链接</h3>
+                    <ul class="space-y-2 text-gray-600">
+                        <li><a href="失物招领平台_失物页面.html" class="hover:text-blue-800">失物</a></li>
+                        <li><a href="失物招领平台_招领页面.html" class="hover:text-blue-800">招领</a></li>
+                        <li><a href="失物招领平台_发布信息页面.html" class="hover:text-blue-800">发布信息</a></li>
+                        <li><a href="失物招领平台_个人中心页面.html" class="hover:text-blue-800">个人中心</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold mb-4">帮助中心</h3>
+                    <ul class="space-y-2 text-gray-600">
+                        <li><a href="#" class="hover:text-blue-800">常见问题</a></li>
+                        <li><a href="#" class="hover:text-blue-800">使用指南</a></li>
+                        <li><a href="#" class="hover:text-blue-800">隐私政策</a></li>
+                        <li><a href="#" class="hover:text-blue-800">用户协议</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold mb-4">联系我们</h3>
+                    <ul class="space-y-2 text-gray-600">
+                        <li class="flex items-center"><span class="iconify mr-2" data-icon="mdi:email"></span> support@shiwutong.com</li>
+                        <li class="flex items-center"><span class="iconify mr-2" data-icon="mdi:phone"></span> 400-123-4567</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="mt-8 pt-6 border-t border-gray-200 text-center text-gray-600">
+                <p>© 2024 拾物通. 保留所有权利。</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 模拟数据 - 实际应用中应从localStorage获取
+        const mockItems = {
+            // 招领页面物品
+            '1': {
+                type: 'found',
+                title: '黑色皮质钱包',
+                description: '在图书馆二楼自习室发现，内有身份证、银行卡等贵重物品',
+                location: '图书馆二楼',
+                date: '9月22日',
+                image: 'https://modao.cc/ai/uploads/ai_pics/30/302276/aigp_1758618094.jpeg'
+            },
+            '2': {
+                type: 'found',
+                title: '一串钥匙',
+                description: '在食堂门口拾得，包含三把钥匙和一个蓝色小熊挂件',
+                location: '第一食堂',
+                date: '9月21日',
+                image: 'https://modao.cc/ai/uploads/ai_pics/30/302278/aigp_1758618097.jpeg'
+            },
+            '3': {
+                type: 'found',
+                title: '黄色雨伞',
+                description: '在二号教学楼门口拾得，伞柄有特殊定制刻字',
+                location: '二号教学楼',
+                date: '9月23日',
+                image: 'https://modao.cc/ai/uploads/ai_pics/30/302280/aigp_1758618100.jpeg'
+            },
+            '4': {
+                type: 'found',
+                title: '白色无线耳机',
+                description: '在体育馆看台下拾得，带有充电盒，品牌为AirPods Pro',
+                location: '体育馆',
+                date: '9月21日',
+                image: 'https://img.alicdn.com/imgextra/i1/4611686018427382574/O1CN01XwFcbv1wmM6hgdAFs_!!4611686018427382574-0-rate.jpg_960x960.jpg_.webp'
+            },
+            // 失物页面物品
+            'lost1': {
+                type: 'lost',
+                title: '丢失红色雨伞',
+                description: '在去往教学楼的路上丢失一把红色折叠伞，伞柄上有小熊图案。',
+                location: '教学楼',
+                date: '9月23日',
+                image: 'https://picsum.photos/seed/umbrella123/300/200'
+            },
+            'lost2': {
+                type: 'lost',
+                title: '丢失耳机',
+                description: '在图书馆二楼丢失一副白色蓝牙耳机，带有充电盒。',
+                location: '图书馆',
+                date: '9月22日',
+                image: 'https://picsum.photos/seed/earphone123/300/200'
+            },
+            'lost3': {
+                type: 'lost',
+                title: '丢失学生证',
+                description: '在食堂附近丢失学生证，姓名：张小明，请拾到者联系。',
+                location: '第二食堂',
+                date: '9月21日',
+                image: 'https://picsum.photos/seed/student123/300/200'
+            },
+            'lost4': {
+                type: 'lost',
+                title: '丢失笔记本电脑',
+                description: '在自习室丢失一台黑色笔记本电脑，联想品牌，请拾到者归还。',
+                location: '第三教学楼',
+                date: '9月20日',
+                image: 'https://picsum.photos/seed/laptop123/300/200'
+            }
+        };
+        
+        // 从localStorage获取收藏数据并显示
+        function loadFavorites() {
+            // 从localStorage获取收藏的项目
+            const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+            const container = document.getElementById('favorites-container');
+            
+            // 清空容器
+            container.innerHTML = '';
+            
+            // 如果没有收藏，显示空状态
+            if (favorites.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <span class="iconify text-6xl mb-4 block opacity-50" data-icon="mdi:heart-outline"></span>
+                        <h3 class="text-lg font-medium mb-2">暂无收藏</h3>
+                        <p class="mb-4">您还没有收藏任何物品信息</p>
+                        <a href="失物招领平台_招领页面.html" class="btn-primary inline-block">去看看</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            // 创建收藏列表
+            favorites.forEach(itemId => {
+                // 检查是否存在模拟数据
+                if (mockItems[itemId]) {
+                    const item = mockItems[itemId];
+                    const isLost = item.type === 'lost';
+                    
+                    const card = document.createElement('div');
+                    card.className = 'item-card bg-white';
+                    card.innerHTML = `
+                        <div class="md:flex">
+                            <div class="md:w-1/4">
+                                <img src="${item.image}" alt="${item.title}" class="h-48 w-full object-cover md:h-full">
+                            </div>
+                            <div class="p-5 md:w-3/4">
+                                <div class="flex items-start mb-2">
+                                    <div class="flex items-center">
+                                        <span class="tag ${isLost ? 'tag-lost' : 'tag-found'} mr-2">${isLost ? '失物' : '招领'}</span>
+                                        <h3 class="font-bold text-lg">${item.title}</h3>
+                                    </div>
+                                </div>
+                                <p class="text-gray-600 mb-3 line-clamp-2">${item.description}</p>
+                                <div class="flex items-center text-sm text-gray-500 mb-3">
+                                    <span class="iconify mr-1" data-icon="mdi:map-marker"></span>
+                                    <span>${item.location}</span>
+                                    <span class="mx-2">·</span>
+                                    <span class="iconify mr-1" data-icon="mdi:clock"></span>
+                                    <span>${item.date}</span>
+                                </div>
+                                <div class="flex justify-end space-x-3">
+                                    <button class="favorite-btn p-2 rounded-full hover:bg-gray-100" data-id="${itemId}">
+                                        <span class="iconify text-xl text-red-500" data-icon="mdi:heart"></span>
+                                    </button>
+                                    <button class="btn-secondary">查看详情</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    container.appendChild(card);
+                }
+            });
+            
+            // 添加取消收藏的点击事件
+            document.querySelectorAll('.favorite-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    
+                    const itemId = this.getAttribute('data-id');
+                    console.log('点击取消收藏，ID:', itemId);
+                    
+                    // 从localStorage获取最新收藏列表
+                    let updatedFavorites = JSON.parse(localStorage.getItem('favorites')) || [];
+                    
+                    // 取消收藏
+                    updatedFavorites = updatedFavorites.filter(id => id !== itemId);
+                    
+                    // 保存到localStorage
+                    localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+                    console.log('更新后收藏列表:', updatedFavorites);
+                    
+                    // 重新加载收藏列表
+                    loadFavorites();
+                    
+                    // 显示通知
+                    showNotification('已取消收藏');
+                });
+            });
+            
+            // 查看详情按钮事件
+            document.querySelectorAll('.btn-secondary:not(.favorite-btn):not([class*="active"])').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const itemId = this.closest('.item-card').querySelector('.favorite-btn').getAttribute('data-id');
+                    const item = mockItems[itemId];
+                    const typeParam = item.type === 'lost' ? 'lost' : 'found';
+                    
+                    console.log('查看详情:', itemId, '类型:', typeParam);
+                    // 在实际应用中，这里会跳转到详情页面
+                    alert(`查看ID为${itemId}的${item.type === 'lost' ? '失物' : '招领'}信息详情`);
+                });
+            });
+        }
+        
+        // 显示通知函数
+        function showNotification(message) {
+            // 检查是否已有通知元素
+            let notification = document.getElementById('notification');
+            if (!notification) {
+                // 创建通知元素
+                notification = document.createElement('div');
+                notification.id = 'notification';
+                notification.className = 'fixed bottom-5 right-5 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg opacity-0 transition-opacity duration-300 z-50';
+                document.body.appendChild(notification);
+            }
+            
+            // 设置消息内容
+            notification.textContent = message;
+            
+            // 显示通知
+            setTimeout(() => {
+                notification.style.opacity = '1';
+            }, 10);
+            
+            // 3秒后隐藏通知
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 3000);
+        }
+        
+        // 筛选按钮点击事件
+        document.querySelectorAll('.btn-secondary').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // 如果不是操作按钮（查看详情），则执行筛选逻辑
+                if (!this.textContent.includes('查看详情')) {
+                    // 移除所有筛选按钮的活跃状态
+                    document.querySelectorAll('.btn-secondary').forEach(b => {
+                        if (!b.classList.contains('favorite-btn') && !b.textContent.includes('查看详情')) {
+                            b.classList.remove('bg-blue-50', 'text-blue-800', 'border-blue-200');
+                        }
+                    });
+                    
+                    // 添加当前按钮的活跃状态
+                    this.classList.add('bg-blue-50', 'text-blue-800', 'border-blue-200');
+                    
+                    // 这里可以添加实际的筛选逻辑
+                    console.log('筛选条件:', this.textContent);
+                }
+            });
+        });
+        
+        // 页面加载完成后加载收藏
+        document.addEventListener('DOMContentLoaded', loadFavorites);
+    </script>
+</body></html>

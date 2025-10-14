@@ -1,0 +1,379 @@
+<!DOCTYPE html><html lang="zh-CN"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发布历史 - 拾物通</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+        body {
+            background-color: #f8fafc;
+            font-family: 'Noto Sans SC', sans-serif;
+            color: #334155;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+        }
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background-color: #1e3a8a;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+        .btn-secondary {
+            border: 1px solid #cbd5e1;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+        .btn-secondary:hover {
+            background-color: #f1f5f9;
+        }
+        .tag {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+        .tag-found {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .tag-lost {
+            background-color: #ffedd5;
+            color: #9a3412;
+        }
+        .nav-link {
+            position: relative;
+            padding-bottom: 5px;
+        }
+        .nav-link.active:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #ff7d00;
+        }
+        .sidebar-link {
+            padding: 10px 16px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+        .sidebar-link:hover {
+            background-color: #f1f5f9;
+        }
+        .sidebar-link.active {
+            background-color: #eef2ff;
+            color: #1e3a8a;
+            font-weight: 500;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .notification-badge {
+            background-color: #ef4444;
+            color: white;
+            border-radius: 10px;
+            padding: 1px 6px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+        .item-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .item-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .status-pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        .status-resolved {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-6 py-4 max-w-7xl">
+            <div class="flex items-center justify-between">
+                <!-- Logo -->
+                <div class="flex items-center space-x-2">
+                    <span class="iconify text-2xl text-blue-800" data-icon="mdi:hand-heart"></span>
+                    <h1 class="text-xl font-bold text-blue-800">拾物通</h1>
+                </div>
+                
+                <!-- 主导航菜单 -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="失物招领平台_失物页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">失物</a>
+                    <a href="失物招领平台_招领页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">招领</a>
+                    <a href="失物招领平台_发布信息页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">发布信息</a>
+                    <a href="失物招领平台_私信页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">私信</a>
+                    <a href="失物招领平台_个人中心页面.html" class="nav-link active font-medium text-blue-800">个人中心</a>
+                </nav>
+                
+                <!-- 搜索框 -->
+                <div class="hidden lg:flex items-center border border-gray-300 rounded-lg px-3 py-2 w-64">
+                    <input type="text" placeholder="搜索物品或地点..." class="flex-1 focus:ring-0 border-none">
+                    <span class="iconify text-gray-500" data-icon="mdi:magnify"></span>
+                </div>
+                
+                <!-- 用户入口 -->
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button class="p-2 text-gray-600 hover:text-blue-800">
+                            <span class="iconify text-xl" data-icon="mdi:bell"></span>
+                            <span class="absolute top-0 right-0 notification-badge">3</span>
+                        </button>
+                    </div>
+                    <div class="hidden lg:block">
+                        <a href="失物招领平台_登录注册页面.html" class="btn-secondary text-sm">登录/注册</a>
+                    </div>
+                    <div class="lg:hidden">
+                        <span class="iconify text-2xl text-gray-700" data-icon="mdi:menu"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主体内容 -->
+    <main class="container mx-auto px-6 py-8 max-w-7xl">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <!-- 左侧边栏 -->
+            <div class="lg:col-span-1">
+                <!-- 用户信息卡片 -->
+                <div class="bg-white card p-6 mb-6">
+                    <div class="flex flex-col items-center mb-4">
+                        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="用户头像" class="w-24 h-24 rounded-full object-cover mb-2">
+                        <h2 class="font-bold text-lg">陈静</h2>
+                        <p class="text-sm text-gray-500">普通用户</p>
+                    </div>
+                </div>
+                
+                <!-- 侧边栏导航 -->
+                <div class="bg-white card p-4">
+                    <h3 class="font-bold text-lg mb-4">个人中心</h3>
+                    <ul class="space-y-1">
+                        <li><a href="失物招领平台_发布历史页面.html" class="sidebar-link active"><span class="iconify mr-3" data-icon="mdi:clipboard-list"></span>发布历史</a></li>
+                        <li><a href="失物招领平台_我的收藏页面.html" class="sidebar-link"><span class="iconify mr-3" data-icon="mdi:heart"></span>我的收藏</a></li>
+                        <li class="mt-6 pt-4 border-t border-gray-200">
+                            <a href="失物招领平台_登录注册页面.html" class="sidebar-link text-red-600 hover:bg-red-50"><span class="iconify mr-3" data-icon="mdi:logout"></span>退出登录</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- 右侧内容区 -->
+            <div class="lg:col-span-3">
+                <!-- 标题和筛选 -->
+                <div class="bg-white card p-6 mb-6">
+                    <h2 class="font-bold text-xl mb-4">发布历史</h2>
+                    <div class="flex flex-wrap gap-3">
+                        <button class="btn-secondary active px-4 py-2 bg-blue-50 text-blue-800 border-blue-200">全部</button>
+                        <button class="btn-secondary px-4 py-2">失物信息</button>
+                        <button class="btn-secondary px-4 py-2">招领信息</button>
+                        <button class="btn-secondary px-4 py-2">已解决</button>
+                        <button class="btn-secondary px-4 py-2">待处理</button>
+                    </div>
+                </div>
+                
+                <!-- 发布列表 -->
+                <div class="space-y-6">
+                    <!-- 招领信息卡片 -->
+                    <div class="item-card bg-white">
+                        <div class="md:flex">
+                            <div class="md:w-1/4">
+                                <img src="https://picsum.photos/seed/watch123/300/200" alt="智能手表" class="h-48 w-full object-cover md:h-full">
+                            </div>
+                            <div class="p-5 md:w-3/4">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div class="flex items-center">
+                                        <span class="tag tag-found mr-2">招领</span>
+                                        <h3 class="font-bold text-lg">捡到一块智能手表</h3>
+                                    </div>
+                                    <span class="status-badge status-resolved">已解决</span>
+                                </div>
+                                <p class="text-gray-600 mb-3 line-clamp-2">在图书馆三楼自习室捡到一块黑色智能手表，表带是皮质的，表盘是方形的，有心率监测功能。</p>
+                                <div class="flex items-center text-sm text-gray-500 mb-3">
+                                    <span class="iconify mr-1" data-icon="mdi:map-marker"></span>
+                                    <span>北京大学图书馆</span>
+                                    <span class="mx-2">·</span>
+                                    <span class="iconify mr-1" data-icon="mdi:clock"></span>
+                                    <span>2024-03-15</span>
+                                </div>
+                                <div class="flex justify-end space-x-3">
+                                    <button class="btn-secondary">查看详情</button>
+                                    <button class="btn-primary">编辑</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 失物信息卡片 -->
+                    <div class="item-card bg-white">
+                        <div class="md:flex">
+                            <div class="md:w-1/4">
+                                <img src="https://picsum.photos/seed/bag456/300/200" alt="帆布包" class="h-48 w-full object-cover md:h-full">
+                            </div>
+                            <div class="p-5 md:w-3/4">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div class="flex items-center">
+                                        <span class="tag tag-lost mr-2">失物</span>
+                                        <h3 class="font-bold text-lg">丢失蓝色帆布包</h3>
+                                    </div>
+                                    <span class="status-badge status-pending">待处理</span>
+                                </div>
+                                <p class="text-gray-600 mb-3 line-clamp-2">在教学楼A区丢失一个蓝色帆布包，上面有卡通图案，内有课本、笔记本和学生证等物品。</p>
+                                <div class="flex items-center text-sm text-gray-500 mb-3">
+                                    <span class="iconify mr-1" data-icon="mdi:map-marker"></span>
+                                    <span>北京大学教学楼A区</span>
+                                    <span class="mx-2">·</span>
+                                    <span class="iconify mr-1" data-icon="mdi:clock"></span>
+                                    <span>2024-03-10</span>
+                                </div>
+                                <div class="flex justify-end space-x-3">
+                                    <button class="btn-secondary">查看详情</button>
+                                    <button class="btn-primary">编辑</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 招领信息卡片 -->
+                    <div class="item-card bg-white">
+                        <div class="md:flex">
+                            <div class="md:w-1/4">
+                                <img src="https://picsum.photos/seed/phone789/300/200" alt="手机" class="h-48 w-full object-cover md:h-full">
+                            </div>
+                            <div class="p-5 md:w-3/4">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div class="flex items-center">
+                                        <span class="tag tag-found mr-2">招领</span>
+                                        <h3 class="font-bold text-lg">捡到一部手机</h3>
+                                    </div>
+                                    <span class="status-badge status-resolved">已解决</span>
+                                </div>
+                                <p class="text-gray-600 mb-3 line-clamp-2">在食堂二楼捡到一部白色手机，有密码锁，请失主提供手机型号和丢失地点前来认领。</p>
+                                <div class="flex items-center text-sm text-gray-500 mb-3">
+                                    <span class="iconify mr-1" data-icon="mdi:map-marker"></span>
+                                    <span>北京大学食堂</span>
+                                    <span class="mx-2">·</span>
+                                    <span class="iconify mr-1" data-icon="mdi:clock"></span>
+                                    <span>2024-03-05</span>
+                                </div>
+                                <div class="flex justify-end space-x-3">
+                                    <button class="btn-secondary">查看详情</button>
+                                    <button class="btn-primary">编辑</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 分页 -->
+                <div class="mt-8 flex justify-center">
+                    <nav class="flex items-center space-x-1">
+                        <button class="px-3 py-2 rounded-md bg-white border text-gray-600">上一页</button>
+                        <button class="px-4 py-2 rounded-md bg-blue-800 text-white">1</button>
+                        <button class="px-4 py-2 rounded-md bg-white border text-gray-600">2</button>
+                        <button class="px-4 py-2 rounded-md bg-white border text-gray-600">3</button>
+                        <button class="px-3 py-2 rounded-md bg-white border text-gray-600">下一页</button>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚区域 -->
+    <footer class="bg-gray-100 py-10 mt-12">
+        <div class="container mx-auto px-6 max-w-7xl">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <span class="iconify text-2xl text-blue-800" data-icon="mdi:hand-heart"></span>
+                        <h2 class="text-xl font-bold text-blue-800">拾物通</h2>
+                    </div>
+                    <p class="text-gray-600 mb-4">连接失物与主人的公益平台</p>
+                </div>
+                <div>
+                    <h3 class="font-bold mb-4">快速链接</h3>
+                    <ul class="space-y-2 text-gray-600">
+                        <li><a href="失物招领平台_失物页面.html" class="hover:text-blue-800">失物</a></li>
+                        <li><a href="失物招领平台_招领页面.html" class="hover:text-blue-800">招领</a></li>
+                        <li><a href="失物招领平台_发布信息页面.html" class="hover:text-blue-800">发布信息</a></li>
+                        <li><a href="失物招领平台_个人中心页面.html" class="hover:text-blue-800">个人中心</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold mb-4">帮助中心</h3>
+                    <ul class="space-y-2 text-gray-600">
+                        <li><a href="#" class="hover:text-blue-800">常见问题</a></li>
+                        <li><a href="#" class="hover:text-blue-800">使用指南</a></li>
+                        <li><a href="#" class="hover:text-blue-800">隐私政策</a></li>
+                        <li><a href="#" class="hover:text-blue-800">用户协议</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold mb-4">联系我们</h3>
+                    <ul class="space-y-2 text-gray-600">
+                        <li class="flex items-center"><span class="iconify mr-2" data-icon="mdi:email"></span> support@shiwutong.com</li>
+                        <li class="flex items-center"><span class="iconify mr-2" data-icon="mdi:phone"></span> 400-123-4567</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="mt-8 pt-6 border-t border-gray-200 text-center text-gray-600">
+                <p>© 2024 拾物通. 保留所有权利。</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 筛选按钮点击事件
+        document.querySelectorAll('.btn-secondary').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // 如果不是操作按钮（查看详情、编辑），则执行筛选逻辑
+                if (!this.textContent.includes('查看详情') && !this.textContent.includes('编辑')) {
+                    // 移除所有筛选按钮的活跃状态
+                    document.querySelectorAll('.btn-secondary').forEach(b => {
+                        b.classList.remove('bg-blue-50', 'text-blue-800', 'border-blue-200');
+                    });
+                    
+                    // 添加当前按钮的活跃状态
+                    this.classList.add('bg-blue-50', 'text-blue-800', 'border-blue-200');
+                    
+                    // 这里可以添加实际的筛选逻辑
+                    console.log('筛选条件:', this.textContent);
+                }
+            });
+        });
+    </script>
+</body></html>

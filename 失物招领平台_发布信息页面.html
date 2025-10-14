@@ -1,0 +1,483 @@
+<!DOCTYPE html><html lang="zh-CN"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发布信息 - 拾物通</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+        body {
+            background-color: #f8fafc;
+            font-family: 'Noto Sans SC', sans-serif;
+            color: #334155;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+        }
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background-color: #1e3a8a;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+        .btn-secondary {
+            border: 1px solid #cbd5e1;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+        .btn-secondary:hover {
+            background-color: #f1f5f9;
+        }
+        .tag {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+        .tag-found {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .tag-lost {
+            background-color: #ffedd5;
+            color: #9a3412;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+        .nav-link {
+            position: relative;
+            padding-bottom: 5px;
+        }
+        .nav-link.active:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #ff7d00;
+        }
+        .form-label {
+            font-weight: 500;
+            color: #475569;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 0.5rem 0.75rem;
+            transition: all 0.2s ease;
+        }
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        .upload-box {
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+        .upload-box:hover {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+        .radio-group {
+            display: flex;
+            gap: 1.5rem;
+        }
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+        .radio-option input[type="radio"] {
+            accent-color: #1e3a8a;
+        }
+        .form-divider {
+            height: 1px;
+            background-color: #e2e8f0;
+            margin: 1.5rem 0;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-6 py-4 max-w-7xl">
+            <div class="flex items-center justify-between">
+                <!-- Logo -->
+                <div class="flex items-center space-x-2">
+                    <span class="iconify text-2xl text-blue-800" data-icon="mdi:hand-heart"></span>
+                    <h1 class="text-xl font-bold text-blue-800">拾物通</h1>
+                </div>
+                
+                <!-- 主导航菜单 -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="失物招领平台_失物页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">失物</a>
+                    <a href="失物招领平台_招领页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">招领</a>
+                    <a href="失物招领平台_发布信息页面.html" class="nav-link active font-medium text-blue-800">发布信息</a>
+                    <a href="失物招领平台_私信页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">私信</a>
+                    <a href="失物招领平台_个人中心页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">个人中心</a>
+                </nav>
+                
+                <!-- 搜索框 -->
+                <div class="hidden lg:flex items-center border border-gray-300 rounded-lg px-3 py-2 w-64">
+                    <input type="text" placeholder="搜索物品或地点..." class="flex-1 focus:ring-0 border-none">
+                    <span class="iconify text-gray-500" data-icon="mdi:magnify"></span>
+                </div>
+                
+                <!-- 用户入口 -->
+                <div class="flex items-center space-x-4">
+                    <a href="失物招领平台_登录注册页面.html" class="btn-secondary text-sm hidden lg:block">登录/注册</a>
+                    <div class="lg:hidden">
+                        <span class="iconify text-2xl text-gray-700" data-icon="mdi:menu"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主体内容 -->
+    <main class="container mx-auto px-6 py-8 max-w-7xl">
+        <div class="max-w-3xl mx-auto">
+            <!-- 页面标题 -->
+            <div class="mb-8 text-center">
+                <h2 class="text-2xl font-bold text-blue-800 mb-2">发布失物/招领信息</h2>
+                <p class="text-gray-600">请填写以下信息，帮助物品尽快找到主人或归还给您</p>
+            </div>
+            
+            <!-- 表单卡片 -->
+            <div class="bg-white card p-8 mb-8">
+                <form id="publishForm">
+                    <!-- 信息类型 -->
+                    <div class="mb-6">
+                        <label class="form-label">信息类型</label>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="infoType" value="lost" class="mr-2">
+                                <span>失物信息（寻找物品）</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="infoType" value="found" class="mr-2" checked>
+                                <span>招领信息（拾得物品）</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-divider"></div>
+                    
+                    <!-- 物品基本信息 -->
+                    <div class="space-y-6">
+                        <div>
+                            <label for="itemName" class="form-label">物品名称 <span class="text-red-500">*</span></label>
+                            <input type="text" id="itemName" class="form-input" placeholder="请输入物品名称" required>
+                        </div>
+                        
+                        <div>
+                            <label for="itemCategory" class="form-label">物品分类 <span class="text-red-500">*</span></label>
+                            <select id="itemCategory" class="form-select" required>
+                                <option value="">请选择物品分类</option>
+                                <option value="electronics">电子设备</option>
+                                <option value="documents">证件卡类</option>
+                                <option value="bags">包袋箱包</option>
+                                <option value="clothing">衣物配饰</option>
+                                <option value="books">书籍文具</option>
+                                <option value="other">其他物品</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="itemDescription" class="form-label">物品描述 <span class="text-red-500">*</span></label>
+                            <textarea id="itemDescription" class="form-textarea" placeholder="请详细描述物品特征、品牌、颜色、大小等信息，有助于快速确认失主/主人" required></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-divider"></div>
+                    
+                    <!-- 地点和时间信息 -->
+                    <div class="space-y-6">
+                        <div>
+                            <label for="location" class="form-label">地点 <span class="text-red-500">*</span></label>
+                            <select id="location" class="form-select mb-3" required>
+                                <option value="">请选择地点区域</option>
+                                <option value="teaching">教学楼</option>
+                                <option value="library">图书馆</option>
+                                <option value="gym">体育馆</option>
+                                <option value="canteen">食堂</option>
+                                <option value="dorm">宿舍区</option>
+                                <option value="gate">校门口</option>
+                                <option value="other">其他</option>
+                            </select>
+                            <input type="text" id="locationDetail" class="form-input" placeholder="请填写具体位置（如：第一教学楼302教室）">
+                        </div>
+                        
+                        <div>
+                            <label for="datetime" class="form-label">发现/遗失时间 <span class="text-red-500">*</span></label>
+                            <input type="datetime-local" id="datetime" class="form-input" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-divider"></div>
+                    
+                    <!-- 联系方式 -->
+                    <div class="space-y-6">
+                        <div>
+                            <label for="contactName" class="form-label">联系人姓名 <span class="text-red-500">*</span></label>
+                            <input type="text" id="contactName" class="form-input" placeholder="请输入您的姓名" required>
+                        </div>
+                        
+                        <div>
+                            <label for="contactPhone" class="form-label">联系电话 <span class="text-red-500">*</span></label>
+                            <input type="tel" id="contactPhone" class="form-input" placeholder="请输入您的联系电话" required>
+                        </div>
+                        
+                        <div>
+                            <label for="contactEmail" class="form-label">电子邮箱</label>
+                            <input type="email" id="contactEmail" class="form-input" placeholder="请输入您的电子邮箱（选填）">
+                        </div>
+                    </div>
+                    
+                    <div class="form-divider"></div>
+                    
+                    <!-- 图片上传 -->
+                    <div class="mb-8">
+                        <label class="form-label">上传物品照片（最多3张）</label>
+                        <div class="upload-box mb-4">
+                            <span class="iconify text-4xl text-gray-400 mb-2 block" data-icon="mdi:upload-to-cloud"></span>
+                            <p class="text-gray-500 mb-2">点击或拖拽图片到此处上传</p>
+                            <p class="text-gray-400 text-sm">支持 JPG、PNG 格式，单张不超过5MB</p>
+                            <input type="file" id="imageUpload" class="hidden" accept="image/jpeg, image/png" multiple max="3">
+                            <button type="button" onclick="document.getElementById('imageUpload').click()" class="mt-3 btn-secondary">选择图片</button>
+                        </div>
+                        <div id="imagePreview" class="grid grid-cols-3 gap-4"></div>
+                    </div>
+                    
+                    <!-- 提交按钮 -->
+                    <div class="flex justify-center space-x-4">
+                        <button type="button" class="btn-secondary px-8 py-3 text-base">取消</button>
+                        <button type="submit" class="btn-primary px-8 py-3 text-base">提交发布</button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- 发布须知 -->
+            <div class="bg-blue-50 p-6 rounded-lg border border-blue-100">
+                <h3 class="flex items-center text-blue-800 font-bold mb-3">
+                    <span class="iconify mr-2" data-icon="mdi:alert-circle"></span>
+                    发布须知
+                </h3>
+                <ul class="text-blue-700 space-y-2">
+                    <li class="flex items-start">
+                        <span class="iconify mr-2 text-blue-600 mt-1" data-icon="mdi:circle-small"></span>
+                        请确保所提供的信息真实有效，虚假信息将被删除并可能影响您的账号信用。
+                    </li>
+                    <li class="flex items-start">
+                        <span class="iconify mr-2 text-blue-600 mt-1" data-icon="mdi:circle-small"></span>
+                        上传清晰的物品照片有助于提高匹配成功率。
+                    </li>
+                    <li class="flex items-start">
+                        <span class="iconify mr-2 text-blue-600 mt-1" data-icon="mdi:circle-small"></span>
+                        对于招领信息，请在确认失主身份后再进行归还，避免财物损失。
+                    </li>
+                    <li class="flex items-start">
+                        <span class="iconify mr-2 text-blue-600 mt-1" data-icon="mdi:circle-small"></span>
+                        信息发布成功后，工作人员会进行审核，审核通过后将在平台展示。
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚区域 -->
+    <footer class="bg-gray-100 py-10 mt-12">
+        <div class="container mx-auto px-6 max-w-7xl">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <span class="iconify text-2xl text-blue-800" data-icon="mdi:hand-heart"></span>
+                        <h2 class="text-xl font-bold text-blue-800">拾物通</h2>
+                    </div>
+                    <p class="text-gray-600 mb-4">连接失物与主人的公益平台</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-600 hover:text-blue-800">
+                            <span class="iconify text-xl" data-icon="mdi:wechat"></span>
+                        </a>
+                        <a href="#" class="text-gray-600 hover:text-blue-800">
+                            <span class="iconify text-xl" data-icon="mdi:weibo"></span>
+                        </a>
+                        <a href="#" class="text-gray-600 hover:text-blue-800">
+                            <span class="iconify text-xl" data-icon="mdi:qqchat"></span>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="font-bold text-lg mb-4">快速链接</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800">关于我们</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800">失物认领流程</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800">招领物品指南</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800">联系我们</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-bold text-lg mb-4">帮助中心</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800">常见问题</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800">用户协议</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800">隐私政策</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-800">使用指南</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-bold text-lg mb-4">联系方式</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-center text-gray-600">
+                            <span class="iconify mr-2" data-icon="mdi:email"></span>
+                            contact@shiwutong.com
+                        </li>
+                        <li class="flex items-center text-gray-600">
+                            <span class="iconify mr-2" data-icon="mdi:phone"></span>
+                            400-123-4567
+                        </li>
+                        <li class="flex items-center text-gray-600">
+                            <span class="iconify mr-2" data-icon="mdi:map-marker"></span>
+                            北京市海淀区学院路38号
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-200 mt-8 pt-6 text-center text-gray-500 text-sm">
+                <p>© 2025 拾物通 失物招领平台 版权所有 京ICP备12345678号</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 简单的图片预览功能 -->
+    <script>
+        document.getElementById('imageUpload').addEventListener('change', function(e) {
+            const previewContainer = document.getElementById('imagePreview');
+            previewContainer.innerHTML = '';
+            
+            for (let i = 0; i < e.target.files.length && i < 3; i++) {
+                const file = e.target.files[i];
+                const reader = new FileReader();
+                
+                reader.onload = function(event) {
+                    const imgContainer = document.createElement('div');
+                    imgContainer.className = 'relative';
+                    
+                    const img = document.createElement('img');
+                    img.src = event.target.result;
+                    img.className = 'w-full h-32 object-cover rounded-lg';
+                    
+                    const removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.className = 'absolute top-2 right-2 bg-white rounded-full p-1 shadow-md';
+                    removeBtn.innerHTML = '<span class="iconify text-red-500" data-icon="mdi:close"></span>';
+                    removeBtn.onclick = function() {
+                        imgContainer.remove();
+                    };
+                    
+                    imgContainer.appendChild(img);
+                    imgContainer.appendChild(removeBtn);
+                    previewContainer.appendChild(imgContainer);
+                };
+                
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // 表单验证和提交处理
+        document.getElementById('publishForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 获取表单数据
+            const infoType = document.querySelector('input[name="infoType"]:checked').value;
+            const itemName = document.getElementById('itemName').value;
+            const itemCategory = document.getElementById('itemCategory').value;
+            const itemDescription = document.getElementById('itemDescription').value;
+            const location = document.getElementById('location').value;
+            const locationDetail = document.getElementById('locationDetail').value;
+            const datetime = document.getElementById('datetime').value;
+            const contactName = document.getElementById('contactName').value;
+            const contactPhone = document.getElementById('contactPhone').value;
+            const contactEmail = document.getElementById('contactEmail').value;
+            
+            // 简单验证
+            if (!itemName || !itemCategory || !itemDescription || !location || !datetime || !contactName || !contactPhone) {
+                alert('请填写所有必填项！');
+                return;
+            }
+            
+            // 验证电话号码格式
+            const phoneRegex = /^1[3-9]\d{9}$/;
+            if (!phoneRegex.test(contactPhone)) {
+                alert('请输入正确的手机号码！');
+                return;
+            }
+            
+            // 验证邮箱格式（如果填写）
+            if (contactEmail) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(contactEmail)) {
+                    alert('请输入正确的邮箱地址！');
+                    return;
+                }
+            }
+            
+            // 显示提交的数据（在实际应用中这里会发送到服务器）
+            console.log('提交的信息:', {
+                infoType,
+                itemName,
+                itemCategory,
+                itemDescription,
+                location,
+                locationDetail,
+                datetime,
+                contactName,
+                contactPhone,
+                contactEmail
+            });
+            
+            alert('信息发布成功！我们将尽快审核您的信息。');
+            // 重置表单
+            this.reset();
+            document.getElementById('imagePreview').innerHTML = '';
+        });
+        
+        // 取消按钮功能
+        document.querySelector('button[type="button"]:not(:last-child)').addEventListener('click', function() {
+            if (confirm('确定要取消发布吗？已填写的内容将会丢失。')) {
+                document.getElementById('publishForm').reset();
+                document.getElementById('imagePreview').innerHTML = '';
+            }
+        });
+    </script>
+
+</body></html>
