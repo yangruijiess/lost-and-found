@@ -405,20 +405,70 @@
             }
             
             if (isValid) {
-                // 在实际应用中，这里会发送登录请求到服务器
-                console.log('登录数据:', { username, password });
+                // 清除之前可能存在的错误信息
+                document.getElementById('loginUsernameError').textContent = '';
                 
-                // 检查是否是管理员账号
-                if (username === 'administrator' && password === 'password') {
-                    // 管理员登录成功
-                    alert('管理员登录成功！');
-                    window.location.href = '失物招领平台_管理员页面.html';
-                } else {
-                    // 普通用户登录成功
-                    alert('登录成功！');
-                    // 登录成功后可以跳转到首页或个人中心
-                    window.location.href = '失物招领平台_失物页面.html';
-                }
+                // 显示加载状态（可以添加一个加载指示器）
+                const loginButton = document.querySelector('#loginForm button[type="submit"]');
+                const originalButtonText = loginButton.textContent;
+                loginButton.disabled = true;
+                loginButton.textContent = '登录中...';
+                
+                // 调用后端登录接口
+                fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password,
+                        rememberMe: document.getElementById('rememberMe').checked
+                    })
+                })
+                .then(response => {
+                    // 恢复按钮状态
+                    loginButton.disabled = false;
+                    loginButton.textContent = originalButtonText;
+                    
+                    if (!response.ok) {
+                        // 服务器返回错误
+                        return response.json().then(errorData => {
+                            throw new Error(errorData.message || '登录失败，请检查用户名和密码');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // 登录成功，处理返回数据
+                    console.log('登录成功:', data);
+                    
+                    // 保存登录状态（在实际应用中可能使用localStorage或sessionStorage）
+                    if (data.token) {
+                        localStorage.setItem('authToken', data.token);
+                    }
+                    
+                    // 根据用户角色跳转到不同页面
+                    if (data.isAdmin) {
+                        // 管理员登录成功
+                        alert('管理员登录成功！');
+                        window.location.href = '失物招领平台_管理员页面.html';
+                    } else {
+                        // 普通用户登录成功
+                        alert('登录成功！');
+                        // 登录成功后跳转到失物页面
+                        window.location.href = '失物招领平台_失物页面.html';
+                    }
+                })
+                .catch(error => {
+                    // 恢复按钮状态
+                    loginButton.disabled = false;
+                    loginButton.textContent = originalButtonText;
+                    
+                    // 显示错误信息
+                    console.error('登录错误:', error);
+                    document.getElementById('loginUsernameError').textContent = error.message || '登录失败，请稍后再试';
+                });
             }
         }
         
@@ -497,13 +547,77 @@
             }
             
             if (isValid) {
-                // 在实际应用中，这里会发送注册请求到服务器
-                console.log('注册数据:', { username, studentId, email, phone, password });
+                // 清除之前可能存在的错误信息
+                document.querySelectorAll('#registerForm .error-message').forEach(el => el.textContent = '');
                 
-                // 模拟注册成功
-                alert('注册成功！');
-                // 注册成功后切换到登录标签
-                switchTab('login');
+                // 显示加载状态
+                const registerButton = document.querySelector('#registerForm button[type="submit"]');
+                const originalButtonText = registerButton.textContent;
+                registerButton.disabled = true;
+                registerButton.textContent = '注册中...';
+                
+                // 调用后端注册接口
+                fetch('/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        studentId: studentId,
+                        email: email,
+                        phone: phone,
+                        password: password
+                    })
+                })
+                .then(response => {
+                    // 恢复按钮状态
+                    registerButton.disabled = false;
+                    registerButton.textContent = originalButtonText;
+                    
+                    if (!response.ok) {
+                        // 服务器返回错误
+                        return response.json().then(errorData => {
+                            // 处理字段级别的错误信息
+                            if (errorData.errors) {
+                                for (const [field, message] of Object.entries(errorData.errors)) {
+                                    const errorElement = document.getElementById(`register${field.charAt(0).toUpperCase() + field.slice(1)}Error`);
+                                    if (errorElement) {
+                                        errorElement.textContent = message;
+                                    }
+                                }
+                                throw new Error(errorData.message || '注册失败，请检查表单信息');
+                            }
+                            throw new Error(errorData.message || '注册失败，请稍后再试');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // 注册成功，处理返回数据
+                    console.log('注册成功:', data);
+                    
+                    // 显示成功消息
+                    alert('注册成功！');
+                    
+                    // 注册成功后切换到登录标签
+                    switchTab('login');
+                    
+                    // 可选：自动填充用户名到登录表单
+                    document.getElementById('loginUsername').value = username;
+                })
+                .catch(error => {
+                    // 恢复按钮状态
+                    registerButton.disabled = false;
+                    registerButton.textContent = originalButtonText;
+                    
+                    // 显示错误信息
+                    console.error('注册错误:', error);
+                    // 如果没有字段级别的错误，显示通用错误
+                    if (!document.querySelector('#registerForm .error-message:not(:empty)')) {
+                        document.getElementById('registerUsernameError').textContent = error.message || '注册失败，请稍后再试';
+                    }
+                });
             }
         }
     </script>
