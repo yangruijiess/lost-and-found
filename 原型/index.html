@@ -137,10 +137,10 @@
                 <!-- 登录表单 -->
                 <form id="loginForm" onsubmit="handleLogin(event)">
                     <div class="mb-4">
-                        <label for="loginUsername" class="block text-sm font-medium text-gray-700 mb-1">用户名/学号</label>
+                        <label for="loginUsername" class="block text-sm font-medium text-gray-700 mb-1">用户名</label>
                         <div class="input-with-icon">
                             <span class="form-icon iconify" data-icon="mdi:account"></span>
-                            <input type="text" id="loginUsername" class="input-field" required placeholder="请输入用户名或学号">
+                            <input type="text" id="loginUsername" class="input-field" required placeholder="请输入用户名">
                         </div>
                         <div id="loginUsernameError" class="error-message"></div>
                     </div>
@@ -415,7 +415,7 @@
                 loginButton.textContent = '登录中...';
                 
                 // 调用后端登录接口
-                fetch('/api/login', {
+                fetch('http://localhost:3000/api/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -557,7 +557,7 @@
                 registerButton.textContent = '注册中...';
                 
                 // 调用后端注册接口
-                fetch('/api/register', {
+                fetch('http://localhost:3000/api/register', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
