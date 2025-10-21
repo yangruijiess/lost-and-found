@@ -52,10 +52,10 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`服务器运行在 http://localhost:${PORT}`);
   console.log('API端点:');
-  console.log('  - 健康检查: GET http://localhost:${PORT}');
-  console.log('  - 用户登录: POST http://localhost:${PORT}/api/login');
-  console.log('  - 用户注册: POST http://localhost:${PORT}/api/register');
-  console.log('  - 获取用户列表(调试): GET http://localhost:${PORT}/api/users');
+  console.log(`  - 健康检查: GET http://localhost:${PORT}`);
+  console.log(`  - 用户登录: POST http://localhost:${PORT}/api/login`);
+  console.log(`  - 用户注册: POST http://localhost:${PORT}/api/register`);
+  console.log(`  - 获取用户列表(调试): GET http://localhost:${PORT}/api/users`);
   console.log('\n默认管理员账户:');
   console.log('  - 用户名: admin');
   console.log('  - 密码: admin123');
