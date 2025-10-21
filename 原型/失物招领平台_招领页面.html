@@ -391,6 +391,197 @@
 
     <!-- 交互脚本 -->
     <script>
+        // 全局变量
+        let currentPage = 1;
+        let totalPages = 3; // 模拟总页数，实际应从API获取
+        
+        // 获取招领物品数据
+        async function fetchFoundItems(page = 1, filters = {}) {
+            try {
+                // 构建查询参数
+                const params = new URLSearchParams();
+                params.append('page', page);
+                
+                // 添加筛选参数
+                if (filters.category) params.append('category', filters.category);
+                if (filters.timeRange) params.append('timeRange', filters.timeRange);
+                if (filters.location) params.append('location', filters.location);
+                if (filters.search) params.append('search', filters.search);
+                
+                // 显示加载状态
+                const cardsContainer = document.querySelector('.grid.grid-cols-1.sm\:grid-cols-2.lg\:grid-cols-3');
+                cardsContainer.innerHTML = '<div class="col-span-full text-center py-12"><span class="iconify text-4xl text-blue-800 animate-pulse" data-icon="mdi:loading"></span><p class="mt-4">加载中...</p></div>';
+                
+                // 调用后端API
+                const response = await fetch(`/api/found-items?${params.toString()}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('获取招领物品数据成功:', data);
+                
+                // 更新总页数（实际应从API返回）
+                totalPages = data.totalPages || 3;
+                
+                // 渲染招领物品卡片
+                renderFoundItems(data.items || []);
+                
+                return data.items || [];
+            } catch (error) {
+                console.error('获取招领物品数据失败:', error);
+                
+                // 显示错误信息
+                const cardsContainer = document.querySelector('.grid.grid-cols-1.sm\:grid-cols-2.lg\:grid-cols-3');
+                cardsContainer.innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <span class="iconify text-4xl text-red-500" data-icon="mdi:alert-circle"></span>
+                        <p class="mt-4 text-gray-600">加载失败，请稍后重试</p>
+                        <button id="retryBtn" class="mt-4 btn-primary">重试</button>
+                    </div>
+                `;
+                
+                // 添加重试按钮事件
+                document.getElementById('retryBtn').addEventListener('click', () => fetchFoundItems(page, filters));
+                
+                // 返回模拟数据，确保页面可以显示内容
+                return getMockFoundItems();
+            }
+        }
+        
+        // 渲染招领物品卡片
+        function renderFoundItems(items) {
+            const cardsContainer = document.querySelector('.grid.grid-cols-1.sm\:grid-cols-2.lg\:grid-cols-3');
+            
+            if (items.length === 0) {
+                cardsContainer.innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <span class="iconify text-4xl text-gray-400" data-icon="mdi:file-search-outline"></span>
+                        <p class="mt-4 text-gray-600">暂无符合条件的招领信息</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // 清空容器
+            cardsContainer.innerHTML = '';
+            
+            // 为每个物品创建卡片
+            items.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'bg-white card overflow-hidden';
+                
+                // 构建卡片HTML，从后端API获取图片URL
+                card.innerHTML = `
+                    <div class="relative">
+                        <img 
+                            src="${item.imageUrl || '/api/images/' + item.id}" 
+                            alt="${item.name || '招领物品'}" 
+                            class="w-full h-48 object-cover"
+                            loading="lazy"
+                            onerror="this.onerror=null;this.src='/images/placeholder.jpg';"
+                        >
+                        <div class="absolute top-3 right-3">
+                            <span class="tag tag-found">招领中</span>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-bold text-lg mb-2">${item.name || '未命名物品'}</h3>
+                        <p class="text-gray-600 mb-4">${item.description || '暂无描述'}</p>
+                        <div class="flex items-center text-sm text-gray-500 mb-2">
+                            <span class="iconify mr-1" data-icon="mdi:account-circle"></span>
+                            <span class="text-blue-800 cursor-pointer hover:underline">${item.publisher || '匿名用户'}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center text-sm text-gray-500">
+                                <span class="iconify mr-1" data-icon="mdi:map-marker"></span>
+                                ${item.location || '未知地点'}
+                            </div>
+                            <div class="text-sm text-gray-500">${item.date || '未知日期'}</div>
+                        </div>
+                    </div>
+                    <div class="border-t px-5 py-3 flex justify-between items-center">
+                        <button class="btn-secondary" data-id="${item.id || index + 1}">查看详情</button>
+                        <div class="flex items-center space-x-3">
+                            ${item.id ? `<button class="favorite-btn p-2 rounded-full hover:bg-gray-100" data-id="${item.id}">` : ''}
+                                <span class="iconify text-xl text-gray-500 hover:text-red-500" data-icon="mdi:heart-outline"></span>
+                            ${item.id ? `</button>` : ''}
+                            <button class="btn-primary">联系认领</button>
+                        </div>
+                    </div>
+                `;
+                
+                cardsContainer.appendChild(card);
+            });
+            
+            // 重新初始化事件监听
+            setupViewDetailButtons();
+            setupFavoriteButtons();
+            setupContactButtons();
+            setupPublisherLinks();
+        }
+        
+        // 获取模拟数据（当API调用失败时使用）
+        function getMockFoundItems() {
+            return [
+                {
+                    id: '1',
+                    name: '黑色皮质钱包',
+                    description: '在图书馆二楼自习室发现，内有身份证、银行卡等贵重物品',
+                    imageUrl: 'https://modao.cc/ai/uploads/ai_pics/30/302276/aigp_1758618094.jpeg',
+                    publisher: '林同学',
+                    location: '图书馆二楼',
+                    date: '9月22日'
+                },
+                {
+                    id: '2',
+                    name: '一串钥匙',
+                    description: '在食堂门口拾得，包含三把钥匙和一个蓝色小熊挂件',
+                    imageUrl: 'https://modao.cc/ai/uploads/ai_pics/30/302278/aigp_1758618097.jpeg',
+                    publisher: '郑同学',
+                    location: '第一食堂',
+                    date: '9月21日'
+                },
+                {
+                    id: '3',
+                    name: '黄色雨伞',
+                    description: '在二号教学楼门口拾得，伞柄有特殊定制刻字',
+                    imageUrl: 'https://modao.cc/ai/uploads/ai_pics/30/302280/aigp_1758618100.jpeg',
+                    publisher: '王同学',
+                    location: '二号教学楼',
+                    date: '9月23日'
+                },
+                {
+                    id: '4',
+                    name: '白色无线耳机',
+                    description: '在体育馆看台下拾得，带有充电盒，品牌为AirPods Pro',
+                    imageUrl: 'https://img.alicdn.com/imgextra/i1/4611686018427382574/O1CN01XwFcbv1wmM6hgdAFs_!!4611686018427382574-0-rate.jpg_960x960.jpg_.webp',
+                    publisher: '赵同学',
+                    location: '体育馆',
+                    date: '9月21日'
+                },
+                {
+                    id: '5',
+                    name: '红色笔记本',
+                    description: '在第二教学楼205教室拾得，封面上有姓名缩写"LY"',
+                    imageUrl: 'https://gw.alicdn.com/bao/uploaded/i1/2212434396385/O1CN01qTiSK71x2Nqoof626_!!2212434396385.jpg_.webp',
+                    publisher: '孙同学',
+                    location: '第二教学楼',
+                    date: '9月20日'
+                },
+                {
+                    id: '6',
+                    name: '灰色连帽外套',
+                    description: '在图书馆三楼休息区沙发上拾得，尺码为M码',
+                    imageUrl: 'https://gw.alicdn.com/imgextra/i1/1749077007/O1CN01TkLjFs21dGK7OFQ6L_!!1749077007.jpg',
+                    publisher: '李同学',
+                    location: '图书馆',
+                    date: '9月19日'
+                }
+            ];
+        }
+        
         // 筛选功能
         document.querySelector('.btn-primary.w-full').addEventListener('click', function() {
             const itemCategory = document.querySelector('select:nth-of-type(1)').value;
@@ -403,18 +594,25 @@
                 locationArea
             });
             
-            // 这里可以添加筛选后的数据刷新逻辑
-            alert('筛选条件已应用！在实际应用中，这里会根据筛选条件刷新列表数据。');
+            // 重置到第一页并重新获取数据
+            currentPage = 1;
+            fetchFoundItems(1, {
+                category: itemCategory !== '全部类别' ? itemCategory : '',
+                timeRange: timeRange !== '全部时间' ? timeRange : '',
+                location: locationArea !== '全部区域' ? locationArea : ''
+            });
         });
         
         // 点击发布者名称跳转到私信页面
-        document.querySelectorAll('.text-blue-800.cursor-pointer').forEach(username => {
-            username.addEventListener('click', function() {
-                const publisherName = this.textContent;
-                // 在实际应用中，这里会跳转到私信页面并预设聊天对象
-                window.location.href = '失物招领平台_私信页面.html';
+        function setupPublisherLinks() {
+            document.querySelectorAll('.text-blue-800.cursor-pointer').forEach(username => {
+                username.addEventListener('click', function() {
+                    const publisherName = this.textContent;
+                    // 在实际应用中，这里会跳转到私信页面并预设聊天对象
+                    window.location.href = '失物招领平台_私信页面.html';
+                });
             });
-        });
+        }
         
         // 排序功能
         document.querySelector('.btn-secondary.flex.items-center').addEventListener('click', function() {
@@ -429,11 +627,14 @@
         
         // 查看详情功能
         function setupViewDetailButtons() {
-            document.querySelectorAll('.btn-secondary:not(.flex)').forEach((btn, index) => {
-                // 为每个按钮添加data-id属性
-                btn.setAttribute('data-id', (index + 1).toString());
+            document.querySelectorAll('.btn-secondary:not(.flex)').forEach((btn) => {
+                const itemId = btn.getAttribute('data-id');
+                if (!itemId) {
+                    console.warn('按钮缺少data-id属性');
+                    return;
+                }
+                
                 btn.addEventListener('click', function() {
-                    const itemId = this.getAttribute('data-id') || '1';
                     console.log('查看详情:', itemId);
                     // 先跳转到验证页面，验证通过后再跳转到详情页面
                     window.location.href = `失物招领平台_验证页面.html?id=${itemId}&type=found`;
@@ -441,17 +642,16 @@
             });
         }
         
-        // 调用函数初始化查看详情按钮
-        setupViewDetailButtons();
-        
         // 联系认领按钮
-        document.querySelectorAll('.btn-primary:not(.flex):not(.w-full)').forEach(button => {
-            button.addEventListener('click', function() {
-                const itemName = this.closest('.card').querySelector('h3').textContent;
-                alert(`联系认领"${itemName}"`);
-                // 在实际应用中，这里会跳转到联系认领的表单页面或私信界面
+        function setupContactButtons() {
+            document.querySelectorAll('.btn-primary:not(.flex):not(.w-full)').forEach(button => {
+                button.addEventListener('click', function() {
+                    const itemName = this.closest('.card').querySelector('h3').textContent;
+                    alert(`联系认领"${itemName}"`);
+                    // 在实际应用中，这里会跳转到联系认领的表单页面或私信界面
+                });
             });
-        });
+        }
         
         // 分页功能
         document.querySelectorAll('.page-btn').forEach(button => {
@@ -491,111 +691,245 @@
             }
         });
         
+        // 显示通知函数
+        function showNotification(message) {
+            // 检查是否已有通知元素
+            let notification = document.getElementById('notification');
+            if (!notification) {
+                // 创建通知元素
+                notification = document.createElement('div');
+                notification.id = 'notification';
+                notification.className = 'fixed bottom-5 right-5 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg opacity-0 transition-opacity duration-300 z-50';
+                document.body.appendChild(notification);
+            }
+            
+            // 设置消息内容
+            notification.textContent = message;
+            
+            // 显示通知
+            setTimeout(() => {
+                notification.style.opacity = '1';
+            }, 10);
+            
+            // 3秒后隐藏通知
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 3000);
+        }
+        
         // 收藏功能实现
-        document.addEventListener('DOMContentLoaded', function() {
+        function setupFavoriteButtons() {
             // 从localStorage获取已收藏的项目
             let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
             
             // 初始化收藏按钮状态
-            function initFavoriteButtons() {
-                document.querySelectorAll('.favorite-btn').forEach(btn => {
-                    const itemId = btn.getAttribute('data-id');
-                    const icon = btn.querySelector('span');
-                    
-                    // 添加空值检查
-                    if (!itemId || !icon) {
-                        console.warn('收藏按钮缺少必要信息', { hasItemId: !!itemId, hasIcon: !!icon });
-                        return;
-                    }
-                    
-                    if (favorites.includes(itemId)) {
-                        icon.setAttribute('data-icon', 'mdi:heart');
-                        icon.classList.remove('text-gray-500', 'hover:text-red-500');
-                        icon.classList.add('text-red-500');
-                    } else {
-                        icon.setAttribute('data-icon', 'mdi:heart-outline');
-                        icon.classList.remove('text-red-500');
-                        icon.classList.add('text-gray-500', 'hover:text-red-500');
-                    }
-                });
-            }
-            
-            // 初始化收藏按钮
-            initFavoriteButtons();
-            
-            // 收藏按钮点击事件
             document.querySelectorAll('.favorite-btn').forEach(btn => {
-                btn.addEventListener('click', function(e) {
+                const itemId = btn.getAttribute('data-id');
+                const icon = btn.querySelector('span');
+                
+                // 添加空值检查
+                if (!itemId || !icon) {
+                    console.warn('收藏按钮缺少必要信息', { hasItemId: !!itemId, hasIcon: !!icon });
+                    return;
+                }
+                
+                // 设置初始状态
+                if (favorites.includes(itemId)) {
+                    icon.setAttribute('data-icon', 'mdi:heart');
+                    icon.classList.remove('text-gray-500', 'hover:text-red-500');
+                    icon.classList.add('text-red-500');
+                }
+                
+                // 添加点击事件
+                btn.addEventListener('click', async function(e) {
                     e.stopPropagation();
                     e.preventDefault();
                     
-                    const itemId = this.getAttribute('data-id');
-                    const icon = this.querySelector('span');
-                    
-                    // 确保itemId存在
-                    if (!itemId) {
-                        console.error('收藏按钮缺少data-id属性');
-                        return;
-                    }
+                    // 禁用按钮防止重复点击
+                    btn.disabled = true;
                     
                     // 重新获取最新的收藏列表
-                    let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-                    console.log('点击收藏按钮，ID:', itemId, '当前收藏列表:', favorites);
+                    let currentFavorites = JSON.parse(localStorage.getItem('favorites')) || [];
+                    console.log('点击收藏按钮，ID:', itemId, '当前收藏列表:', currentFavorites);
                     
                     // 检查是否已收藏
-                    if (favorites.includes(itemId)) {
-                        // 取消收藏
-                        favorites = favorites.filter(id => id !== itemId);
-                        icon.setAttribute('data-icon', 'mdi:heart-outline');
-                        icon.classList.remove('text-red-500');
-                        icon.classList.add('text-gray-500', 'hover:text-red-500');
-                        showNotification('已取消收藏');
-                    } else {
-                        // 添加收藏
-                        favorites.push(itemId);
-                        icon.setAttribute('data-icon', 'mdi:heart');
-                        icon.classList.remove('text-gray-500', 'hover:text-red-500');
-                        icon.classList.add('text-red-500');
-                        showNotification('收藏成功，可在个人中心-我的收藏查看');
+                    const isFavorite = currentFavorites.includes(itemId);
+                    
+                    try {
+                        // 调用后端API更新数据库
+                        const response = await fetch('/api/favorites', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                itemId: itemId,
+                                action: isFavorite ? 'unfavorite' : 'favorite'
+                            })
+                        });
+                        
+                        if (!response.ok) {
+                            throw new Error('后端API调用失败');
+                        }
+                        
+                        // 获取响应数据
+                        const result = await response.json();
+                        console.log('后端API响应:', result);
+                        
+                        // 更新本地收藏状态
+                        if (isFavorite) {
+                            // 取消收藏
+                            currentFavorites = currentFavorites.filter(id => id !== itemId);
+                            icon.setAttribute('data-icon', 'mdi:heart-outline');
+                            icon.classList.remove('text-red-500');
+                            icon.classList.add('text-gray-500', 'hover:text-red-500');
+                            showNotification('已取消收藏');
+                        } else {
+                            // 添加收藏
+                            currentFavorites.push(itemId);
+                            icon.setAttribute('data-icon', 'mdi:heart');
+                            icon.classList.remove('text-gray-500', 'hover:text-red-500');
+                            icon.classList.add('text-red-500');
+                            showNotification('收藏成功，可在个人中心-我的收藏查看');
+                        }
+                        
+                        // 保存到localStorage
+                        localStorage.setItem('favorites', JSON.stringify(currentFavorites));
+                        
+                        // 验证保存是否成功
+                        const savedFavorites = JSON.parse(localStorage.getItem('favorites')) || [];
+                        console.log('保存成功！更新后收藏列表:', savedFavorites);
+                    } catch (error) {
+                        console.error('收藏操作失败:', error);
+                        
+                        // 模拟成功响应（仅用于前端演示）
+                        if (isFavorite) {
+                            // 取消收藏
+                            currentFavorites = currentFavorites.filter(id => id !== itemId);
+                            icon.setAttribute('data-icon', 'mdi:heart-outline');
+                            icon.classList.remove('text-red-500');
+                            icon.classList.add('text-gray-500', 'hover:text-red-500');
+                            showNotification('已取消收藏（本地）');
+                        } else {
+                            // 添加收藏
+                            currentFavorites.push(itemId);
+                            icon.setAttribute('data-icon', 'mdi:heart');
+                            icon.classList.remove('text-gray-500', 'hover:text-red-500');
+                            icon.classList.add('text-red-500');
+                            showNotification('收藏成功（本地），可在个人中心-我的收藏查看');
+                        }
+                        
+                        // 保存到localStorage
+                        localStorage.setItem('favorites', JSON.stringify(currentFavorites));
+                    } finally {
+                        // 重新启用按钮
+                        btn.disabled = false;
                     }
+                });
+            });
+        }
+        
+        // 分页功能
+        function setupPagination() {
+            // 页码按钮事件
+            document.querySelectorAll('.page-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const page = parseInt(this.getAttribute('data-page'));
+                    currentPage = page;
                     
-                    // 保存到localStorage
-                    localStorage.setItem('favorites', JSON.stringify(favorites));
+                    // 更新分页按钮样式
+                    updatePaginationButtons(page);
                     
-                    // 验证保存是否成功
-                    const savedFavorites = JSON.parse(localStorage.getItem('favorites')) || [];
-                    console.log('保存成功！更新后收藏列表:', savedFavorites);
+                    console.log('切换到第', page, '页');
+                    
+                    // 获取当前筛选条件
+                    const filters = getCurrentFilters();
+                    
+                    // 获取对应页的数据
+                    fetchFoundItems(page, filters);
                 });
             });
             
-            // 显示通知函数
-            function showNotification(message) {
-                // 检查是否已有通知元素
-                let notification = document.getElementById('notification');
-                if (!notification) {
-                    // 创建通知元素
-                    notification = document.createElement('div');
-                    notification.id = 'notification';
-                    notification.className = 'fixed bottom-5 right-5 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg opacity-0 transition-opacity duration-300 z-50';
-                    document.body.appendChild(notification);
+            // 下一页按钮
+            document.querySelector('.next-page').addEventListener('click', function() {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    updatePaginationButtons(currentPage);
+                    
+                    // 获取当前筛选条件
+                    const filters = getCurrentFilters();
+                    
+                    // 获取对应页的数据
+                    fetchFoundItems(currentPage, filters);
+                } else {
+                    showNotification('已经是最后一页了');
                 }
-                
-                // 设置消息内容
-                notification.textContent = message;
-                
-                // 显示通知
-                setTimeout(() => {
-                    notification.style.opacity = '1';
-                }, 10);
-                
-                // 3秒后隐藏通知
-                setTimeout(() => {
-                    notification.style.opacity = '0';
-                    setTimeout(() => {
-                        notification.remove();
-                    }, 300);
-                }, 3000);
+            });
+        }
+        
+        // 更新分页按钮样式
+        function updatePaginationButtons(activePage) {
+            document.querySelectorAll('.page-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-800', 'text-white');
+                btn.classList.add('border', 'hover:bg-gray-100');
+            });
+            
+            const activeBtn = document.querySelector(`.page-btn[data-page="${activePage}"]`);
+            if (activeBtn) {
+                activeBtn.classList.remove('border', 'hover:bg-gray-100');
+                activeBtn.classList.add('bg-blue-800', 'text-white');
             }
+        }
+        
+        // 获取当前筛选条件
+        function getCurrentFilters() {
+            const itemCategory = document.querySelector('select:nth-of-type(1)').value;
+            const timeRange = document.querySelector('select:nth-of-type(2)').value;
+            const locationArea = document.querySelector('select:nth-of-type(3)').value;
+            
+            return {
+                category: itemCategory !== '全部类别' ? itemCategory : '',
+                timeRange: timeRange !== '全部时间' ? timeRange : '',
+                location: locationArea !== '全部区域' ? locationArea : ''
+            };
+        }
+        
+        // 搜索功能
+        function setupSearch() {
+            document.querySelector('input[placeholder="搜索物品或地点..."]').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const searchText = this.value.trim();
+                    if (searchText) {
+                        console.log('搜索:', searchText);
+                        
+                        // 重置到第一页
+                        currentPage = 1;
+                        updatePaginationButtons(1);
+                        
+                        // 获取当前筛选条件
+                        const filters = getCurrentFilters();
+                        filters.search = searchText;
+                        
+                        // 发起搜索
+                        fetchFoundItems(1, filters);
+                    }
+                }
+            });
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 设置分页
+            setupPagination();
+            
+            // 设置搜索功能
+            setupSearch();
+            
+            // 初始加载数据
+            fetchFoundItems(1, {});
         });
     </script>
 
