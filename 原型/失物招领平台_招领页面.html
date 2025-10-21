@@ -1,4 +1,7 @@
-<!DOCTYPE html><html lang="zh-CN"><head>
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>招领信息 - 拾物通</title>
@@ -6,20 +9,24 @@
     <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+
         body {
             background-color: #f8fafc;
             font-family: 'Noto Sans SC', sans-serif;
             color: #334155;
         }
+
         .card {
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
             transition: all 0.2s ease;
         }
+
         .card:hover {
             transform: translateY(-3px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
         }
+
         .btn-primary {
             background-color: #1e3a8a;
             color: white;
@@ -27,40 +34,50 @@
             border-radius: 6px;
             transition: background-color 0.2s;
         }
+
         .btn-primary:hover {
             background-color: #1d4ed8;
         }
+
         .btn-secondary {
             border: 1px solid #cbd5e1;
             padding: 8px 16px;
             border-radius: 6px;
             transition: background-color 0.2s;
         }
+
         .btn-secondary:hover {
             background-color: #f1f5f9;
         }
+
         .tag {
             padding: 2px 8px;
             border-radius: 12px;
             font-size: 0.75rem;
         }
+
         .tag-found {
             background-color: #dcfce7;
             color: #166534;
         }
+
         .tag-lost {
             background-color: #ffedd5;
             color: #9a3412;
         }
-        input:focus, textarea:focus {
+
+        input:focus,
+        textarea:focus {
             outline: none;
             border-color: #3b82f6;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
         }
+
         .nav-link {
             position: relative;
             padding-bottom: 5px;
         }
+
         .nav-link.active:after {
             content: '';
             position: absolute;
@@ -72,6 +89,7 @@
         }
     </style>
 </head>
+
 <body class="min-h-screen">
     <!-- 顶部导航栏 -->
     <header class="bg-white shadow-sm">
@@ -82,7 +100,7 @@
                     <span class="iconify text-2xl text-blue-800" data-icon="mdi:hand-heart"></span>
                     <h1 class="text-xl font-bold text-blue-800">拾物通</h1>
                 </div>
-                
+
                 <!-- 主导航菜单 -->
                 <nav class="hidden md:flex space-x-8">
                     <a href="失物招领平台_失物页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">失物</a>
@@ -91,13 +109,13 @@
                     <a href="失物招领平台_私信页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">私信</a>
                     <a href="失物招领平台_个人中心页面.html" class="nav-link font-medium text-gray-600 hover:text-blue-800">个人中心</a>
                 </nav>
-                
+
                 <!-- 搜索框 -->
                 <div class="hidden lg:flex items-center border border-gray-300 rounded-lg px-3 py-2 w-64">
                     <input type="text" placeholder="搜索物品或地点..." class="flex-1 focus:ring-0 border-none">
                     <span class="iconify text-gray-500" data-icon="mdi:magnify"></span>
                 </div>
-                
+
                 <!-- 用户入口 -->
                 <div class="flex items-center space-x-4">
                     <a href="index.html" class="btn-secondary text-sm hidden lg:block">登录/注册</a>
@@ -115,9 +133,9 @@
             <!-- 左侧筛选栏 -->
             <aside class="w-full lg:w-72 bg-white card p-5 h-fit flex-shrink-0">
                 <h2 class="font-bold text-lg mb-4">筛选条件</h2>
-                
 
-                
+
+
                 <div class="mb-6">
                     <h3 class="font-medium mb-3">物品分类</h3>
                     <select class="w-full border rounded-md px-3 py-2">
@@ -130,7 +148,7 @@
                         <option>其他物品</option>
                     </select>
                 </div>
-                
+
                 <div class="mb-6">
                     <h3 class="font-medium mb-3">时间范围</h3>
                     <select class="w-full border rounded-md px-3 py-2">
@@ -141,7 +159,7 @@
                         <option>近1个月</option>
                     </select>
                 </div>
-                
+
                 <div class="mb-6">
                     <h3 class="font-medium mb-3">地点区域</h3>
                     <select class="w-full border rounded-md px-3 py-2">
@@ -154,10 +172,10 @@
                         <option>校门口</option>
                     </select>
                 </div>
-                
+
                 <button class="btn-primary w-full">应用筛选</button>
             </aside>
-            
+
             <!-- 右侧主内容区 -->
             <div class="flex-1">
                 <!-- 功能区域 -->
@@ -176,204 +194,12 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- 信息卡片网格 -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- 卡片1 -->
-                    <div class="bg-white card overflow-hidden">
-                        <div class="relative">
-                            <img src="https://modao.cc/ai/uploads/ai_pics/30/302276/aigp_1758618094.jpeg" alt="黑色皮质钱包" class="w-full h-48 object-cover">
-                            <div class="absolute top-3 right-3">
-                                <span class="tag tag-found">招领中</span>
-                            </div>
-                        </div>
-                        <div class="p-5">
-                            <h3 class="font-bold text-lg mb-2">黑色皮质钱包</h3>
-                            <p class="text-gray-600 mb-4">在图书馆二楼自习室发现，内有身份证、银行卡等贵重物品</p>
-                            <div class="flex items-center text-sm text-gray-500 mb-2">
-                                <span class="iconify mr-1" data-icon="mdi:account-circle"></span>
-                                <span class="text-blue-800 cursor-pointer hover:underline">林同学</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <div class="flex items-center text-sm text-gray-500">
-                                    <span class="iconify mr-1" data-icon="mdi:map-marker"></span>
-                                    图书馆二楼
-                                </div>
-                                <div class="text-sm text-gray-500">9月22日</div>
-                            </div>
-                        </div>
-                        <div class="border-t px-5 py-3 flex justify-between items-center">
-                            <button class="btn-secondary">查看详情</button>
-                            <div class="flex items-center space-x-3">
-                                <button class="favorite-btn p-2 rounded-full hover:bg-gray-100" data-id="1">
-                                    <span class="iconify text-xl text-gray-500 hover:text-red-500" data-icon="mdi:heart-outline"></span>
-                                </button>
-                                <button class="btn-primary">联系认领</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- 卡片2 -->
-                    <div class="bg-white card overflow-hidden">
-                        <div class="relative">
-                            <img src="https://modao.cc/ai/uploads/ai_pics/30/302278/aigp_1758618097.jpeg" alt="一串钥匙" class="w-full h-48 object-cover">
-                            <div class="absolute top-3 right-3">
-                                <span class="tag tag-found">招领中</span>
-                            </div>
-                        </div>
-                        <div class="p-5">
-                            <h3 class="font-bold text-lg mb-2">一串钥匙</h3>
-                            <p class="text-gray-600 mb-4">在食堂门口拾得，包含三把钥匙和一个蓝色小熊挂件</p>
-                            <div class="flex items-center text-sm text-gray-500 mb-2">
-                                <span class="iconify mr-1" data-icon="mdi:account-circle"></span>
-                                <span class="text-blue-800 cursor-pointer hover:underline">郑同学</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <div class="flex items-center text-sm text-gray-500">
-                                    <span class="iconify mr-1" data-icon="mdi:map-marker"></span>
-                                    第一食堂
-                                </div>
-                                <div class="text-sm text-gray-500">9月21日</div>
-                            </div>
-                        </div>
-                        <div class="border-t px-5 py-3 flex justify-between items-center">
-                            <button class="btn-secondary">查看详情</button>
-                            <div class="flex items-center space-x-3">
-                                <button class="favorite-btn p-2 rounded-full hover:bg-gray-100" data-id="2">
-                                    <span class="iconify text-xl text-gray-500 hover:text-red-500" data-icon="mdi:heart-outline"></span>
-                                </button>
-                                <button class="btn-primary">联系认领</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- 卡片3 -->
-                    <div class="bg-white card overflow-hidden">
-                        <div class="relative">
-                            <img src="https://modao.cc/ai/uploads/ai_pics/30/302280/aigp_1758618100.jpeg" alt="黄色雨伞" class="w-full h-48 object-cover">
-                            <div class="absolute top-3 right-3">
-                                <span class="tag tag-found">招领中</span>
-                            </div>
-                        </div>
-                        <div class="p-5">
-                            <h3 class="font-bold text-lg mb-2">黄色雨伞</h3>
-                            <p class="text-gray-600 mb-4">在二号教学楼门口拾得，伞柄有特殊定制刻字</p>
-                            <div class="flex items-center text-sm text-gray-500 mb-2">
-                                <span class="iconify mr-1" data-icon="mdi:account-circle"></span>
-                                <span class="text-blue-800 cursor-pointer hover:underline">王同学</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <div class="flex items-center text-sm text-gray-500">
-                                    <span class="iconify mr-1" data-icon="mdi:map-marker"></span>
-                                    二号教学楼
-                                </div>
-                                <div class="text-sm text-gray-500">9月23日</div>
-                            </div>
-                        </div>
-                        <div class="border-t px-5 py-3 flex justify-between items-center">
-                            <button class="btn-secondary">查看详情</button>
-                            <div class="flex items-center space-x-3">
-                                <button class="favorite-btn p-2 rounded-full hover:bg-gray-100" data-id="3">
-                                    <span class="iconify text-xl text-gray-500 hover:text-red-500" data-icon="mdi:heart-outline"></span>
-                                </button>
-                                <button class="btn-primary">联系认领</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- 卡片4 -->
-                    <div class="bg-white card overflow-hidden">
-                        <div class="relative">
-                            <img src="https://img.alicdn.com/imgextra/i1/4611686018427382574/O1CN01XwFcbv1wmM6hgdAFs_!!4611686018427382574-0-rate.jpg_960x960.jpg_.webp" alt="白色耳机" class="w-full h-48 object-cover">
-                            <div class="absolute top-3 right-3">
-                                <span class="tag tag-found">招领中</span>
-                            </div>
-                        </div>
-                        <div class="p-5">
-                            <h3 class="font-bold text-lg mb-2">白色无线耳机</h3>
-                            <p class="text-gray-600 mb-4">在体育馆看台下拾得，带有充电盒，品牌为AirPods Pro</p>
-                            <div class="flex items-center text-sm text-gray-500 mb-2">
-                                <span class="iconify mr-1" data-icon="mdi:account-circle"></span>
-                                <span class="text-blue-800 cursor-pointer hover:underline">赵同学</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <div class="flex items-center text-sm text-gray-500">
-                                    <span class="iconify mr-1" data-icon="mdi:map-marker"></span>
-                                    体育馆
-                                </div>
-                                <div class="text-sm text-gray-500">9月21日</div>
-                            </div>
-                        </div>
-                        <div class="border-t px-5 py-3 flex justify-between">
-                            <button class="btn-secondary">查看详情</button>
-                            <div class="flex items-center space-x-3">
-                                <button class="favorite-btn p-2 rounded-full hover:bg-gray-100" data-id="4">
-                                    <span class="iconify text-xl text-gray-500 hover:text-red-500" data-icon="mdi:heart-outline"></span>
-                                </button>
-                                <button class="btn-primary">联系认领</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- 卡片5 -->
-                    <div class="bg-white card overflow-hidden">
-                        <div class="relative">
-                            <img src="https://gw.alicdn.com/bao/uploaded/i1/2212434396385/O1CN01qTiSK71x2Nqoof626_!!2212434396385.jpg_.webp" alt="红色笔记本" class="w-full h-48 object-cover">
-                            <div class="absolute top-3 right-3">
-                                <span class="tag tag-found">招领中</span>
-                            </div>
-                        </div>
-                        <div class="p-5">
-                            <h3 class="font-bold text-lg mb-2">红色笔记本</h3>
-                            <p class="text-gray-600 mb-4">在第二教学楼205教室拾得，封面上有姓名缩写"LY"</p>
-                            <div class="flex items-center text-sm text-gray-500 mb-2">
-                                <span class="iconify mr-1" data-icon="mdi:account-circle"></span>
-                                <span class="text-blue-800 cursor-pointer hover:underline">孙同学</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <div class="flex items-center text-sm text-gray-500">
-                                    <span class="iconify mr-1" data-icon="mdi:map-marker"></span>
-                                    第二教学楼
-                                </div>
-                                <div class="text-sm text-gray-500">9月20日</div>
-                            </div>
-                        </div>
-                        <div class="border-t px-5 py-3 flex justify-between">
-                            <button class="btn-secondary">查看详情</button>
-                            <button class="btn-primary">联系认领</button>
-                        </div>
-                    </div>
-                    
-                    <!-- 卡片6 -->
-                    <div class="bg-white card overflow-hidden">
-                        <div class="relative">
-                            <img src="https://gw.alicdn.com/imgextra/i1/1749077007/O1CN01TkLjFs21dGK7OFQ6L_!!1749077007.jpg" alt="灰色外套" class="w-full h-48 object-cover">
-                            <div class="absolute top-3 right-3">
-                                <span class="tag tag-found">招领中</span>
-                            </div>
-                        </div>
-                        <div class="p-5">
-                            <h3 class="font-bold text-lg mb-2">灰色连帽外套</h3>
-                            <p class="text-gray-600 mb-4">在图书馆三楼休息区沙发上拾得，尺码为M码</p>
-                            <div class="flex items-center text-sm text-gray-500 mb-2">
-                                <span class="iconify mr-1" data-icon="mdi:account-circle"></span>
-                                <span class="text-blue-800 cursor-pointer hover:underline">李同学</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <div class="flex items-center text-sm text-gray-500">
-                                    <span class="iconify mr-1" data-icon="mdi:map-marker"></span>
-                                    图书馆
-                                </div>
-                                <div class="text-sm text-gray-500">9月19日</div>
-                            </div>
-                        </div>
-                        <div class="border-t px-5 py-3 flex justify-between">
-                            <button class="btn-secondary">查看详情</button>
-                            <button class="btn-primary">联系认领</button>
-                        </div>
-                    </div>
+                    <!-- 卡片将通过JavaScript动态生成 -->
                 </div>
-                
+
                 <!-- 分页控件 -->
                 <div class="mt-8 flex justify-center">
                     <div class="flex space-x-2">
@@ -394,44 +220,45 @@
         // 全局变量
         let currentPage = 1;
         let totalPages = 3; // 模拟总页数，实际应从API获取
-        
+
         // 获取招领物品数据
         async function fetchFoundItems(page = 1, filters = {}) {
             try {
                 // 构建查询参数
                 const params = new URLSearchParams();
                 params.append('page', page);
-                
+                params.append('limit', 6);
+
                 // 添加筛选参数
                 if (filters.category) params.append('category', filters.category);
                 if (filters.timeRange) params.append('timeRange', filters.timeRange);
                 if (filters.location) params.append('location', filters.location);
                 if (filters.search) params.append('search', filters.search);
-                
+
                 // 显示加载状态
                 const cardsContainer = document.querySelector('.grid.grid-cols-1.sm\:grid-cols-2.lg\:grid-cols-3');
                 cardsContainer.innerHTML = '<div class="col-span-full text-center py-12"><span class="iconify text-4xl text-blue-800 animate-pulse" data-icon="mdi:loading"></span><p class="mt-4">加载中...</p></div>';
-                
+
                 // 调用后端API
                 const response = await fetch(`/api/found-items?${params.toString()}`);
-                
+
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                
+
                 const data = await response.json();
                 console.log('获取招领物品数据成功:', data);
-                
+
                 // 更新总页数（实际应从API返回）
                 totalPages = data.totalPages || 3;
-                
+
                 // 渲染招领物品卡片
                 renderFoundItems(data.items || []);
-                
-                return data.items || [];
+
+                return data;
             } catch (error) {
                 console.error('获取招领物品数据失败:', error);
-                
+
                 // 显示错误信息
                 const cardsContainer = document.querySelector('.grid.grid-cols-1.sm\:grid-cols-2.lg\:grid-cols-3');
                 cardsContainer.innerHTML = `
@@ -441,19 +268,23 @@
                         <button id="retryBtn" class="mt-4 btn-primary">重试</button>
                     </div>
                 `;
-                
+
                 // 添加重试按钮事件
                 document.getElementById('retryBtn').addEventListener('click', () => fetchFoundItems(page, filters));
-                
+
+                // 模拟数据
+                const mockItems = getMockFoundItems();
+
                 // 返回模拟数据，确保页面可以显示内容
-                return getMockFoundItems();
+                return { items: mockItems, total: mockItems.length, page: 1, pages: 1 };
             }
         }
-        
+
         // 渲染招领物品卡片
         function renderFoundItems(items) {
             const cardsContainer = document.querySelector('.grid.grid-cols-1.sm\:grid-cols-2.lg\:grid-cols-3');
-            
+            cardsContainer.innerHTML = '';
+
             if (items.length === 0) {
                 cardsContainer.innerHTML = `
                     <div class="col-span-full text-center py-12">
@@ -463,65 +294,58 @@
                 `;
                 return;
             }
-            
-            // 清空容器
-            cardsContainer.innerHTML = '';
-            
+
             // 为每个物品创建卡片
-            items.forEach((item, index) => {
+            items.forEach((item) => {
                 const card = document.createElement('div');
-                card.className = 'bg-white card overflow-hidden';
-                
+                card.className = 'bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:shadow-lg hover:-translate-y-1';
+
                 // 构建卡片HTML，从后端API获取图片URL
+                const imageUrl = item.imageUrl || `/api/images/${item.id}?type=found`;
+
+                // 构建卡片HTML
                 card.innerHTML = `
-                    <div class="relative">
+                    <div class="relative h-48 bg-gray-100">
                         <img 
-                            src="${item.imageUrl || '/api/images/' + item.id}" 
+                            src="${imageUrl}" 
                             alt="${item.name || '招领物品'}" 
-                            class="w-full h-48 object-cover"
+                            class="w-full h-full object-cover" 
                             loading="lazy"
                             onerror="this.onerror=null;this.src='/images/placeholder.jpg';"
                         >
-                        <div class="absolute top-3 right-3">
-                            <span class="tag tag-found">招领中</span>
-                        </div>
+                        <span class="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded">招领中</span>
+                        <button class="favorite-btn absolute top-2 left-2 p-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white" data-id="${item.id}">
+                            <span class="iconify text-xl text-gray-500 hover:text-red-500" data-icon="mdi:heart-outline"></span>
+                        </button>
                     </div>
-                    <div class="p-5">
-                        <h3 class="font-bold text-lg mb-2">${item.name || '未命名物品'}</h3>
-                        <p class="text-gray-600 mb-4">${item.description || '暂无描述'}</p>
-                        <div class="flex items-center text-sm text-gray-500 mb-2">
-                            <span class="iconify mr-1" data-icon="mdi:account-circle"></span>
-                            <span class="text-blue-800 cursor-pointer hover:underline">${item.publisher || '匿名用户'}</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <div class="flex items-center text-sm text-gray-500">
-                                <span class="iconify mr-1" data-icon="mdi:map-marker"></span>
-                                ${item.location || '未知地点'}
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-2 text-gray-800">${item.name || '未命名物品'}</h3>
+                        <p class="text-gray-600 mb-3 line-clamp-2">${item.description || '暂无描述'}</p>
+                        <div class="text-sm text-gray-500 space-y-1 mb-4">
+                            <div class="flex items-center"><span class="iconify text-gray-400 mr-1" data-icon="mdi:map-marker"></span> ${item.location || '未知地点'}</div>
+                            <div class="flex items-center"><span class="iconify text-gray-400 mr-1" data-icon="mdi:calendar"></span> ${item.date || '未知日期'}</div>
+                            <div class="flex items-center">
+                                <span class="iconify text-gray-400 mr-1" data-icon="mdi:account"></span> 
+                                <span class="text-blue-800 cursor-pointer">${item.publisher || '匿名用户'}</span>
                             </div>
-                            <div class="text-sm text-gray-500">${item.date || '未知日期'}</div>
                         </div>
-                    </div>
-                    <div class="border-t px-5 py-3 flex justify-between items-center">
-                        <button class="btn-secondary" data-id="${item.id || index + 1}">查看详情</button>
-                        <div class="flex items-center space-x-3">
-                            ${item.id ? `<button class="favorite-btn p-2 rounded-full hover:bg-gray-100" data-id="${item.id}">` : ''}
-                                <span class="iconify text-xl text-gray-500 hover:text-red-500" data-icon="mdi:heart-outline"></span>
-                            ${item.id ? `</button>` : ''}
-                            <button class="btn-primary">联系认领</button>
+                        <div class="flex space-x-2">
+                            <button class="btn-secondary flex-1 py-2 rounded text-sm" data-id="${item.id}">查看详情</button>
+                            <button class="btn-primary flex-1 py-2 rounded text-sm">联系认领</button>
                         </div>
                     </div>
                 `;
-                
+
                 cardsContainer.appendChild(card);
             });
-            
-            // 重新初始化事件监听
-            setupViewDetailButtons();
+
+            // 重新初始化收藏按钮状态和事件
             setupFavoriteButtons();
+            setupViewDetailButtons();
             setupContactButtons();
             setupPublisherLinks();
         }
-        
+
         // 获取模拟数据（当API调用失败时使用）
         function getMockFoundItems() {
             return [
@@ -581,19 +405,19 @@
                 }
             ];
         }
-        
+
         // 筛选功能
-        document.querySelector('.btn-primary.w-full').addEventListener('click', function() {
+        document.querySelector('.btn-primary.w-full').addEventListener('click', function () {
             const itemCategory = document.querySelector('select:nth-of-type(1)').value;
             const timeRange = document.querySelector('select:nth-of-type(2)').value;
             const locationArea = document.querySelector('select:nth-of-type(3)').value;
-            
+
             console.log('应用筛选条件:', {
                 itemCategory,
                 timeRange,
                 locationArea
             });
-            
+
             // 重置到第一页并重新获取数据
             currentPage = 1;
             fetchFoundItems(1, {
@@ -602,29 +426,29 @@
                 location: locationArea !== '全部区域' ? locationArea : ''
             });
         });
-        
+
         // 点击发布者名称跳转到私信页面
         function setupPublisherLinks() {
             document.querySelectorAll('.text-blue-800.cursor-pointer').forEach(username => {
-                username.addEventListener('click', function() {
+                username.addEventListener('click', function () {
                     const publisherName = this.textContent;
                     // 在实际应用中，这里会跳转到私信页面并预设聊天对象
                     window.location.href = '失物招领平台_私信页面.html';
                 });
             });
         }
-        
+
         // 排序功能
-        document.querySelector('.btn-secondary.flex.items-center').addEventListener('click', function() {
+        document.querySelector('.btn-secondary.flex.items-center').addEventListener('click', function () {
             alert('排序功能：在实际应用中，这里会提供不同的排序选项（如按时间、按相关性等）。');
         });
-        
+
         // 发布招领按钮
-        document.querySelector('.btn-primary.flex.items-center').addEventListener('click', function() {
+        document.querySelector('.btn-primary.flex.items-center').addEventListener('click', function () {
             // 跳转到发布信息页面，并预设为招领类型
             window.location.href = '失物招领平台_发布信息页面.html';
         });
-        
+
         // 查看详情功能
         function setupViewDetailButtons() {
             document.querySelectorAll('.btn-secondary:not(.flex)').forEach((btn) => {
@@ -633,54 +457,54 @@
                     console.warn('按钮缺少data-id属性');
                     return;
                 }
-                
-                btn.addEventListener('click', function() {
+
+                btn.addEventListener('click', function () {
                     console.log('查看详情:', itemId);
                     // 先跳转到验证页面，验证通过后再跳转到详情页面
                     window.location.href = `失物招领平台_验证页面.html?id=${itemId}&type=found`;
                 });
             });
         }
-        
+
         // 联系认领按钮
         function setupContactButtons() {
             document.querySelectorAll('.btn-primary:not(.flex):not(.w-full)').forEach(button => {
-                button.addEventListener('click', function() {
+                button.addEventListener('click', function () {
                     const itemName = this.closest('.card').querySelector('h3').textContent;
                     alert(`联系认领"${itemName}"`);
                     // 在实际应用中，这里会跳转到联系认领的表单页面或私信界面
                 });
             });
         }
-        
+
         // 分页功能
         document.querySelectorAll('.page-btn').forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function () {
                 const page = this.getAttribute('data-page');
-                
+
                 // 更新分页按钮样式
                 document.querySelectorAll('.page-btn').forEach(btn => {
                     btn.classList.remove('bg-blue-800', 'text-white');
                     btn.classList.add('border', 'hover:bg-gray-100');
                 });
-                
+
                 this.classList.remove('border', 'hover:bg-gray-100');
                 this.classList.add('bg-blue-800', 'text-white');
-                
+
                 console.log('切换到第', page, '页');
                 alert(`切换到第${page}页`);
                 // 在实际应用中，这里会加载对应页的数据
             });
         });
-        
+
         // 下一页按钮
-        document.querySelector('.next-page').addEventListener('click', function() {
+        document.querySelector('.next-page').addEventListener('click', function () {
             alert('下一页');
             // 在实际应用中，这里会加载下一页的数据
         });
-        
+
         // 搜索功能
-        document.querySelector('input[placeholder="搜索物品或地点..."]').addEventListener('keypress', function(e) {
+        document.querySelector('input[placeholder="搜索物品或地点..."]').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 const searchText = this.value.trim();
                 if (searchText) {
@@ -690,7 +514,7 @@
                 }
             }
         });
-        
+
         // 显示通知函数
         function showNotification(message) {
             // 检查是否已有通知元素
@@ -702,15 +526,15 @@
                 notification.className = 'fixed bottom-5 right-5 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg opacity-0 transition-opacity duration-300 z-50';
                 document.body.appendChild(notification);
             }
-            
+
             // 设置消息内容
             notification.textContent = message;
-            
+
             // 显示通知
             setTimeout(() => {
                 notification.style.opacity = '1';
             }, 10);
-            
+
             // 3秒后隐藏通知
             setTimeout(() => {
                 notification.style.opacity = '0';
@@ -719,45 +543,45 @@
                 }, 300);
             }, 3000);
         }
-        
+
         // 收藏功能实现
         function setupFavoriteButtons() {
             // 从localStorage获取已收藏的项目
             let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-            
+
             // 初始化收藏按钮状态
             document.querySelectorAll('.favorite-btn').forEach(btn => {
                 const itemId = btn.getAttribute('data-id');
                 const icon = btn.querySelector('span');
-                
+
                 // 添加空值检查
                 if (!itemId || !icon) {
                     console.warn('收藏按钮缺少必要信息', { hasItemId: !!itemId, hasIcon: !!icon });
                     return;
                 }
-                
+
                 // 设置初始状态
                 if (favorites.includes(itemId)) {
                     icon.setAttribute('data-icon', 'mdi:heart');
                     icon.classList.remove('text-gray-500', 'hover:text-red-500');
                     icon.classList.add('text-red-500');
                 }
-                
+
                 // 添加点击事件
-                btn.addEventListener('click', async function(e) {
+                btn.addEventListener('click', async function (e) {
                     e.stopPropagation();
                     e.preventDefault();
-                    
+
                     // 禁用按钮防止重复点击
                     btn.disabled = true;
-                    
+
                     // 重新获取最新的收藏列表
                     let currentFavorites = JSON.parse(localStorage.getItem('favorites')) || [];
                     console.log('点击收藏按钮，ID:', itemId, '当前收藏列表:', currentFavorites);
-                    
+
                     // 检查是否已收藏
                     const isFavorite = currentFavorites.includes(itemId);
-                    
+
                     try {
                         // 调用后端API更新数据库
                         const response = await fetch('/api/favorites', {
@@ -767,18 +591,19 @@
                             },
                             body: JSON.stringify({
                                 itemId: itemId,
+                                type: 'found', // 标明是招领类型
                                 action: isFavorite ? 'unfavorite' : 'favorite'
                             })
                         });
-                        
+
                         if (!response.ok) {
                             throw new Error('后端API调用失败');
                         }
-                        
+
                         // 获取响应数据
                         const result = await response.json();
                         console.log('后端API响应:', result);
-                        
+
                         // 更新本地收藏状态
                         if (isFavorite) {
                             // 取消收藏
@@ -795,16 +620,16 @@
                             icon.classList.add('text-red-500');
                             showNotification('收藏成功，可在个人中心-我的收藏查看');
                         }
-                        
+
                         // 保存到localStorage
                         localStorage.setItem('favorites', JSON.stringify(currentFavorites));
-                        
+
                         // 验证保存是否成功
                         const savedFavorites = JSON.parse(localStorage.getItem('favorites')) || [];
                         console.log('保存成功！更新后收藏列表:', savedFavorites);
                     } catch (error) {
                         console.error('收藏操作失败:', error);
-                        
+
                         // 模拟成功响应（仅用于前端演示）
                         if (isFavorite) {
                             // 取消收藏
@@ -821,7 +646,7 @@
                             icon.classList.add('text-red-500');
                             showNotification('收藏成功（本地），可在个人中心-我的收藏查看');
                         }
-                        
+
                         // 保存到localStorage
                         localStorage.setItem('favorites', JSON.stringify(currentFavorites));
                     } finally {
@@ -831,37 +656,37 @@
                 });
             });
         }
-        
+
         // 分页功能
         function setupPagination() {
             // 页码按钮事件
             document.querySelectorAll('.page-btn').forEach(button => {
-                button.addEventListener('click', function() {
+                button.addEventListener('click', function () {
                     const page = parseInt(this.getAttribute('data-page'));
                     currentPage = page;
-                    
+
                     // 更新分页按钮样式
                     updatePaginationButtons(page);
-                    
+
                     console.log('切换到第', page, '页');
-                    
+
                     // 获取当前筛选条件
                     const filters = getCurrentFilters();
-                    
+
                     // 获取对应页的数据
                     fetchFoundItems(page, filters);
                 });
             });
-            
+
             // 下一页按钮
-            document.querySelector('.next-page').addEventListener('click', function() {
+            document.querySelector('.next-page').addEventListener('click', function () {
                 if (currentPage < totalPages) {
                     currentPage++;
                     updatePaginationButtons(currentPage);
-                    
+
                     // 获取当前筛选条件
                     const filters = getCurrentFilters();
-                    
+
                     // 获取对应页的数据
                     fetchFoundItems(currentPage, filters);
                 } else {
@@ -869,67 +694,91 @@
                 }
             });
         }
-        
+
         // 更新分页按钮样式
         function updatePaginationButtons(activePage) {
             document.querySelectorAll('.page-btn').forEach(btn => {
                 btn.classList.remove('bg-blue-800', 'text-white');
                 btn.classList.add('border', 'hover:bg-gray-100');
             });
-            
+
             const activeBtn = document.querySelector(`.page-btn[data-page="${activePage}"]`);
             if (activeBtn) {
                 activeBtn.classList.remove('border', 'hover:bg-gray-100');
                 activeBtn.classList.add('bg-blue-800', 'text-white');
             }
         }
-        
+
         // 获取当前筛选条件
         function getCurrentFilters() {
             const itemCategory = document.querySelector('select:nth-of-type(1)').value;
             const timeRange = document.querySelector('select:nth-of-type(2)').value;
             const locationArea = document.querySelector('select:nth-of-type(3)').value;
-            
+
             return {
                 category: itemCategory !== '全部类别' ? itemCategory : '',
                 timeRange: timeRange !== '全部时间' ? timeRange : '',
                 location: locationArea !== '全部区域' ? locationArea : ''
             };
         }
-        
+
         // 搜索功能
         function setupSearch() {
-            document.querySelector('input[placeholder="搜索物品或地点..."]').addEventListener('keypress', function(e) {
+            document.querySelector('input[placeholder="搜索物品或地点..."]').addEventListener('keypress', function (e) {
                 if (e.key === 'Enter') {
                     const searchText = this.value.trim();
                     if (searchText) {
                         console.log('搜索:', searchText);
-                        
+
                         // 重置到第一页
                         currentPage = 1;
                         updatePaginationButtons(1);
-                        
+
                         // 获取当前筛选条件
                         const filters = getCurrentFilters();
                         filters.search = searchText;
-                        
+
                         // 发起搜索
                         fetchFoundItems(1, filters);
                     }
                 }
             });
         }
-        
-        // 页面加载完成后初始化
-        document.addEventListener('DOMContentLoaded', function() {
-            // 设置分页
+
+        // 初始化页面
+        function initPage() {
+            // 设置分页功能
             setupPagination();
-            
+
             // 设置搜索功能
             setupSearch();
-            
+
             // 初始加载数据
-            fetchFoundItems(1, {});
+            fetchFoundItems(1, getCurrentFilters());
+
+            // 设置筛选按钮事件
+            document.querySelector('.btn-primary.w-full').addEventListener('click', function () {
+                const filters = getCurrentFilters();
+                console.log('应用筛选条件:', filters);
+                // 重置为第一页并应用筛选条件
+                fetchFoundItems(1, filters);
+            });
+
+            // 设置排序按钮事件
+            document.querySelector('.btn-secondary.flex.items-center').addEventListener('click', function () {
+                alert('排序功能：在实际应用中，这里会提供不同的排序选项（如按时间、按相关性等）。');
+            });
+
+            // 设置发布招领按钮事件
+            document.querySelector('.btn-primary.flex.items-center').addEventListener('click', function () {
+                // 跳转到发布信息页面，并预设为招领类型
+                window.location.href = '失物招领平台_发布信息页面.html';
+            });
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function () {
+            initPage();
         });
     </script>
 
@@ -955,7 +804,7 @@
                         </a>
                     </div>
                 </div>
-                
+
                 <div>
                     <h3 class="font-bold text-lg mb-4">快速链接</h3>
                     <ul class="space-y-2">
@@ -965,7 +814,7 @@
                         <li><a href="#" class="text-gray-600 hover:text-blue-800">联系我们</a></li>
                     </ul>
                 </div>
-                
+
                 <div>
                     <h3 class="font-bold text-lg mb-4">帮助中心</h3>
                     <ul class="space-y-2">
@@ -975,14 +824,16 @@
                         <li><a href="#" class="text-gray-600 hover:text-blue-800">使用指南</a></li>
                     </ul>
                 </div>
-                
+
 
             </div>
-            
+
             <div class="border-t border-gray-200 mt-8 pt-6 text-center text-gray-500 text-sm">
                 <p>© 2025 拾物通 失物招领平台 版权所有 京ICP备12345678号</p>
             </div>
         </div>
     </footer>
 
-</body></html>
+</body>
+
+</html>
