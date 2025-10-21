@@ -1,74 +1,292 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { JWT_SECRET, JWT_EXPIRES_IN } = require('../config/jwt');
+const mysql = require('mysql2/promise');
 
-// 模拟用户数据存储（实际项目中替换为数据库查询）
-const mockUsers = [
-  // 默认管理员账户
-  {
-    id: 1,
-    username: 'admin',
-    student_id: 'admin123',
-    email: 'admin@shiwutong.com',
-    phone: '13800138000',
-    password: 'admin123', // 明文密码用于测试，实际生产环境应使用bcrypt加密
-    is_admin: true
-  },
-  // 额外管理员账户
-  {
-    id: 2,
-    username: 'administrator',
-    student_id: 'admin001',
-    email: 'administrator@shiwutong.com',
-    phone: '13800138001',
-    password: 'password', // 明文密码用于测试，实际生产环境应使用bcrypt加密
-    is_admin: true
-  }
-];
+// MySQL数据库连接配置
+const DB_CONFIG = {
+    host: '10.21.205.135',
+    port: 3306,
+    user: 'newadmin',
+    password: 'newpassword',
+    database: 'lostfound',
+    connectTimeout: 10000,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
+};
+
+// 创建数据库连接池
+let pool = null;
+
+// 测试数据库连接的函数
+async function testDatabaseConnection() {
+    try {
+        pool = mysql.createPool(DB_CONFIG);
+        console.log('数据库连接池已创建');
+        
+        // 测试连接
+        const connection = await pool.getConnection();
+        console.log('数据库连接测试成功');
+        connection.release();
+        return true;
+    } catch (error) {
+        console.error('数据库连接失败:', error.message);
+        console.error('错误代码:', error.code);
+        pool = null;
+        return false;
+    }
+}
+
+// 初始化时测试连接
+(async () => {
+    await testDatabaseConnection();
+})();
+
+// 仅使用数据库验证，不再使用本地模拟数据
+
+// 数据库操作函数
+
+// 通用数据库操作包装函数，添加重试逻辑
+async function withDatabaseRetry(operation, maxRetries = 2) {
+    let retries = 0;
+    
+    while (retries <= maxRetries) {
+        try {
+            // 如果连接池未初始化，尝试重新初始化
+            if (!pool) {
+                console.log('尝试重新初始化数据库连接池...');
+                await testDatabaseConnection();
+                
+                // 如果仍然没有连接池，直接返回失败
+                if (!pool) {
+                    return { success: false, error: '数据库连接池初始化失败' };
+                }
+            }
+            
+            // 执行数据库操作
+            const result = await operation();
+            return { success: true, result };
+        } catch (error) {
+            retries++;
+            console.error(`数据库操作失败 (重试 ${retries}/${maxRetries}):`, error.message);
+            
+            // 如果达到最大重试次数，返回失败
+            if (retries > maxRetries) {
+                // 如果是连接超时或连接断开，重置连接池
+                if (error.code === 'ETIMEDOUT' || error.code === 'ECONNRESET') {
+                    console.log('连接已断开，重置连接池');
+                    pool = null;
+                }
+                return { success: false, error: error.message };
+            }
+            
+            // 重试前等待一段时间
+            await new Promise(resolve => setTimeout(resolve, 500 * retries));
+        }
+    }
+}
+
+// 数据库登录函数
+async function dbLogin(username, password) {
+    const result = await withDatabaseRetry(async () => {
+        const connection = await pool.getConnection();
+        try {
+            // 查询用户
+            const [rows] = await connection.query(
+                'SELECT id, username, password, student_id, email, phone FROM users WHERE username = ?',
+                [username]
+            );
+            
+            if (rows.length === 0) {
+                return null; // 用户不存在
+            }
+            
+            const user = rows[0];
+            
+            // 验证密码
+            let passwordValid = false;
+            try {
+                passwordValid = await bcrypt.compare(password, user.password);
+            } catch (e) {
+                // 密码解密失败，可能是明文密码
+                console.log('密码验证失败，尝试明文匹配');
+            }
+            
+            // 如果哈希比较失败，尝试明文比较（仅用于测试）
+            if (!passwordValid) {
+                passwordValid = (user.password === password && user.password.length < 20);
+            }
+            
+            if (passwordValid) {
+                return {
+                    id: user.id,
+                    username: user.username,
+                    student_id: user.student_id,
+                    email: user.email,
+                    phone: user.phone
+                };
+            }
+            
+            return null; // 密码错误
+        } finally {
+            connection.release();
+        }
+    });
+    
+    if (!result.success) {
+        console.log('数据库登录失败:', result.error);
+        return null;
+    }
+    
+    return result.result;
+}
+
+// 数据库注册函数
+async function dbRegister(username, password, studentId, email, phone) {
+    const userData = { username, password, studentId, email, phone };
+    const result = await withDatabaseRetry(async () => {
+        const connection = await pool.getConnection();
+        try {
+            // 开始事务
+            await connection.beginTransaction();
+            
+            // 检查用户名是否已存在
+            const [usernameCheck] = await connection.query(
+                'SELECT id FROM users WHERE username = ?',
+                [userData.username]
+            );
+            
+            if (usernameCheck.length > 0) {
+                await connection.rollback();
+                throw new Error('用户名已被使用');
+            }
+            
+            // 检查学号是否已存在
+            const [studentIdCheck] = await connection.query(
+                'SELECT id FROM users WHERE student_id = ?',
+                [userData.studentId]
+            );
+            
+            if (studentIdCheck.length > 0) {
+                await connection.rollback();
+                throw new Error('学号已被注册');
+            }
+            
+            // 密码加密
+            const hashedPassword = await bcrypt.hash(userData.password, 10);
+            
+            // 插入新用户
+            const [insertResult] = await connection.query(
+                `INSERT INTO users (username, student_id, email, phone, password)
+                 VALUES (?, ?, ?, ?, ?)`,
+                [userData.username, userData.studentId, userData.email, userData.phone, hashedPassword]
+            );
+            
+            // 提交事务
+            await connection.commit();
+            
+            return {
+                id: insertResult.insertId,
+                username: userData.username,
+                student_id: userData.studentId,
+                email: userData.email,
+                phone: userData.phone
+            };
+        } catch (error) {
+            await connection.rollback();
+            throw error;
+        } finally {
+            connection.release();
+        }
+    });
+    
+    if (!result.success) {
+        console.log('数据库注册失败:', result.error);
+        return { success: false, error: { general: result.error } };
+    }
+    
+    return { success: true, user: result.result };
+}
+
+// 获取所有用户
+async function dbGetUsers() {
+    const result = await withDatabaseRetry(async () => {
+        const connection = await pool.getConnection();
+        try {
+            const [rows] = await connection.query(
+                'SELECT id, username, student_id, email, phone FROM users'
+            );
+            return rows;
+        } finally {
+            connection.release();
+        }
+    });
+    
+    if (!result.success) {
+        console.log('数据库获取用户列表失败:', result.error);
+        return null;
+    }
+    
+    return result.result;
+}
+
+// 仅使用数据库验证，不再使用本地验证函数
 
 // 登录控制器
 exports.login = async (req, res) => {
   try {
     const { username, password, rememberMe } = req.body;
-
-    // 只支持用户名登录
-    const user = mockUsers.find(u => u.username === username);
-
-    // 模拟密码验证（使用bcrypt验证哈希密码）
-    // 对于演示环境，为了简化，我们也支持直接比较明文密码
-    const passwordValid = user && 
-      (await bcrypt.compare(password, user.password) || 
-       (user.password === password && user.password.length < 20)); // 简单密码的特殊处理
-
-    if (!user || !passwordValid) {
+    
+    console.log('登录请求处理:', { username });
+    
+    // 首先尝试使用数据库登录
+    let user = await dbLogin(username, password);
+    // 数据库登录失败，直接返回错误，不再使用本地验证
+    if (!user) {
+      console.log('用户名或密码错误');
       return res.status(401).json({
         message: '用户名或密码错误'
       });
     }
-
-    // 生成JWT令牌
-    const token = jwt.sign(
-      { id: user.id, isAdmin: user.is_admin },
-      JWT_SECRET,
-      { expiresIn: rememberMe ? '7d' : JWT_EXPIRES_IN }
-    );
-
-    // 返回用户信息和令牌
-    res.status(200).json({
-      token,
-      isAdmin: user.is_admin,
-      user: {
-        id: user.id,
-        username: user.username,
-        studentId: user.student_id,
-        email: user.email,
-        phone: user.phone
-      }
-    });
+    
+    const message = '登录成功（数据库模式）';
+    
+    if (user) {
+      // 生成JWT令牌
+      const token = jwt.sign(
+        { 
+          id: user.id,
+          isAdmin: user.is_admin || false
+        },
+        JWT_SECRET,
+        { expiresIn: rememberMe ? '7d' : JWT_EXPIRES_IN }
+      );
+      
+      // 返回成功响应
+      res.status(200).json({
+        token,
+        isAdmin: user.is_admin || false,
+        user: {
+          id: user.id,
+          username: user.username,
+          studentId: user.student_id,
+          email: user.email,
+          phone: user.phone
+        },
+        message: message
+      });
+    } else {
+      // 登录失败
+      res.status(401).json({
+        message: '用户名或密码错误'
+      });
+    }
   } catch (error) {
-    console.error('登录错误:', error);
+    console.error('登录过程中的错误:', error);
     res.status(500).json({
-      message: '服务器内部错误，请稍后再试'
+      message: '登录服务暂时不可用，请稍后重试',
+      error: error.message
     });
   }
 };
@@ -76,96 +294,88 @@ exports.login = async (req, res) => {
 // 注册控制器
 exports.register = async (req, res) => {
   try {
-    // 直接使用req.body，确保支持前端发送的字段名
-    const { username, studentId, email, phone, password } = req.body;
-    const errors = {};
+    const { username, password, studentId, email, phone } = req.body;
+    
+    console.log('注册请求处理:', { username, studentId });
+    
+    // 首先尝试使用数据库注册
+    let registrationResult = await dbRegister(username, password, studentId, email, phone);
 
-    // 简化字段名称处理，确保studentId正确映射到student_id
-    const student_id = studentId || req.body.student_id;
-
-    // 模拟检查用户名是否已存在
-    const existingUser = mockUsers.find(u => u.username === username);
-    if (existingUser) {
-      errors.username = '用户名已被使用';
-    }
-
-    // 模拟检查学号是否已存在
-    const existingStudentId = mockUsers.find(u => u.student_id === student_id);
-    if (existingStudentId) {
-      errors.studentId = '学号已被注册';
-    }
-
-    // 模拟检查邮箱是否已存在
-    const existingEmail = mockUsers.find(u => u.email === email);
-    if (existingEmail) {
-      errors.email = '邮箱已被注册';
-    }
-
-    // 模拟检查手机号是否已存在
-    const existingPhone = mockUsers.find(u => u.phone === phone);
-    if (existingPhone) {
-      errors.phone = '手机号已被注册';
-    }
-
-    // 如果有错误，返回错误信息
-    if (Object.keys(errors).length > 0) {
+    
+    // 数据库注册失败，直接返回错误，不再使用本地注册
+    if (!registrationResult.success) {
+      console.log('注册失败:', registrationResult.error);
       return res.status(400).json({
-        message: '注册失败，请检查表单信息',
-        errors
+        message: '注册失败',
+        error: registrationResult.error
       });
     }
-
-    // 密码加密
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // 创建新用户
-    const newUser = {
-      id: mockUsers.length + 1,
-      username: username,
-      student_id: student_id,
-      email: email,
-      phone: phone,
-      password: hashedPassword, // 重要：保存加密后的密码
-      is_admin: false
-    };
-
-    // 将新用户添加到模拟数据中
-    mockUsers.push(newUser);
-
-    console.log('新用户注册:', newUser.username, 'ID:', newUser.id);
-    console.log('密码已加密存储:', newUser.password); // 记录密码存储情况
-
-    // 返回注册成功信息
+    
+    // 数据库注册成功
     res.status(201).json({
-      message: '注册成功',
-      user: {
-        id: newUser.id,
-        username: newUser.username,
-        studentId: newUser.student_id
-      }
+      message: message,
+      user: registrationResult.user
     });
   } catch (error) {
-    console.error('注册错误:', error);
+    console.error('注册过程中的错误:', error);
     res.status(500).json({
-      message: '服务器内部错误，请稍后再试'
+      message: '注册服务暂时不可用，请稍后重试',
+      error: error.message
     });
   }
 };
 
-// 获取所有用户（仅用于调试）
-exports.getAllUsers = (req, res) => {
-  // 返回不带密码的用户信息
-  const usersWithoutPassword = mockUsers.map(user => ({
-    id: user.id,
-    username: user.username,
-    student_id: user.student_id,
-    email: user.email,
-    phone: user.phone,
-    is_admin: user.is_admin
-  }));
-  
-  res.status(200).json(usersWithoutPassword);
+// 获取所有用户控制器（仅管理员）
+exports.getAllUsers = async (req, res) => {
+  try {
+    // 检查权限
+    if (!req.user || !req.user.isAdmin) {
+      return res.status(403).json({
+        message: '没有权限访问此资源'
+      });
+    }
+    
+    console.log('获取用户列表请求处理');
+    
+    // 首先尝试从数据库获取用户
+    let users = await dbGetUsers();
+
+    
+    // 数据库获取失败，直接返回错误，不再使用本地数据
+    if (!users || users.length === 0) {
+      console.log('未找到用户数据');
+      return res.status(404).json({
+        message: '未找到用户数据'
+      });
+    }
+    
+    const message = '获取用户列表成功（数据库模式）';
+    
+    // 格式化用户数据
+    const formattedUsers = users.map(user => ({
+      id: user.id,
+      username: user.username,
+      studentId: user.student_id,
+      email: user.email,
+      phone: user.phone,
+      isAdmin: user.is_admin || false
+    }));
+    
+    res.status(200).json({
+      users: formattedUsers,
+      message: message
+    });
+  } catch (error) {
+    console.error('获取用户列表过程中的错误:', error);
+    res.status(500).json({
+      message: '获取用户列表服务暂时不可用，请稍后重试',
+      error: error.message
+    });
+  }
 };
 
-// 导出mockUsers以便测试
-module.exports.mockUsers = mockUsers;
+// 导出配置和数据供测试使用
+module.exports.pool = pool;
+module.exports.DB_CONFIG = DB_CONFIG;
+module.exports.JWT_SECRET = JWT_SECRET;
+module.exports.JWT_EXPIRES_IN = JWT_EXPIRES_IN;
