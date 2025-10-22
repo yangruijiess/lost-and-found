@@ -431,61 +431,478 @@
         </div>
     </footer>
 
-    <!-- 选项卡切换功能 -->
+    <!-- 个人中心页面数据处理逻辑 -->
     <script>
-        // 选项卡切换
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                // 移除所有选项卡按钮的活跃状态
-                document.querySelectorAll('.tab-btn').forEach(b => {
-                    b.classList.remove('text-blue-800', 'border-b-2', 'border-blue-800');
-                    b.classList.add('text-gray-600');
-                });
-                
-                // 添加当前选项卡按钮的活跃状态
-                this.classList.remove('text-gray-600');
-                this.classList.add('text-blue-800', 'border-b-2', 'border-blue-800');
-                
-                // 隐藏所有选项卡内容
-                document.querySelectorAll('.tab-content').forEach(content => {
-                    content.classList.remove('active');
-                });
-                
-                // 显示对应的选项卡内容
-                const tabId = this.getAttribute('data-tab');
-                document.getElementById(tabId).classList.add('active');
-            });
-        });
+        // 配置：是否使用本地存储模式
+        const USE_LOCAL_STORAGE = true; // 设置为true使用本地存储，设置为false使用后端API
+        const API_BASE_URL = '/api'; // 统一的后端API基础URL
         
-        // 侧边栏导航点击效果
-        document.querySelectorAll('.sidebar-link').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                // 移除所有链接的活跃状态
-                document.querySelectorAll('.sidebar-link').forEach(l => {
-                    l.classList.remove('active');
+        // 模拟用户ID
+        const CURRENT_USER_ID = 'user1';
+        const USER_DATA_KEY = `user_${CURRENT_USER_ID}`; // 用户数据存储键
+        
+        // 加载用户数据
+        async function loadUserData() {
+            try {
+                let userData;
+                
+                if (USE_LOCAL_STORAGE) {
+                    userData = loadUserDataFromLocalStorage();
+                } else {
+                    userData = await loadUserDataFromAPI();
+                }
+                
+                // 更新页面上的用户信息
+                updateUserProfileUI(userData);
+                
+                return userData;
+            } catch (error) {
+                console.error('加载用户数据失败:', error);
+                alert('加载用户数据失败，请稍后重试');
+                return null;
+            }
+        }
+        
+        // 从本地存储加载用户数据
+        function loadUserDataFromLocalStorage() {
+            // 尝试从本地存储获取数据
+            const storedData = localStorage.getItem(USER_DATA_KEY);
+            
+            // 如果没有数据，返回默认值
+            if (!storedData) {
+                return getDefaultUserData();
+            }
+            
+            return JSON.parse(storedData);
+        }
+        
+        // 从API加载用户数据
+        async function loadUserDataFromAPI() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/${CURRENT_USER_ID}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                        // 实际应用中这里应该包含认证token
+                        // 'Authorization': `Bearer ${getToken()}`
+                    }
                 });
                 
-                // 添加当前链接的活跃状态
-                this.classList.add('active');
-            });
-        });
+                if (!response.ok) {
+                    throw new Error(`API请求失败: ${response.status}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('API请求失败:', error);
+                // 如果API请求失败，使用默认数据
+                return getDefaultUserData();
+            }
+        }
         
-        // 表单提交处理
-        document.querySelectorAll('form').forEach(form => {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                // 这里可以添加表单验证和提交逻辑
+        // 获取默认用户数据
+        function getDefaultUserData() {
+            return {
+                id: CURRENT_USER_ID,
+                username: '陈静',
+                nickname: '静心如水',
+                gender: 'female',
+                birthday: '1995-05-15',
+                bio: '热爱生活，乐于助人。希望通过这个平台帮助更多人找回失物，也感谢每一位拾金不昧的好心人。',
+                phone: '138****5678',
+                email: 'chenj***@example.com',
+                wechat: 'chen_jing2023',
+                address: '北京市海淀区学院路38号北京大学学生公寓5号楼302室',
+                avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
+                role: '普通用户',
+                stats: {
+                    posts: 12,
+                    recovered: 5,
+                    favorites: 24
+                },
+                privacySettings: {
+                    profileVisibility: '仅自己可见',
+                    messagePermission: '所有人',
+                    searchablePosts: true,
+                    defaultAnonymous: false
+                }
+            };
+        }
+        
+        // 更新用户界面
+        function updateUserProfileUI(userData) {
+            // 更新用户基本信息
+            document.querySelector('.avatar-upload img').src = userData.avatar;
+            document.querySelector('.avatar-upload h2').textContent = userData.username;
+            document.querySelector('.avatar-upload p').textContent = userData.role;
+            
+            // 更新统计数据
+            const stats = document.querySelectorAll('.profile-stats .text-2xl');
+            stats[0].textContent = userData.stats.posts;
+            stats[1].textContent = userData.stats.recovered;
+            stats[2].textContent = userData.stats.favorites;
+            
+            // 更新基本信息表单
+            const basicInfoForm = document.querySelector('#basic-info form');
+            basicInfoForm.querySelector('input[value="陈静"]').value = userData.username;
+            basicInfoForm.querySelector('input[type="text"]:nth-of-type(2)').value = userData.nickname;
+            basicInfoForm.querySelector(`input[name="gender"][value="${userData.gender}"]`).checked = true;
+            basicInfoForm.querySelector('input[type="date"]').value = userData.birthday;
+            basicInfoForm.querySelector('textarea').value = userData.bio;
+            
+            // 更新联系方式表单
+            const contactInfoForm = document.querySelector('#contact-info form');
+            contactInfoForm.querySelector('input[type="tel"]').value = userData.phone;
+            contactInfoForm.querySelector('input[type="email"]').value = userData.email;
+            contactInfoForm.querySelector('input[value="chen_jing2023"]').value = userData.wechat;
+            contactInfoForm.querySelector('textarea').value = userData.address;
+            
+            // 更新隐私设置表单
+            const privacyForm = document.querySelector('#privacy-settings form');
+            privacyForm.querySelector('select:nth-of-type(1)').value = userData.privacySettings.profileVisibility;
+            privacyForm.querySelector('select:nth-of-type(2)').value = userData.privacySettings.messagePermission;
+            privacyForm.querySelector('input[type="checkbox"]:nth-of-type(1)').checked = userData.privacySettings.searchablePosts;
+            privacyForm.querySelector('input[type="checkbox"]:nth-of-type(2)').checked = userData.privacySettings.defaultAnonymous;
+        }
+        
+        // 保存用户数据
+        async function saveUserData(section, data) {
+            try {
+                if (USE_LOCAL_STORAGE) {
+                    saveUserDataToLocalStorage(section, data);
+                } else {
+                    await saveUserDataToAPI(section, data);
+                }
+                
+                // 刷新页面上的用户数据
+                await loadUserData();
+                
+                return true;
+            } catch (error) {
+                console.error('保存用户数据失败:', error);
+                alert('保存失败，请稍后重试');
+                return false;
+            }
+        }
+        
+        // 保存到本地存储
+        function saveUserDataToLocalStorage(section, data) {
+            const currentData = loadUserDataFromLocalStorage();
+            
+            // 根据部分更新数据
+            switch(section) {
+                case 'basic-info':
+                    currentData.username = data.username;
+                    currentData.nickname = data.nickname;
+                    currentData.gender = data.gender;
+                    currentData.birthday = data.birthday;
+                    currentData.bio = data.bio;
+                    break;
+                case 'contact-info':
+                    currentData.phone = data.phone || currentData.phone;
+                    currentData.email = data.email || currentData.email;
+                    currentData.wechat = data.wechat || currentData.wechat;
+                    currentData.address = data.address || currentData.address;
+                    break;
+                case 'privacy-settings':
+                    currentData.privacySettings = {
+                        ...currentData.privacySettings,
+                        ...data
+                    };
+                    break;
+            }
+            
+            // 保存到本地存储
+            localStorage.setItem(USER_DATA_KEY, JSON.stringify(currentData));
+            console.log('用户数据已保存到本地存储:', currentData);
+            alert('设置已保存！');
+        }
+        
+        // 保存到API
+        async function saveUserDataToAPI(section, data) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/${CURRENT_USER_ID}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                        // 'Authorization': `Bearer ${getToken()}`
+                    },
+                    body: JSON.stringify({
+                        section: section,
+                        data: data
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`API请求失败: ${response.status}`);
+                }
+                
                 alert('设置已保存！');
-            });
-        });
+            } catch (error) {
+                console.error('API保存失败:', error);
+                throw error;
+            }
+        }
         
         // 头像上传功能
-        document.querySelector('.avatar-upload-icon').addEventListener('click', function() {
-            // 在实际应用中，这里会触发文件选择对话框
-            // 这里为了演示简化处理
-            alert('请选择要上传的头像图片');
-        });
+        function handleAvatarUpload() {
+            const uploadIcon = document.querySelector('.avatar-upload-icon');
+            
+            uploadIcon.addEventListener('click', function() {
+                // 创建隐藏的文件输入
+                const fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.accept = 'image/*';
+                fileInput.style.display = 'none';
+                document.body.appendChild(fileInput);
+                
+                // 监听文件选择
+                fileInput.addEventListener('change', async function(e) {
+                    if (e.target.files && e.target.files[0]) {
+                        const file = e.target.files[0];
+                        
+                        // 预览图片
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            document.querySelector('.avatar-upload img').src = event.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                        
+                        // 上传图片
+                        if (USE_LOCAL_STORAGE) {
+                            // 本地存储模式：只更新本地预览
+                            const currentData = loadUserDataFromLocalStorage();
+                            currentData.avatar = URL.createObjectURL(file);
+                            localStorage.setItem(USER_DATA_KEY, JSON.stringify(currentData)); // 使用统一的存储键名
+                            alert('头像已更新！');
+                        } else {
+                            // API模式：上传到服务器
+                            const formData = new FormData();
+                            formData.append('avatar', file);
+                            
+                            try {
+                                const response = await fetch(`/api/users/${CURRENT_USER_ID}/avatar`, {
+                                    method: 'POST',
+                                    // 'Authorization': `Bearer ${getToken()}`,
+                                    body: formData
+                                });
+                                
+                                if (!response.ok) {
+                                    throw new Error(`上传头像失败: ${response.status}`);
+                                }
+                                
+                                const result = await response.json();
+                                // 更新头像URL
+                                document.querySelector('.avatar-upload img').src = result.avatarUrl;
+                                alert('头像已更新！');
+                            } catch (error) {
+                                console.error('上传头像失败:', error);
+                                alert('上传头像失败，请稍后重试');
+                            }
+                        }
+                    }
+                    
+                    // 移除临时文件输入
+                    document.body.removeChild(fileInput);
+                });
+                
+                // 触发文件选择对话框
+                fileInput.click();
+            });
+        }
+        
+        // 手机号码修改功能
+        function setupPhoneEdit() {
+            const phoneEditBtn = document.querySelector('#contact-info button:first-of-type');
+            const phoneInput = document.querySelector('#contact-info input[type="tel"]');
+            
+            phoneEditBtn.addEventListener('click', function() {
+                // 移除禁用状态和灰色背景
+                phoneInput.disabled = false;
+                phoneInput.classList.remove('bg-gray-100');
+                
+                // 修改按钮文本为保存
+                phoneEditBtn.textContent = '保存';
+                
+                // 保存新的手机号码
+                phoneEditBtn.onclick = async function() {
+                    const newPhone = phoneInput.value;
+                    
+                    // 简单的手机号验证
+                    if (!/^1[3-9]\d{9}$/.test(newPhone)) {
+                        alert('请输入有效的手机号码');
+                        return;
+                    }
+                    
+                    // 保存修改
+                    await saveUserData('contact-info', {
+                        phone: newPhone
+                    });
+                    
+                    // 恢复禁用状态
+                    phoneInput.disabled = true;
+                    phoneInput.classList.add('bg-gray-100');
+                    phoneEditBtn.textContent = '修改';
+                    setupPhoneEdit(); // 重置事件
+                };
+            });
+        }
+        
+        // 电子邮箱修改功能
+        function setupEmailEdit() {
+            const emailEditBtn = document.querySelector('#contact-info button:nth-of-type(2)');
+            const emailInput = document.querySelector('#contact-info input[type="email"]');
+            
+            emailEditBtn.addEventListener('click', function() {
+                // 移除禁用状态和灰色背景
+                emailInput.disabled = false;
+                emailInput.classList.remove('bg-gray-100');
+                
+                // 修改按钮文本为保存
+                emailEditBtn.textContent = '保存';
+                
+                // 保存新的电子邮箱
+                emailEditBtn.onclick = async function() {
+                    const newEmail = emailInput.value;
+                    
+                    // 简单的邮箱验证
+                    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
+                        alert('请输入有效的电子邮箱');
+                        return;
+                    }
+                    
+                    // 保存修改
+                    await saveUserData('contact-info', {
+                        email: newEmail
+                    });
+                    
+                    // 恢复禁用状态
+                    emailInput.disabled = true;
+                    emailInput.classList.add('bg-gray-100');
+                    emailEditBtn.textContent = '修改';
+                    setupEmailEdit(); // 重置事件
+                };
+            });
+        }
+        
+        // 初始化页面
+        async function init() {
+            // 加载用户数据
+            await loadUserData();
+            
+            // 设置选项卡切换
+            setupTabSwitching();
+            
+            // 设置侧边栏导航
+            setupSidebarNavigation();
+            
+            // 设置表单提交
+            setupFormSubmissions();
+            
+            // 设置头像上传
+            handleAvatarUpload();
+            
+            // 设置手机号码修改
+            setupPhoneEdit();
+            
+            // 设置电子邮箱修改
+            setupEmailEdit();
+        }
+        
+        // 设置选项卡切换
+        function setupTabSwitching() {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // 移除所有选项卡按钮的活跃状态
+                    document.querySelectorAll('.tab-btn').forEach(b => {
+                        b.classList.remove('text-blue-800', 'border-b-2', 'border-blue-800');
+                        b.classList.add('text-gray-600');
+                    });
+                    
+                    // 添加当前选项卡按钮的活跃状态
+                    this.classList.remove('text-gray-600');
+                    this.classList.add('text-blue-800', 'border-b-2', 'border-blue-800');
+                    
+                    // 隐藏所有选项卡内容
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    // 显示对应的选项卡内容
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+        }
+        
+        // 设置侧边栏导航
+        function setupSidebarNavigation() {
+            document.querySelectorAll('.sidebar-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    // 如果不是退出登录按钮，则应用活跃状态并跳转
+                    if (!this.textContent.includes('退出登录')) {
+                        e.preventDefault();
+                        // 移除所有链接的活跃状态
+                        document.querySelectorAll('.sidebar-link').forEach(l => {
+                            l.classList.remove('active');
+                        });
+                        
+                        // 添加当前链接的活跃状态
+                        this.classList.add('active');
+                        
+                        // 导航到目标页面
+                        window.location.href = this.getAttribute('href');
+                    }
+                });
+            });
+        }
+        
+        // 设置表单提交
+        function setupFormSubmissions() {
+            // 基本信息表单
+            document.querySelector('#basic-info form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const formData = {
+                    username: this.querySelector('input[value="陈静"]').value,
+                    nickname: this.querySelector('input[type="text"]:nth-of-type(2)').value,
+                    gender: this.querySelector('input[name="gender"]:checked').value,
+                    birthday: this.querySelector('input[type="date"]').value,
+                    bio: this.querySelector('textarea').value
+                };
+                
+                await saveUserData('basic-info', formData);
+            });
+            
+            // 联系方式表单
+            document.querySelector('#contact-info form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const formData = {
+                    wechat: this.querySelector('input[value="chen_jing2023"]').value,
+                    address: this.querySelector('textarea').value
+                };
+                
+                await saveUserData('contact-info', formData);
+            });
+            
+            // 隐私设置表单
+            document.querySelector('#privacy-settings form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const formData = {
+                    profileVisibility: this.querySelector('select:nth-of-type(1)').value,
+                    messagePermission: this.querySelector('select:nth-of-type(2)').value,
+                    searchablePosts: this.querySelector('input[type="checkbox"]:nth-of-type(1)').checked,
+                    defaultAnonymous: this.querySelector('input[type="checkbox"]:nth-of-type(2)').checked
+                };
+                
+                await saveUserData('privacy-settings', formData);
+            });
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 
 </body></html>

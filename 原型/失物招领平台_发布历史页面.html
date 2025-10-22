@@ -351,23 +351,479 @@
     </footer>
 
     <script>
-        // 筛选按钮点击事件
-        document.querySelectorAll('.btn-secondary').forEach(btn => {
-            btn.addEventListener('click', function() {
-                // 如果不是操作按钮（查看详情、编辑），则执行筛选逻辑
-                if (!this.textContent.includes('查看详情') && !this.textContent.includes('编辑')) {
-                    // 移除所有筛选按钮的活跃状态
-                    document.querySelectorAll('.btn-secondary').forEach(b => {
-                        b.classList.remove('bg-blue-50', 'text-blue-800', 'border-blue-200');
+        // 配置变量 - 用于切换本地存储和后端API
+        const USE_LOCAL_STORAGE = true;
+        const API_BASE_URL = '/api';
+        const ITEMS_PER_PAGE = 3;
+        const LOCAL_STORAGE_KEY = 'publishedItems'; // 统一使用的本地存储键名
+        
+        // 全局状态
+        let currentPage = 1;
+        let currentFilter = '全部';
+        let allItems = [];
+        
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 初始化模拟数据
+            initMockData();
+            
+            // 加载发布历史数据
+            await loadPublicationHistory();
+            
+            // 绑定事件监听器
+            bindEventListeners();
+        });
+        
+        // 初始化模拟数据（仅在localStorage为空时）
+        function initMockData() {
+            // 检查localStorage中是否已有数据
+            if (USE_LOCAL_STORAGE && !localStorage.getItem(LOCAL_STORAGE_KEY)) {
+                // 创建模拟数据
+                const mockData = [
+                    {
+                        id: '1',
+                        infoType: 'found',
+                        itemName: '捡到一块智能手表',
+                        itemCategory: 'electronics',
+                        itemDescription: '在图书馆三楼自习室捡到一块黑色智能手表，表带是皮质的，表盘是方形的，有心率监测功能。',
+                        location: 'library',
+                        locationDetail: '图书馆三楼自习室',
+                        datetime: '2024-03-15T14:30:00',
+                        contactName: '陈静',
+                        contactPhone: '13800138001',
+                        contactEmail: 'chen@example.com',
+                        images: ['https://picsum.photos/seed/watch123/300/200'],
+                        status: 'resolved',
+                        createdAt: '2024-03-15T14:35:00'
+                    },
+                    {
+                        id: '2',
+                        infoType: 'lost',
+                        itemName: '丢失蓝色帆布包',
+                        itemCategory: 'bags',
+                        itemDescription: '在教学楼A区丢失一个蓝色帆布包，上面有卡通图案，内有课本、笔记本和学生证等物品。',
+                        location: 'teaching',
+                        locationDetail: '教学楼A区',
+                        datetime: '2024-03-10T09:15:00',
+                        contactName: '陈静',
+                        contactPhone: '13800138001',
+                        contactEmail: 'chen@example.com',
+                        images: ['https://picsum.photos/seed/bag456/300/200'],
+                        status: 'pending',
+                        createdAt: '2024-03-10T09:30:00'
+                    },
+                    {
+                        id: '3',
+                        infoType: 'found',
+                        itemName: '捡到一部手机',
+                        itemCategory: 'electronics',
+                        itemDescription: '在食堂二楼捡到一部白色手机，有密码锁，请失主提供手机型号和丢失地点前来认领。',
+                        location: 'canteen',
+                        locationDetail: '食堂二楼',
+                        datetime: '2024-03-05T12:00:00',
+                        contactName: '陈静',
+                        contactPhone: '13800138001',
+                        contactEmail: 'chen@example.com',
+                        images: ['https://picsum.photos/seed/phone789/300/200'],
+                        status: 'resolved',
+                        createdAt: '2024-03-05T12:10:00'
+                    }
+                ];
+                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(mockData));
+            }
+            
+            // 兼容旧的存储键名，迁移数据
+            migrateFromOldLocalStorage();
+        }
+        
+        // 从旧的localStorage键名迁移数据
+        function migrateFromOldLocalStorage() {
+            const oldKey = 'publicationHistory';
+            if (localStorage.getItem(oldKey)) {
+                try {
+                    const oldData = JSON.parse(localStorage.getItem(oldKey));
+                    const currentData = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
+                    
+                    // 合并不重复的数据
+                    const mergedData = [...currentData];
+                    const existingIds = new Set(currentData.map(item => item.id));
+                    
+                    oldData.forEach(item => {
+                        if (!existingIds.has(item.id)) {
+                            // 调整数据结构，确保字段一致性
+                            if (item.imagePreviews && !item.images) {
+                                item.images = item.imagePreviews;
+                                delete item.imagePreviews;
+                            }
+                            mergedData.push(item);
+                        }
                     });
                     
-                    // 添加当前按钮的活跃状态
-                    this.classList.add('bg-blue-50', 'text-blue-800', 'border-blue-200');
-                    
-                    // 这里可以添加实际的筛选逻辑
-                    console.log('筛选条件:', this.textContent);
+                    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(mergedData));
+                    // 可以选择删除旧键，但保留它以保持向后兼容
+                    // localStorage.removeItem(oldKey);
+                    console.log('数据从旧存储迁移成功');
+                } catch (error) {
+                    console.error('数据迁移失败:', error);
+                }
+            }
+        }
+        
+        // 加载发布历史数据
+        async function loadPublicationHistory() {
+            try {
+                if (USE_LOCAL_STORAGE) {
+                    // 从localStorage加载数据
+                    allItems = loadFromLocalStorage();
+                } else {
+                    // 从后端API加载数据
+                    allItems = await fetchFromBackendAPI(currentFilter, currentPage);
+                }
+                
+                // 应用筛选并显示当前页
+                filterAndDisplayItems();
+            } catch (error) {
+                console.error('加载发布历史失败:', error);
+                showToast('加载发布历史失败，请稍后重试');
+            }
+        }
+        
+        // 从localStorage加载数据
+        function loadFromLocalStorage() {
+            const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+            if (stored) {
+                const items = JSON.parse(stored);
+                // 确保数据结构一致性，处理imagePreviews到images的转换
+                return items.map(item => {
+                    if (item.imagePreviews && !item.images) {
+                        item.images = item.imagePreviews;
+                        delete item.imagePreviews;
+                    }
+                    return item;
+                });
+            }
+            return [];
+        }
+        
+        // 从后端API加载数据
+        async function fetchFromBackendAPI(filter, page) {
+            try {
+                // 构建查询参数
+                const params = new URLSearchParams({
+                    page: page || 1,
+                    limit: ITEMS_PER_PAGE
+                });
+                
+                // 根据筛选条件添加参数
+                if (filter !== '全部') {
+                    if (filter === '失物信息') params.append('type', 'lost');
+                    if (filter === '招领信息') params.append('type', 'found');
+                    if (filter === '已解决') params.append('status', 'resolved');
+                    if (filter === '待处理') params.append('status', 'pending');
+                }
+                
+                // 获取token
+                const token = localStorage.getItem('authToken');
+                
+                const response = await fetch(`${API_BASE_URL}/user/items?${params}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': token ? `Bearer ${token}` : '',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`服务器响应错误: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                return data.data.items;
+            } catch (error) {
+                console.error('从后端获取数据失败:', error);
+                throw error;
+            }
+        }
+        
+        // 应用筛选并显示当前页
+        function filterAndDisplayItems() {
+            // 应用筛选
+            let filteredItems = [...allItems];
+            
+            if (currentFilter === '失物信息') {
+                filteredItems = filteredItems.filter(item => item.infoType === 'lost');
+            } else if (currentFilter === '招领信息') {
+                filteredItems = filteredItems.filter(item => item.infoType === 'found');
+            } else if (currentFilter === '已解决') {
+                filteredItems = filteredItems.filter(item => item.status === 'resolved');
+            } else if (currentFilter === '待处理') {
+                filteredItems = filteredItems.filter(item => item.status === 'pending');
+            }
+            
+            // 计算分页
+            const totalItems = filteredItems.length;
+            const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+            
+            // 确保当前页有效
+            currentPage = Math.min(Math.max(1, currentPage), totalPages);
+            
+            // 获取当前页的数据
+            const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+            const endIndex = startIndex + ITEMS_PER_PAGE;
+            const currentPageItems = filteredItems.slice(startIndex, endIndex);
+            
+            // 渲染列表
+            renderItemList(currentPageItems);
+            
+            // 更新分页控件
+            updatePagination(totalPages);
+        }
+        
+        // 渲染物品列表
+        function renderItemList(items) {
+            const listContainer = document.querySelector('.space-y-6');
+            
+            if (!listContainer) {
+                console.error('找不到列表容器');
+                return;
+            }
+            
+            // 清空现有内容
+            listContainer.innerHTML = '';
+            
+            if (items.length === 0) {
+                // 显示空状态
+                listContainer.innerHTML = `
+                    <div class="bg-white p-8 text-center">
+                        <span class="iconify text-6xl text-gray-300" data-icon="mdi:clipboard-outline"></span>
+                        <p class="text-gray-500 mt-4">暂无发布历史记录</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // 渲染每个物品
+            items.forEach(item => {
+                const itemCard = document.createElement('div');
+                itemCard.className = 'item-card bg-white';
+                
+                // 格式化日期
+                const dateStr = new Date(item.datetime).toLocaleDateString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit'
+                });
+                
+                // 获取地点文本
+                const locationText = getLocationText(item.location, item.locationDetail);
+                
+                itemCard.innerHTML = `
+                    <div class="md:flex">
+                        <div class="md:w-1/4">
+                            <img src="${item.images && item.images.length > 0 ? item.images[0] : 'https://picsum.photos/seed/default/300/200'}" alt="${item.itemName}" class="h-48 w-full object-cover md:h-full">
+                        </div>
+                        <div class="p-5 md:w-3/4">
+                            <div class="flex justify-between items-start mb-2">
+                                <div class="flex items-center">
+                                    <span class="tag ${item.infoType === 'found' ? 'tag-found' : 'tag-lost'} mr-2">${item.infoType === 'found' ? '招领' : '失物'}</span>
+                                    <h3 class="font-bold text-lg">${item.itemName}</h3>
+                                </div>
+                                <span class="status-badge ${item.status === 'resolved' ? 'status-resolved' : 'status-pending'}">${item.status === 'resolved' ? '已解决' : '待处理'}</span>
+                            </div>
+                            <p class="text-gray-600 mb-3 line-clamp-2">${item.itemDescription}</p>
+                            <div class="flex items-center text-sm text-gray-500 mb-3">
+                                <span class="iconify mr-1" data-icon="mdi:map-marker"></span>
+                                <span>${locationText}</span>
+                                <span class="mx-2">·</span>
+                                <span class="iconify mr-1" data-icon="mdi:clock"></span>
+                                <span>${dateStr}</span>
+                            </div>
+                            <div class="flex justify-end space-x-3">
+                                <button class="btn-secondary" data-id="${item.id}" data-action="view">查看详情</button>
+                                <button class="btn-primary" data-id="${item.id}" data-action="edit">编辑</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                listContainer.appendChild(itemCard);
+            });
+        }
+        
+        // 获取地点文本
+        function getLocationText(location, detail) {
+            const locationMap = {
+                'teaching': '教学楼',
+                'library': '图书馆',
+                'gym': '体育馆',
+                'canteen': '食堂',
+                'dorm': '宿舍区',
+                'gate': '校门口',
+                'other': '其他'
+            };
+            
+            if (detail && detail.trim() !== '') {
+                return detail;
+            }
+            
+            return locationMap[location] || location;
+        }
+        
+        // 更新分页控件
+        function updatePagination(totalPages) {
+            const paginationContainer = document.querySelector('.mt-8.flex.justify-center nav');
+            
+            if (!paginationContainer) {
+                console.error('找不到分页容器');
+                return;
+            }
+            
+            // 简单分页逻辑
+            let paginationHTML = '';
+            
+            // 上一页按钮
+            paginationHTML += `
+                <button class="px-3 py-2 rounded-md bg-white border text-gray-600" data-action="prev-page" ${currentPage === 1 ? 'disabled' : ''}>
+                    上一页
+                </button>
+            `;
+            
+            // 页码按钮
+            for (let i = 1; i <= totalPages; i++) {
+                paginationHTML += `
+                    <button class="px-4 py-2 rounded-md ${i === currentPage ? 'bg-blue-800 text-white' : 'bg-white border text-gray-600'}" data-page="${i}">
+                        ${i}
+                    </button>
+                `;
+            }
+            
+            // 下一页按钮
+            paginationHTML += `
+                <button class="px-3 py-2 rounded-md bg-white border text-gray-600" data-action="next-page" ${currentPage === totalPages ? 'disabled' : ''}>
+                    下一页
+                </button>
+            `;
+            
+            paginationContainer.innerHTML = paginationHTML;
+        }
+        
+        // 绑定事件监听器
+        function bindEventListeners() {
+            // 筛选按钮点击事件
+            document.querySelectorAll('.btn-secondary').forEach(btn => {
+                // 跳过操作按钮
+                if (!btn.textContent.includes('查看详情') && !btn.textContent.includes('编辑')) {
+                    btn.addEventListener('click', function() {
+                        // 移除所有筛选按钮的活跃状态
+                        document.querySelectorAll('.btn-secondary').forEach(b => {
+                            if (!b.textContent.includes('查看详情') && !b.textContent.includes('编辑')) {
+                                b.classList.remove('bg-blue-50', 'text-blue-800', 'border-blue-200');
+                            }
+                        });
+                        
+                        // 添加当前按钮的活跃状态
+                        this.classList.add('bg-blue-50', 'text-blue-800', 'border-blue-200');
+                        
+                        // 更新筛选条件并重置页码
+                        currentFilter = this.textContent.trim();
+                        currentPage = 1;
+                        
+                        // 应用筛选
+                        filterAndDisplayItems();
+                    });
                 }
             });
+            
+            // 为列表容器添加事件委托，处理查看详情和编辑按钮点击
+            const listContainer = document.querySelector('.space-y-6');
+            if (listContainer) {
+                listContainer.addEventListener('click', function(event) {
+                    const button = event.target.closest('button[data-action]');
+                    if (button) {
+                        const id = button.getAttribute('data-id');
+                        const action = button.getAttribute('data-action');
+                        
+                        if (action === 'view') {
+                            // 跳转到详情页
+                            window.location.href = `失物招领平台_详情页面.html?id=${id}`;
+                        } else if (action === 'edit') {
+                            // 跳转到编辑页（使用发布信息页面并传入ID）
+                            window.location.href = `失物招领平台_发布信息页面.html?id=${id}&edit=true`;
+                        }
+                    }
+                });
+            }
+            
+            // 为分页容器添加事件委托
+            const paginationContainer = document.querySelector('.mt-8.flex.justify-center nav');
+            if (paginationContainer) {
+                paginationContainer.addEventListener('click', function(event) {
+                    const button = event.target.closest('button');
+                    if (!button || button.disabled) return;
+                    
+                    if (button.hasAttribute('data-page')) {
+                        // 点击了页码按钮
+                        currentPage = parseInt(button.getAttribute('data-page'));
+                        filterAndDisplayItems();
+                    } else if (button.getAttribute('data-action') === 'prev-page' && currentPage > 1) {
+                        // 点击了上一页
+                        currentPage--;
+                        filterAndDisplayItems();
+                    } else if (button.getAttribute('data-action') === 'next-page') {
+                        // 点击了下一页
+                        const totalItems = applyFilterToItems().length;
+                        const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+                        if (currentPage < totalPages) {
+                            currentPage++;
+                            filterAndDisplayItems();
+                        }
+                    }
+                });
+            }
+        }
+        
+        // 应用筛选条件到所有物品（辅助函数）
+        function applyFilterToItems() {
+            let filteredItems = [...allItems];
+            
+            if (currentFilter === '失物信息') {
+                filteredItems = filteredItems.filter(item => item.infoType === 'lost');
+            } else if (currentFilter === '招领信息') {
+                filteredItems = filteredItems.filter(item => item.infoType === 'found');
+            } else if (currentFilter === '已解决') {
+                filteredItems = filteredItems.filter(item => item.status === 'resolved');
+            } else if (currentFilter === '待处理') {
+                filteredItems = filteredItems.filter(item => item.status === 'pending');
+            }
+            
+            return filteredItems;
+        }
+        
+        // 简单的提示框函数
+        function showToast(message) {
+            // 创建toast元素
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-md z-50';
+            toast.textContent = message;
+            
+            // 添加到页面
+            document.body.appendChild(toast);
+            
+            // 3秒后移除
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+        
+        // 监听URL中的编辑参数，用于从发布页面更新数据后返回历史页面
+        window.addEventListener('popstate', async () => {
+            // 如果从编辑页面返回，重新加载数据
+            if (document.referrer && document.referrer.includes('edit=true')) {
+                await loadPublicationHistory();
+            }
         });
     </script>
 </body></html>
