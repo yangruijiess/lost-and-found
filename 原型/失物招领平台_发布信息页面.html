@@ -429,6 +429,27 @@
             const contactPhone = document.getElementById('contactPhone').value;
             const contactEmail = document.getElementById('contactEmail').value;
             
+            // 获取上传的图片文件
+            const imageFiles = document.getElementById('imageUpload').files;
+            const formData = new FormData();
+            
+            // 添加表单数据到FormData
+            formData.append('infoType', infoType);
+            formData.append('title', itemName);
+            formData.append('category', itemCategory);
+            formData.append('description', itemDescription);
+            formData.append('location', location);
+            formData.append('locationDetail', locationDetail);
+            formData.append('datetime', datetime);
+            formData.append('contactName', contactName);
+            formData.append('contactPhone', contactPhone);
+            formData.append('contactEmail', contactEmail);
+            
+            // 添加图片文件
+            for (let i = 0; i < imageFiles.length && i < 3; i++) {
+                formData.append('images', imageFiles[i]);
+            }
+            
             // 简单验证
             if (!itemName || !itemCategory || !itemDescription || !location || !datetime || !contactName || !contactPhone) {
                 alert('请填写所有必填项！');
@@ -452,35 +473,19 @@
             }
             
             try {
-                // 准备表单数据
-                const formData = new FormData();
-                formData.append('infoType', infoType);
-                formData.append('title', itemName);
-                formData.append('category', itemCategory);
-                formData.append('description', itemDescription);
-                formData.append('location', location);
-                formData.append('locationDetail', locationDetail);
-                formData.append('time', datetime);
-                formData.append('contactName', contactName);
-                formData.append('contactPhone', contactPhone);
-                formData.append('contactEmail', contactEmail);
-                
-                // 添加图片文件
-                const fileInput = document.getElementById('imageUpload');
-                for (let i = 0; i < fileInput.files.length && i < 3; i++) {
-                    formData.append('images', fileInput.files[i]);
-                }
-                
-                // 确定API路径
-                const apiPath = infoType === 'found' ? '/api/found-items' : '/api/lost-items';
-                
-                // 发送请求到后端
-                const response = await fetch(apiPath, {
+                // 发送数据到后端API
+                const endpoint = `/api/${infoType}-items`;
+                const response = await fetch(endpoint, {
                     method: 'POST',
-                    body: formData,
-                    // 注意：使用FormData时不需要设置Content-Type，浏览器会自动设置
-                    credentials: 'include' // 包含cookies，用于用户认证
+                    headers: {
+                        // 不设置Content-Type，让浏览器自动设置multipart/form-data
+                    },
+                    body: formData
                 });
+                
+                if (!response.ok) {
+                    throw new Error('网络请求失败');
+                }
                 
                 const result = await response.json();
                 
@@ -489,19 +494,12 @@
                     // 重置表单
                     this.reset();
                     document.getElementById('imagePreview').innerHTML = '';
-                    
-                    // 根据发布类型跳转到对应的列表页面
-                    if (infoType === 'found') {
-                        window.location.href = '失物招领平台_招领页面.html';
-                    } else {
-                        window.location.href = '失物招领平台_失物页面.html';
-                    }
                 } else {
-                    alert(`发布失败：${result.message || '未知错误'}`);
+                    alert('发布失败：' + result.message || '未知错误');
                 }
             } catch (error) {
-                console.error('提交表单时出错:', error);
-                alert('网络错误，请稍后重试！');
+                console.error('发布信息时出错:', error);
+                alert('发布失败，请稍后重试');
             }
         });
         
