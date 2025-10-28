@@ -125,7 +125,8 @@
             const params = new URLSearchParams(window.location.search);
             return {
                 id: params.get('id'),
-                type: params.get('type')
+                type: params.get('type'),
+                imageUrl: params.get('imageUrl')
             };
         }
 
@@ -134,61 +135,176 @@
             window.location.href = '失物招领平台_招领页面.html';
         });
 
+        // 调用豆包大语言模型API生成验证问题和答案
+        async function generateVerificationContent(imageUrl) {
+            // 显示加载状态
+            document.getElementById('verificationQuestions').innerHTML = '<p class="text-center text-gray-500">正在生成验证问题，请稍候...</p>';
+            
+            try {
+                // 方式一：直接调用豆包API（前端调用需要处理CORS问题）
+                // 注意：实际生产环境中，由于安全和CORS限制，建议通过后端中转调用API
+                // const response = await fetch('https://api.doubao.com/v1/chat/completions', {
+                //     method: 'POST',
+                //     headers: {
+                //         'Content-Type': 'application/json',
+                //         'Authorization': 'Bearer YOUR_API_KEY' // 请替换为实际的API密钥
+                //     },
+                //     body: JSON.stringify({
+                //         model: 'ERNIE-Bot-4', // 豆包模型名称
+                //         messages: [
+                //             {
+                //                 role: 'system',
+                //                 content: '你是一个物品验证助手。请分析提供的图片，并生成3个关于图片内容的验证问题，每个问题必须有明确的关键词答案。输出格式为JSON：{"questions":[{"question":"问题文本","keywords":["关键词1","关键词2"]},{"question":"问题文本2","keywords":["关键词3","关键词4"]},{"question":"问题文本3","keywords":["关键词5","关键词6"]}]}。问题应该聚焦于物品的明显特征，如颜色、形状、标记等。'
+                //             },
+                //             {
+                //                 role: 'user',
+                //                 content: `请分析这张图片并生成验证问题：${imageUrl}`
+                //             }
+                //         ],
+                //         max_tokens: 500
+                //     })
+                // });
+                // const data = await response.json();
+                // const content = JSON.parse(data.choices[0].message.content);
+                
+                // 方式二：通过后端API中转调用（推荐生产环境使用）
+                const response = await fetch('/api/generate-verification', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        imageUrl: imageUrl
+                    })
+                });
+                
+                const data = await response.json();
+                return data.verificationContent;
+            } catch (error) {
+                console.error('生成验证内容失败:', error);
+                // 如果API调用失败，使用备用问题
+                return {
+                    questions: [
+                        { question: "该物品的颜色是什么？", keywords: ["红色", "蓝色", "黑色"] },
+                        { question: "该物品有哪些明显的特征？", keywords: ["标签", "标志", "图案"] },
+                        { question: "物品的大致形状是什么？", keywords: ["圆形", "方形", "长方形"] }
+                    ]
+                };
+            }
+        }
+
+        // 渲染验证问题
+        function renderVerificationQuestions(questions) {
+            const questionsContainer = document.getElementById('verificationQuestions');
+            questionsContainer.innerHTML = '';
+            
+            questions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.innerHTML = `
+                    <label class="form-label">${q.question}</label>
+                    <textarea 
+                        id="question-${index}" 
+                        class="input-field" 
+                        rows="2" 
+                        placeholder="请输入您的回答" 
+                        required
+                        data-keywords="${JSON.stringify(q.keywords)}">
+                    </textarea>
+                `;
+                questionsContainer.appendChild(questionDiv);
+            });
+        }
+
         // 初始化页面
-        function initPage() {
+        async function initPage() {
             const params = getUrlParams();
             document.getElementById('itemId').value = params.id || '1';
             document.getElementById('itemType').value = params.type || 'found';
             
             console.log('验证物品ID:', params.id, '类型:', params.type);
+            
+            // 获取物品图片URL（实际应用中应从服务器获取）
+            let imageUrl = params.imageUrl || '';
+            
+            // 如果没有传入图片URL，尝试从服务器获取
+            if (!imageUrl) {
+                try {
+                    const response = await fetch(`/api/${params.type}-items/${params.id}`);
+                    const itemData = await response.json();
+                    imageUrl = itemData.images && itemData.images.length > 0 ? itemData.images[0] : '';
+                } catch (error) {
+                    console.error('获取物品信息失败:', error);
+                    // 使用默认图片URL作为示例
+                    imageUrl = 'https://example.com/default-item.jpg';
+                }
+            }
+            
+            // 生成并渲染验证问题
+            try {
+                const verificationContent = await generateVerificationContent(imageUrl);
+                renderVerificationQuestions(verificationContent.questions);
+                // 保存正确答案到localStorage，用于验证
+                localStorage.setItem(`verification_${params.id}`, JSON.stringify(verificationContent.questions));
+            } catch (error) {
+                console.error('初始化验证问题失败:', error);
+                alert('生成验证问题失败，请稍后再试。');
+                window.location.href = '失物招领平台_招领页面.html';
+            }
+        }
+
+        // 验证用户回答是否包含关键信息
+        function validateAnswer(userAnswer, keywords) {
+            // 将用户回答转换为小写进行比较
+            const normalizedAnswer = userAnswer.toLowerCase();
+            
+            // 检查是否包含任意一个关键词
+            return keywords.some(keyword => {
+                const normalizedKeyword = keyword.toLowerCase();
+                return normalizedAnswer.includes(normalizedKeyword);
+            });
         }
 
         // 表单提交处理
         document.getElementById('verificationForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            const itemId = document.getElementById('itemId').value;
-            const itemType = document.getElementById('itemType').value;
+            const params = getUrlParams();
+            const itemId = params.id || '1';
+            const itemType = params.type || 'found';
             
-            // 获取用户回答
-            const colorAnswer = document.getElementById('colorQuestion').value.trim();
-            const featuresAnswer = document.getElementById('featuresQuestion').value.trim();
-            const locationDetailsAnswer = document.getElementById('locationDetailsQuestion').value.trim();
+            // 从localStorage获取验证问题和答案
+            const storedVerification = localStorage.getItem(`verification_${itemId}`);
+            if (!storedVerification) {
+                alert('验证信息丢失，请重新开始验证流程。');
+                window.location.href = '失物招领平台_招领页面.html';
+                return;
+            }
             
-            // 预设答案（在实际应用中，这些答案应该从服务器获取）
-            const correctAnswers = {
-                color: '红色',
-                features: '有一个小标签',
-                locationDetails: '图书馆二楼'  
-            };
+            const verificationQuestions = JSON.parse(storedVerification);
             
-            // 在实际应用中，这里会发送到服务器进行验证
-            console.log('验证答案:', {
-                color: colorAnswer,
-                features: featuresAnswer,
-                locationDetails: locationDetailsAnswer
+            // 收集用户答案并验证
+            let allAnswersCorrect = true;
+            
+            verificationQuestions.forEach((q, index) => {
+                const userAnswer = document.getElementById(`question-${index}`).value.trim();
+                const isCorrect = validateAnswer(userAnswer, q.keywords);
+                
+                if (!isCorrect) {
+                    allAnswersCorrect = false;
+                }
             });
             
-            // 验证逻辑：检查答案是否包含正确关键词
-            // 为了更好的匹配效果，转换为小写进行比较（对英文有效，但中文无影响）
-            const isColorCorrect = colorAnswer.toLowerCase().includes(correctAnswers.color.toLowerCase()) || 
-                                 correctAnswers.color.toLowerCase().includes(colorAnswer.toLowerCase());
-            const isFeaturesCorrect = featuresAnswer.toLowerCase().includes(correctAnswers.features.toLowerCase()) || 
-                                    correctAnswers.features.toLowerCase().includes(featuresAnswer.toLowerCase());
-            const isLocationCorrect = locationDetailsAnswer.toLowerCase().includes(correctAnswers.locationDetails.toLowerCase()) || 
-                                    correctAnswers.locationDetails.toLowerCase().includes(locationDetailsAnswer.toLowerCase());
-            
             // 全部答案都正确才算验证通过
-            const isVerificationPassed = isColorCorrect && isFeaturesCorrect && isLocationCorrect;
-            
-            if (isVerificationPassed) {
-                // 验证通过
+            if (allAnswersCorrect) {
+                // 验证通过，清除localStorage中的验证信息
+                localStorage.removeItem(`verification_${itemId}`);
                 alert('验证通过！正在跳转到详情页面...');
                 window.location.href = `失物招领平台_详情页面.html?id=${itemId}&type=${itemType}`;
             } else {
                 // 验证失败
                 alert('验证失败！请确保您了解该物品的详细信息。');
-                window.location.href = '失物招领平台_招领页面.html';
+                // 可以选择停留在当前页面让用户重新尝试，或者返回招领页面
+                // window.location.href = '失物招领平台_招领页面.html';
             }
         });
 

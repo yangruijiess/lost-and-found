@@ -357,8 +357,13 @@
                         return;
                     }
                     const itemId = this.getAttribute('data-id');
+                    // 获取物品图片URL（从卡片的图片元素中提取）
+                    const itemImage = this.querySelector('img');
+                    const imageUrl = itemImage ? itemImage.src : '';
+                    
                     if (itemId) {
-                        window.location.href = `失物招领平台_详情页面.html?id=${itemId}&type=found`;
+                        // 修改跳转逻辑，先跳转到验证页面
+                        window.location.href = `失物招领平台_验证页面.html?id=${itemId}&type=found&imageUrl=${encodeURIComponent(imageUrl)}`;
                     }
                 });
             });
@@ -489,9 +494,14 @@
         function setupContactButtons() {
             document.querySelectorAll('.btn-primary:not(.flex):not(.w-full)').forEach(button => {
                 button.addEventListener('click', function () {
-                    const itemName = this.closest('.card').querySelector('h3').textContent;
-                    alert(`联系认领"${itemName}"`);
-                    // 在实际应用中，这里会跳转到联系认领的表单页面或私信界面
+                    const card = this.closest('.card');
+                    const itemId = card.getAttribute('data-id');
+                    // 获取物品图片URL（从卡片的图片元素中提取）
+                    const itemImage = card.querySelector('img');
+                    const imageUrl = itemImage ? itemImage.src : '';
+                    
+                    // 跳转到验证页面，验证通过后再联系认领
+                    window.location.href = `失物招领平台_验证页面.html?id=${itemId}&type=found&imageUrl=${encodeURIComponent(imageUrl)}`;
                 });
             });
         }
