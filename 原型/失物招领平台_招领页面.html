@@ -298,7 +298,8 @@
             // 为每个物品创建卡片
             items.forEach((item) => {
                 const card = document.createElement('div');
-                card.className = 'bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:shadow-lg hover:-translate-y-1';
+                card.className = 'bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:shadow-lg hover:-translate-y-1 cursor-pointer';
+                card.setAttribute('data-id', item.id);
 
                 // 构建卡片HTML，从后端API获取图片URL
                 const imageUrl = item.imageUrl || `/api/images/${item.id}?type=found`;
@@ -326,7 +327,7 @@
                             <div class="flex items-center"><span class="iconify text-gray-400 mr-1" data-icon="mdi:calendar"></span> ${item.date || '未知日期'}</div>
                             <div class="flex items-center">
                                 <span class="iconify text-gray-400 mr-1" data-icon="mdi:account"></span> 
-                                <span class="text-blue-800 cursor-pointer">${item.publisher || '匿名用户'}</span>
+                                <span class="text-blue-800 cursor-pointer" data-publisher="${item.publisher || '匿名用户'}">${item.publisher || '匿名用户'}</span>
                             </div>
                         </div>
                         <div class="flex space-x-2">
@@ -344,6 +345,23 @@
             setupViewDetailButtons();
             setupContactButtons();
             setupPublisherLinks();
+            setupCardClickEvents();
+        }
+
+        // 设置卡片点击事件
+        function setupCardClickEvents() {
+            document.querySelectorAll('.bg-white.rounded-lg.shadow-md.cursor-pointer').forEach(card => {
+                card.addEventListener('click', function(e) {
+                    // 如果点击的是按钮或发布者链接，不触发卡片跳转
+                    if (e.target.closest('button') || e.target.closest('.text-blue-800')) {
+                        return;
+                    }
+                    const itemId = this.getAttribute('data-id');
+                    if (itemId) {
+                        window.location.href = `失物招领平台_详情页面.html?id=${itemId}&type=found`;
+                    }
+                });
+            });
         }
 
         // 获取模拟数据（当API调用失败时使用）
@@ -430,10 +448,11 @@
         // 点击发布者名称跳转到私信页面
         function setupPublisherLinks() {
             document.querySelectorAll('.text-blue-800.cursor-pointer').forEach(username => {
-                username.addEventListener('click', function () {
-                    const publisherName = this.textContent;
-                    // 在实际应用中，这里会跳转到私信页面并预设聊天对象
-                    window.location.href = '失物招领平台_私信页面.html';
+                username.addEventListener('click', function (e) {
+                    e.stopPropagation(); // 阻止冒泡，避免触发卡片点击事件
+                    const publisherName = this.getAttribute('data-publisher') || this.textContent;
+                    // 跳转到私信页面并传递发布者信息
+                    window.location.href = `失物招领平台_私信页面.html?recipient=${encodeURIComponent(publisherName)}`;
                 });
             });
         }
@@ -460,8 +479,8 @@
 
                 btn.addEventListener('click', function () {
                     console.log('查看详情:', itemId);
-                    // 先跳转到验证页面，验证通过后再跳转到详情页面
-                    window.location.href = `失物招领平台_验证页面.html?id=${itemId}&type=found`;
+                    // 跳转到详情页面，并传递物品ID和类型
+                    window.location.href = `失物招领平台_详情页面.html?id=${itemId}&type=found`;
                 });
             });
         }

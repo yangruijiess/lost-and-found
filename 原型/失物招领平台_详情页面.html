@@ -232,44 +232,7 @@
 
 
 
-        <!-- 相关物品推荐 -->
-        <div class="mb-6">
-            <h2 class="text-xl font-bold mb-4">相关物品推荐</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <!-- 推荐物品1 -->
-                <div class="bg-white card overflow-hidden recommendation-item" data-id="1">
-                    <img src="https://modao.cc/ai/uploads/ai_pics/30/302277/aigp_1758618099.jpeg" alt="笔记本电脑包" class="w-full h-32 object-cover">
-                    <div class="p-3">
-                        <h3 class="font-medium text-sm">黑色笔记本电脑包</h3>
-                        <p class="text-gray-500 text-xs mt-1">体育馆附近</p>
-                    </div>
-                </div>
-                <!-- 推荐物品2 -->
-                <div class="bg-white card overflow-hidden recommendation-item" data-id="2">
-                    <img src="https://modao.cc/ai/uploads/ai_pics/30/302277/aigp_1758618100.jpeg" alt="校园卡" class="w-full h-32 object-cover">
-                    <div class="p-3">
-                        <h3 class="font-medium text-sm">校园卡（李**）</h3>
-                        <p class="text-gray-500 text-xs mt-1">图书馆</p>
-                    </div>
-                </div>
-                <!-- 推荐物品3 -->
-                <div class="bg-white card overflow-hidden recommendation-item" data-id="3">
-                    <img src="https://modao.cc/ai/uploads/ai_pics/30/302277/aigp_1758618101.jpeg" alt="U盘" class="w-full h-32 object-cover">
-                    <div class="p-3">
-                        <h3 class="font-medium text-sm">金属U盘</h3>
-                        <p class="text-gray-500 text-xs mt-1">图书馆3楼</p>
-                    </div>
-                </div>
-                <!-- 推荐物品4 -->
-                <div class="bg-white card overflow-hidden recommendation-item" data-id="4">
-                    <img src="https://modao.cc/ai/uploads/ai_pics/30/302277/aigp_1758618102.jpeg" alt="笔记本" class="w-full h-32 object-cover">
-                    <div class="p-3">
-                        <h3 class="font-medium text-sm">蓝色笔记本</h3>
-                        <p class="text-gray-500 text-xs mt-1">第三教学楼</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+
     </main>
 
     <!-- 页脚区域 -->
@@ -351,26 +314,246 @@
             return params;
         }
 
-        // 根据参数加载不同的物品信息
-        function loadItemDetails() {
-            const params = getQueryParams();
-            const itemId = params.id || '1';
-            const itemType = params.type || 'lost'; // 'lost' 或 'found'
-
-            // 根据类型更新标签和按钮
-            const tagElement = document.getElementById('itemTag');
-            const contactButton = document.getElementById('contactPublisher');
-            
-            if (itemType === 'found') {
-                tagElement.innerHTML = '<span class="tag tag-found">招领中</span>';
-                contactButton.innerHTML = '<span class="iconify mr-2" data-icon="mdi:message"></span>联系认领';
-            } else {
-                tagElement.innerHTML = '<span class="tag tag-lost">寻找中</span>';
-                contactButton.innerHTML = '<span class="iconify mr-2" data-icon="mdi:message"></span>联系发布者';
+        // 用于处理API失败的回退模拟数据
+        const fallbackMockItems = {
+            lost: {
+                '1': {
+                    id: '1',
+                    name: '银色笔记本电脑',
+                    title: '银色笔记本电脑',
+                    description: '在图书馆3楼自习室丢失，联想小新系列，银色外壳，有轻微划痕。电脑贴有星空贴纸，内有重要的学习资料和毕业论文。请捡到的同学联系我，必有重谢！',
+                    category: '电子设备',
+                    location: '图书馆3楼自习室A区靠窗座位',
+                    time: '2024-01-15 14:30-16:00',
+                    date: '2024-01-15',
+                    features: ['银色联想小新系列笔记本电脑', '外壳有轻微划痕', '贴有星空贴纸', '电脑包为黑色双肩包'],
+                    publishDate: '2024-01-15',
+                    publisher: {
+                        name: '李同学',
+                        info: '经济学院 · 2022级'
+                    },
+                    publisherName: '李同学',
+                    images: [
+                        'https://modao.cc/ai/uploads/ai_pics/30/302277/aigp_1758618096.jpeg',
+                        'https://modao.cc/ai/uploads/ai_pics/30/302277/aigp_1758618097.jpeg',
+                        'https://modao.cc/ai/uploads/ai_pics/30/302277/aigp_1758618098.jpeg'
+                    ],
+                    imageUrl: 'https://modao.cc/ai/uploads/ai_pics/30/302277/aigp_1758618096.jpeg'
+                },
+                '2': {
+                    id: '2',
+                    name: '黑色钱包',
+                    title: '黑色钱包',
+                    description: '在食堂二楼丢失，内含身份证、银行卡和少量现金。请拾到者联系，必有重谢。',
+                    category: '包袋箱包',
+                    location: '食堂二楼',
+                    time: '2024-01-14 12:00-13:30',
+                    date: '2024-01-14',
+                    features: ['黑色皮质钱包', '有品牌LOGO', '内部有学生证'],
+                    publishDate: '2024-01-14',
+                    publisher: {
+                        name: '王同学',
+                        info: '计算机学院 · 2021级'
+                    },
+                    publisherName: '王同学',
+                    images: [
+                        'https://modao.cc/ai/uploads/ai_pics/30/302277/aigp_1758618096.jpeg',
+                        'https://modao.cc/ai/uploads/ai_pics/30/302277/aigp_1758618097.jpeg'
+                    ],
+                    imageUrl: 'https://modao.cc/ai/uploads/ai_pics/30/302277/aigp_1758618096.jpeg'
+                }
+            },
+            found: {
+                '1': {
+                    id: '1',
+                    name: '校园卡（李**）',
+                    title: '校园卡（李**）',
+                    description: '在图书馆一楼大厅捡到一张校园卡，失主姓刘，计算机学院的同学。请尽快联系认领。',
+                    category: '证件卡类',
+                    location: '图书馆一楼大厅',
+                    time: '2024-01-16 15:30',
+                    date: '2024-01-16',
+                    features: ['红色校园卡套', '卡上姓名：李**', '计算机学院标识'],
+                    publishDate: '2024-01-16',
+                    publisher: {
+                        name: '张同学',
+                        info: '文学院 · 2022级'
+                    },
+                    publisherName: '张同学',
+                    images: [
+                        'https://modao.cc/ai/uploads/ai_pics/30/302277/aigp_1758618100.jpeg',
+                        'https://modao.cc/ai/uploads/ai_pics/30/302277/aigp_1758618101.jpeg'
+                    ],
+                    imageUrl: 'https://modao.cc/ai/uploads/ai_pics/30/302277/aigp_1758618100.jpeg'
+                }
             }
+        };
+        
+        // 从后端API获取物品详情
+        async function fetchItemDetails(itemId, itemType) {
+            try {
+                // 调用后端API获取详情数据
+                const response = await fetch(`/api/${itemType}-items/${itemId}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const item = await response.json();
+                console.log('获取物品详情成功:', item);
+                return item;
+            } catch (error) {
+                console.error('获取物品详情失败:', error);
+                // 从模拟数据中获取回退数据
+                const items = fallbackMockItems[itemType] || {};
+                return items[itemId] || null;
+            }
+        }
 
-            // 在实际应用中，这里会根据itemId从服务器获取数据
-            console.log('加载物品详情:', { itemId, itemType });
+        // 显示加载状态
+        function showLoading() {
+            const mainContent = document.querySelector('main');
+            const loadingDiv = document.createElement('div');
+            loadingDiv.id = 'loadingIndicator';
+            loadingDiv.className = 'fixed inset-0 flex items-center justify-center bg-white bg-opacity-80 z-50';
+            loadingDiv.innerHTML = `
+                <div class="text-center">
+                    <span class="iconify text-6xl text-blue-800 animate-pulse" data-icon="mdi:loading"></span>
+                    <p class="mt-4 text-lg">加载中...</p>
+                </div>
+            `;
+            document.body.appendChild(loadingDiv);
+        }
+
+        // 隐藏加载状态
+        function hideLoading() {
+            const loadingDiv = document.getElementById('loadingIndicator');
+            if (loadingDiv) {
+                document.body.removeChild(loadingDiv);
+            }
+        }
+
+        // 显示错误信息
+        function showError(message) {
+            const mainContent = document.querySelector('main');
+            mainContent.innerHTML = `
+                <div class="text-center py-12">
+                    <span class="iconify text-6xl text-red-500" data-icon="mdi:alert-circle"></span>
+                    <p class="mt-4 text-xl text-gray-700">${message}</p>
+                    <button id="retryButton" class="mt-6 btn-primary">重新加载</button>
+                </div>
+            `;
+            document.getElementById('retryButton').addEventListener('click', loadItemDetails);
+        }
+
+        // 标准化API返回的数据结构
+        function normalizeItemData(item, itemType) {
+            // 确保数据结构一致，处理可能的字段差异
+            return {
+                id: item.id,
+                title: item.title || item.name || '未命名物品',
+                description: item.description || '暂无描述',
+                category: item.category || '其他',
+                location: item.location || '未知地点',
+                time: item.time || item.date || '未知时间',
+                features: item.features || [item.description],
+                publishDate: item.publishDate || item.date || '未知日期',
+                publisher: {
+                    name: item.publisher?.name || item.publisherName || '匿名用户',
+                    info: item.publisher?.info || '未知信息'
+                },
+                publisherName: item.publisher?.name || item.publisherName || '匿名用户',
+                images: item.images || (item.imageUrl ? [item.imageUrl] : ['/images/placeholder.jpg'])
+            };
+        }
+
+        // 根据参数加载不同的物品信息
+        async function loadItemDetails() {
+            // 显示加载状态
+            showLoading();
+            
+            try {
+                const params = getQueryParams();
+                const itemId = params.id || '1';
+                const itemType = params.type || 'lost'; // 'lost' 或 'found'
+                
+                // 验证物品类型
+                if (!['lost', 'found'].includes(itemType)) {
+                    throw new Error('无效的物品类型');
+                }
+                
+                // 从API获取物品详情（同步调用）
+                const item = await fetchItemDetails(itemId, itemType);
+                
+                if (!item) {
+                    throw new Error('未找到该物品信息');
+                }
+                
+                // 标准化数据结构
+                const normalizedItem = normalizeItemData(item, itemType);
+                
+                // 更新页面内容
+                document.getElementById('itemTitle').textContent = normalizedItem.title;
+                document.getElementById('itemDescription').textContent = normalizedItem.description;
+                document.getElementById('itemCategory').textContent = normalizedItem.category;
+                document.getElementById('itemLocation').textContent = normalizedItem.location;
+                document.getElementById('itemTime').textContent = normalizedItem.time;
+                document.getElementById('publishDate').textContent = `发布于：${normalizedItem.publishDate}`;
+                document.getElementById('publisherName').textContent = normalizedItem.publisher.name;
+                document.querySelector('#publisherName + p').textContent = normalizedItem.publisher.info;
+                
+                // 更新特征列表
+                const featuresElement = document.getElementById('itemFeatures');
+                featuresElement.innerHTML = '<ul class="list-disc pl-5"></ul>';
+                const ul = featuresElement.querySelector('ul');
+                normalizedItem.features.forEach(feature => {
+                    const li = document.createElement('li');
+                    li.textContent = feature;
+                    ul.appendChild(li);
+                });
+                
+                // 更新图片
+                const mainImage = document.getElementById('mainImage');
+                mainImage.src = normalizedItem.images[0];
+                mainImage.alt = normalizedItem.title;
+                
+                // 更新缩略图
+                const gallery = document.querySelector('.image-gallery');
+                gallery.innerHTML = '';
+                normalizedItem.images.forEach((imgSrc, index) => {
+                    const img = document.createElement('img');
+                    img.src = imgSrc;
+                    img.alt = `${normalizedItem.title} ${index + 1}`;
+                    img.className = `h-20 object-cover cursor-pointer ${index === 0 ? 'border-2 border-blue-800' : ''}`;
+                    img.addEventListener('click', function() {
+                        mainImage.src = this.src;
+                        gallery.querySelectorAll('img').forEach(i => i.classList.remove('border-2', 'border-blue-800'));
+                        this.classList.add('border-2', 'border-blue-800');
+                    });
+                    gallery.appendChild(img);
+                });
+                
+                // 根据类型更新标签和按钮
+                const tagElement = document.getElementById('itemTag');
+                const contactButton = document.getElementById('contactPublisher');
+                
+                if (itemType === 'found') {
+                    tagElement.innerHTML = '<span class="tag tag-found">招领中</span>';
+                    contactButton.innerHTML = '<span class="iconify mr-2" data-icon="mdi:message"></span>联系认领';
+                } else {
+                    tagElement.innerHTML = '<span class="tag tag-lost">寻找中</span>';
+                    contactButton.innerHTML = '<span class="iconify mr-2" data-icon="mdi:message"></span>联系发布者';
+                }
+                
+                console.log('加载物品详情:', { itemId, itemType, item: normalizedItem });
+                
+            } catch (error) {
+                console.error('加载物品详情失败:', error);
+                showError(error.message || '加载失败，请稍后重试');
+            } finally {
+                // 隐藏加载状态
+                hideLoading();
+            }
         }
 
         // 图片切换功能
@@ -400,34 +583,29 @@
         // 联系发布者功能
         function setupContactButton() {
             document.getElementById('contactPublisher').addEventListener('click', function() {
+                const params = getQueryParams();
                 const publisherName = document.getElementById('publisherName').textContent;
-                // 跳转到私信页面
-                window.location.href = '失物招领平台_私信页面.html';
+                // 跳转到私信页面并传递发布者信息
+                window.location.href = `失物招领平台_私信页面.html?recipient=${encodeURIComponent(publisherName)}`;
             });
         }
 
-        // 相关物品点击功能
-        function setupRecommendationItems() {
-            document.querySelectorAll('.recommendation-item').forEach(item => {
-                item.addEventListener('click', function() {
-                    const itemId = this.getAttribute('data-id');
-                    // 重新加载当前页面，但使用新的物品ID
-                    window.location.href = `失物招领平台_详情页面.html?id=${itemId}`;
-                });
-            });
-        }
+
 
         // 初始化页面
-        function init() {
-            loadItemDetails();
-            setupImageGallery();
+        document.addEventListener('DOMContentLoaded', init);
+        
+        // 主初始化函数
+        async function init() {
+            // 加载物品详情
+            await loadItemDetails();
+            
+            // 设置返回按钮事件
             setupBackButton();
+            
+            // 设置联系按钮事件
             setupContactButton();
-            setupRecommendationItems();
         }
-
-        // 页面加载完成后初始化
-        window.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
