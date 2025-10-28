@@ -2,13 +2,25 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const authRoutes = require('./routes/authRoutes');
+const itemsRoutes = require('./routes/itemsRoutes');
 const dotenv = require('dotenv');
+const { testConnection, createDatabase } = require('./config/database');
 
 // 加载环境变量
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// 初始化数据库
+async function initDatabase() {
+  try {
+    await testConnection();
+    console.log('数据库初始化完成');
+  } catch (error) {
+    console.error('数据库初始化失败:', error.message);
+  }
+}
 
 // 中间件配置
 app.use(cors({
@@ -33,6 +45,9 @@ app.get('/', (req, res) => {
 // 认证相关路由
 app.use('/api', authRoutes);
 
+// 物品相关路由
+app.use('/api', itemsRoutes);
+
 // 404处理
 app.use((req, res) => {
   res.status(404).json({
@@ -48,15 +63,28 @@ app.use((err, req, res, next) => {
   });
 });
 
+// 启动服务器并初始化数据库
+async function startServer() {
+  await initDatabase();
+  
+  app.listen(PORT, () => {
+    console.log(`服务器运行在 http://localhost:${PORT}`);
+    console.log('API端点:');
+    console.log(`  - 健康检查: GET http://localhost:${PORT}`);
+    console.log(`  - 用户登录: POST http://localhost:${PORT}/api/login`);
+    console.log(`  - 用户注册: POST http://localhost:${PORT}/api/register`);
+    console.log(`  - 获取招领物品列表: GET http://localhost:${PORT}/api/found-items`);
+    console.log(`  - 获取失物物品列表: GET http://localhost:${PORT}/api/lost-items`);
+    console.log(`  - 获取物品详情: GET http://localhost:${PORT}/api/:itemType-items/:itemId`);
+    console.log(`  - 获取物品图片: GET http://localhost:${PORT}/api/images/:itemId`);
+    console.log(`  - 收藏操作: POST http://localhost:${PORT}/api/favorites`);
+    console.log('\n默认管理员账户:');
+    console.log('  - 用户名: admin');
+    console.log('  - 密码: admin123');
+  });
+}
+
 // 启动服务器
-app.listen(PORT, () => {
-  console.log(`服务器运行在 http://localhost:${PORT}`);
-  console.log('API端点:');
-  console.log(`  - 健康检查: GET http://localhost:${PORT}`);
-  console.log(`  - 用户登录: POST http://localhost:${PORT}/api/login`);
-  console.log(`  - 用户注册: POST http://localhost:${PORT}/api/register`);
-  console.log(`  - 获取用户列表(调试): GET http://localhost:${PORT}/api/users`);
-  console.log('\n默认管理员账户:');
-  console.log('  - 用户名: admin');
-  console.log('  - 密码: admin123');
+startServer().catch(error => {
+  console.error('服务器启动失败:', error.message);
 });

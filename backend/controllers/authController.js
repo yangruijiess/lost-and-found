@@ -1,47 +1,9 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { JWT_SECRET, JWT_EXPIRES_IN } = require('../config/jwt');
-const mysql = require('mysql2/promise');
-
-// MySQL数据库连接配置
-const DB_CONFIG = {
-    host: '10.21.205.135',
-    port: 3306,
-    user: 'newadmin',
-    password: 'newpassword',
-    database: 'lostfound',
-    connectTimeout: 10000,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-};
-
-// 创建数据库连接池
-let pool = null;
-
-// 测试数据库连接的函数
-async function testDatabaseConnection() {
-    try {
-        pool = mysql.createPool(DB_CONFIG);
-        console.log('数据库连接池已创建');
-        
-        // 测试连接
-        const connection = await pool.getConnection();
-        console.log('数据库连接测试成功');
-        connection.release();
-        return true;
-    } catch (error) {
-        console.error('数据库连接失败:', error.message);
-        console.error('错误代码:', error.code);
-        pool = null;
-        return false;
-    }
-}
-
-// 初始化时测试连接
-(async () => {
-    await testDatabaseConnection();
-})();
+// 使用共享的数据库连接池
+const { pool } = require('../config/database');
+console.log('authController: 使用共享数据库连接池');
 
 // 仅使用数据库验证，不再使用本地模拟数据
 
@@ -53,18 +15,7 @@ async function withDatabaseRetry(operation, maxRetries = 2) {
     
     while (retries <= maxRetries) {
         try {
-            // 如果连接池未初始化，尝试重新初始化
-            if (!pool) {
-                console.log('尝试重新初始化数据库连接池...');
-                await testDatabaseConnection();
-                
-                // 如果仍然没有连接池，直接返回失败
-                if (!pool) {
-                    return { success: false, error: '数据库连接池初始化失败' };
-                }
-            }
-            
-            // 执行数据库操作
+            // 直接使用共享连接池执行数据库操作
             const result = await operation();
             return { success: true, result };
         } catch (error) {
@@ -73,11 +24,7 @@ async function withDatabaseRetry(operation, maxRetries = 2) {
             
             // 如果达到最大重试次数，返回失败
             if (retries > maxRetries) {
-                // 如果是连接超时或连接断开，重置连接池
-                if (error.code === 'ETIMEDOUT' || error.code === 'ECONNRESET') {
-                    console.log('连接已断开，重置连接池');
-                    pool = null;
-                }
+                console.error('达到最大重试次数，操作失败:', error.code);
                 return { success: false, error: error.message };
             }
             
@@ -94,7 +41,7 @@ async function dbLogin(username, password) {
         try {
             // 查询用户
             const [rows] = await connection.query(
-                'SELECT id, username, password, student_id, email, phone FROM users WHERE username = ?',
+                'SELECT id, username, password, student_id, email, phone, is_admin FROM users WHERE username = ?',
                 [username]
             );
             
@@ -120,11 +67,12 @@ async function dbLogin(username, password) {
             
             if (passwordValid) {
                 return {
-                    id: user.id,
-                    username: user.username,
-                    student_id: user.student_id,
-                    email: user.email,
-                    phone: user.phone
+                  id: user.id,
+                  username: user.username,
+                  student_id: user.student_id,
+                  email: user.email,
+                  phone: user.phone,
+                  is_admin: user.is_admin || false
                 };
             }
             
@@ -313,7 +261,7 @@ exports.register = async (req, res) => {
     
     // 数据库注册成功
     res.status(201).json({
-      message: message,
+      message: '注册成功',
       user: registrationResult.user
     });
   } catch (error) {
@@ -376,6 +324,6 @@ exports.getAllUsers = async (req, res) => {
 
 // 导出配置和数据供测试使用
 module.exports.pool = pool;
-module.exports.DB_CONFIG = DB_CONFIG;
+
 module.exports.JWT_SECRET = JWT_SECRET;
 module.exports.JWT_EXPIRES_IN = JWT_EXPIRES_IN;
