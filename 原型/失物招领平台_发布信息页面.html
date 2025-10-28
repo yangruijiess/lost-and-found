@@ -150,7 +150,7 @@
                 
                 <!-- 用户入口 -->
                 <div class="flex items-center space-x-4">
-                    <a href="index.html" class="btn-secondary text-sm hidden lg:block">登录/注册</a>
+                    <a href="失物招领平台_登录注册页面.html" class="btn-secondary text-sm hidden lg:block">登录/注册</a>
                     <div class="lg:hidden">
                         <span class="iconify text-2xl text-gray-700" data-icon="mdi:menu"></span>
                     </div>
@@ -353,7 +353,23 @@
                     </ul>
                 </div>
                 
-
+                <div>
+                    <h3 class="font-bold text-lg mb-4">联系方式</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-center text-gray-600">
+                            <span class="iconify mr-2" data-icon="mdi:email"></span>
+                            contact@shiwutong.com
+                        </li>
+                        <li class="flex items-center text-gray-600">
+                            <span class="iconify mr-2" data-icon="mdi:phone"></span>
+                            400-123-4567
+                        </li>
+                        <li class="flex items-center text-gray-600">
+                            <span class="iconify mr-2" data-icon="mdi:map-marker"></span>
+                            北京市海淀区学院路38号
+                        </li>
+                    </ul>
+                </div>
             </div>
             
             <div class="border-t border-gray-200 mt-8 pt-6 text-center text-gray-500 text-sm">
@@ -397,77 +413,6 @@
             }
         });
         
-        // 配置变量：控制使用本地存储还是API调用
-        // 当后端实现后，将此值改为false
-        const USE_LOCAL_STORAGE = true;
-        const API_BASE_URL = '/api'; // 统一的后端API基础URL
-        const LOCAL_STORAGE_KEY = 'publishedItems'; // 统一使用的本地存储键名
-        
-        // 保存数据到本地存储的函数
-        function saveToLocalStorage(formData, imageFiles) {
-            return new Promise((resolve) => {
-                setTimeout(() => {
-                    // 生成模拟ID
-                    const mockItemId = Date.now();
-                    
-                    // 获取图片预览URL（用于本地展示）
-                    const imagePreviews = [];
-                    for (let i = 0; i < imageFiles.length && i < 3; i++) {
-                        imagePreviews.push(URL.createObjectURL(imageFiles[i]));
-                    }
-                    
-                    // 构建完整的发布信息对象，使用统一的字段名
-                    const itemData = {
-                        id: mockItemId,
-                        infoType: formData.get('infoType'),
-                        itemName: formData.get('itemName'),
-                        itemCategory: formData.get('itemCategory'),
-                        itemDescription: formData.get('itemDescription'),
-                        location: formData.get('location'),
-                        locationDetail: formData.get('locationDetail'),
-                        datetime: formData.get('datetime'),
-                        contactName: formData.get('contactName'),
-                        contactPhone: formData.get('contactPhone'),
-                        contactEmail: formData.get('contactEmail'),
-                        images: imagePreviews, // 使用统一的images字段名
-                        status: 'pending',
-                        createdAt: new Date().toISOString()
-                    };
-                    
-                    // 保存到localStorage模拟数据库存储
-                    let publishedItems = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
-                    publishedItems.push(itemData);
-                    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(publishedItems));
-                    
-                    console.log('信息已保存到本地存储:', itemData);
-                    resolve(itemData);
-                }, 1000); // 模拟网络延迟
-            });
-        }
-        
-        // 发送数据到后端API的函数（为未来后端实现预留）
-        async function saveToBackendAPI(formData) {
-            try {
-                const response = await fetch(`${API_BASE_URL}/items`, {
-                    method: 'POST',
-                    body: formData
-                    // 注意：使用FormData时，不要手动设置Content-Type
-                    // 浏览器会自动设置为multipart/form-data并添加正确的boundary
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`服务器响应错误: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                console.log('后端API响应:', data);
-                return data;
-            } catch (error) {
-                console.error('发送数据到后端失败:', error);
-                throw error;
-            }
-        }
-        
         // 表单验证和提交处理
         document.getElementById('publishForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -483,7 +428,6 @@
             const contactName = document.getElementById('contactName').value;
             const contactPhone = document.getElementById('contactPhone').value;
             const contactEmail = document.getElementById('contactEmail').value;
-            const imageFiles = document.getElementById('imageUpload').files;
             
             // 简单验证
             if (!itemName || !itemCategory || !itemDescription || !location || !datetime || !contactName || !contactPhone) {
@@ -507,71 +451,58 @@
                 }
             }
             
-            // 创建FormData对象用于文件上传
-            const formData = new FormData();
-            formData.append('infoType', infoType);
-            formData.append('itemName', itemName);
-            formData.append('itemCategory', itemCategory);
-            formData.append('itemDescription', itemDescription);
-            formData.append('location', location);
-            formData.append('locationDetail', locationDetail);
-            formData.append('datetime', datetime);
-            formData.append('contactName', contactName);
-            formData.append('contactPhone', contactPhone);
-            formData.append('contactEmail', contactEmail);
-            
-            // 添加图片文件
-            for (let i = 0; i < imageFiles.length && i < 3; i++) {
-                formData.append('images', imageFiles[i]);
-            }
-            
-            // 显示加载状态
-            const submitBtn = document.querySelector('button[type="submit"]');
-            const originalBtnText = submitBtn.textContent;
-            submitBtn.disabled = true;
-            submitBtn.textContent = '提交中...';
-            
             try {
-                if (USE_LOCAL_STORAGE) {
-                    // 当前阶段：使用本地存储
-                    await saveToLocalStorage(formData, imageFiles);
-                    console.log('使用本地存储模式');
-                } else {
-                    // 未来后端实现后：使用API调用
-                    await saveToBackendAPI(formData);
-                    console.log('使用后端API模式');
+                // 准备表单数据
+                const formData = new FormData();
+                formData.append('infoType', infoType);
+                formData.append('title', itemName);
+                formData.append('category', itemCategory);
+                formData.append('description', itemDescription);
+                formData.append('location', location);
+                formData.append('locationDetail', locationDetail);
+                formData.append('time', datetime);
+                formData.append('contactName', contactName);
+                formData.append('contactPhone', contactPhone);
+                formData.append('contactEmail', contactEmail);
+                
+                // 添加图片文件
+                const fileInput = document.getElementById('imageUpload');
+                for (let i = 0; i < fileInput.files.length && i < 3; i++) {
+                    formData.append('images', fileInput.files[i]);
                 }
                 
-                // 显示成功消息
-                alert('信息发布成功！我们将尽快审核您的信息。');
+                // 确定API路径
+                const apiPath = infoType === 'found' ? '/api/found-items' : '/api/lost-items';
                 
-                // 重置表单
-                document.getElementById('publishForm').reset();
-                document.getElementById('imagePreview').innerHTML = '';
+                // 发送请求到后端
+                const response = await fetch(apiPath, {
+                    method: 'POST',
+                    body: formData,
+                    // 注意：使用FormData时不需要设置Content-Type，浏览器会自动设置
+                    credentials: 'include' // 包含cookies，用于用户认证
+                });
                 
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('信息发布成功！我们将尽快审核您的信息。');
+                    // 重置表单
+                    this.reset();
+                    document.getElementById('imagePreview').innerHTML = '';
+                    
+                    // 根据发布类型跳转到对应的列表页面
+                    if (infoType === 'found') {
+                        window.location.href = '失物招领平台_招领页面.html';
+                    } else {
+                        window.location.href = '失物招领平台_失物页面.html';
+                    }
+                } else {
+                    alert(`发布失败：${result.message || '未知错误'}`);
+                }
             } catch (error) {
-                console.error('处理数据时出错:', error);
-                alert('处理数据时发生错误，请稍后重试。');
-            } finally {
-                // 恢复按钮状态
-                submitBtn.disabled = false;
-                submitBtn.textContent = originalBtnText;
+                console.error('提交表单时出错:', error);
+                alert('网络错误，请稍后重试！');
             }
-            
-            // 记录表单数据
-            console.log('表单数据:', {
-                infoType,
-                itemName,
-                itemCategory,
-                itemDescription,
-                location,
-                locationDetail,
-                datetime,
-                contactName,
-                contactPhone,
-                contactEmail,
-                imageCount: imageFiles.length
-            });
         });
         
         // 取消按钮功能
