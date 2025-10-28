@@ -429,27 +429,6 @@
             const contactPhone = document.getElementById('contactPhone').value;
             const contactEmail = document.getElementById('contactEmail').value;
             
-            // 获取上传的图片文件
-            const imageFiles = document.getElementById('imageUpload').files;
-            const formData = new FormData();
-            
-            // 添加表单数据到FormData
-            formData.append('infoType', infoType);
-            formData.append('title', itemName);
-            formData.append('category', itemCategory);
-            formData.append('description', itemDescription);
-            formData.append('location', location);
-            formData.append('locationDetail', locationDetail);
-            formData.append('datetime', datetime);
-            formData.append('contactName', contactName);
-            formData.append('contactPhone', contactPhone);
-            formData.append('contactEmail', contactEmail);
-            
-            // 添加图片文件
-            for (let i = 0; i < imageFiles.length && i < 3; i++) {
-                formData.append('images', imageFiles[i]);
-            }
-            
             // 简单验证
             if (!itemName || !itemCategory || !itemDescription || !location || !datetime || !contactName || !contactPhone) {
                 alert('请填写所有必填项！');
@@ -472,15 +451,48 @@
                 }
             }
             
+            // 收集表单数据
+            const formData = new FormData();
+            formData.append('title', itemName);
+            formData.append('category', itemCategory || '其他'); // 确保有分类字段
+            formData.append('description', itemDescription);
+            formData.append('location', location);
+            formData.append('time', datetime); // 使用time字段而不是date
+            formData.append('contactName', contactName || '匿名用户');
+            formData.append('contactPhone', contactPhone || '');
+            formData.append('contactEmail', contactEmail || '');
+            
+            // 添加图片文件
+            const imageUpload = document.getElementById('imageUpload');
+            console.log('图片数量:', imageUpload.files.length);
+            if (imageUpload.files.length > 0) {
+                formData.append('image', imageUpload.files[0]);
+            }
+            
+            // 检查FormData内容
+            console.log('准备发送的表单数据:');
+            for (let pair of formData.entries()) {
+                if (pair[1] instanceof File) {
+                    console.log(pair[0] + ': ' + pair[1].name);
+                } else {
+                    console.log(pair[0] + ': ' + pair[1]);
+                }
+            }
+            
             try {
-                // 发送数据到后端API
-                const endpoint = `/api/${infoType}-items`;
-                const response = await fetch(endpoint, {
+                // 发送请求 - 使用localhost以避免IP相关问题
+                const baseUrl = 'http://localhost:3000';
+                console.log('发送请求到:', `${baseUrl}/api/${infoType}-items`);
+                console.log('标题:', formData.get('title'));
+                console.log('分类:', formData.get('category'));
+                console.log('图片数量:', document.getElementById('imageUpload').files.length);
+                console.log('是否包含图片:', formData.has('image'));
+                
+                const response = await fetch(`${baseUrl}/api/${infoType}-items`, {
                     method: 'POST',
-                    headers: {
-                        // 不设置Content-Type，让浏览器自动设置multipart/form-data
-                    },
-                    body: formData
+                    body: formData,
+                    credentials: 'include',
+                    mode: 'cors'
                 });
                 
                 if (!response.ok) {
@@ -490,7 +502,8 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    alert('信息发布成功！我们将尽快审核您的信息。');
+                    alert('发布成功！');
+                    console.log('响应数据:', result);
                     // 重置表单
                     this.reset();
                     document.getElementById('imagePreview').innerHTML = '';
@@ -498,8 +511,9 @@
                     alert('发布失败：' + result.message || '未知错误');
                 }
             } catch (error) {
-                console.error('发布信息时出错:', error);
-                alert('发布失败，请稍后重试');
+                console.error('发布失败:', error);
+                console.error('错误详情:', error.stack);
+                alert(`发布失败，请重试！错误信息: ${error.message}`);
             }
         });
         

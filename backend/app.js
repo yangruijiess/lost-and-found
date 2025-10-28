@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const path = require('path');
+const fs = require('fs');
 const authRoutes = require('./routes/authRoutes');
 const itemsRoutes = require('./routes/itemsRoutes');
 const dotenv = require('dotenv');
@@ -12,6 +14,15 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// 确保上传目录存在
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// 使用真实的multer配置处理文件上传
+// 配置在config/multerConfig.js中，在路由文件中导入使用
+
 // 初始化数据库
 async function initDatabase() {
   try {
@@ -22,16 +33,33 @@ async function initDatabase() {
   }
 }
 
-// 中间件配置
+// 中间件配置 - 更宽松的CORS配置用于测试
 app.use(cors({
-  origin: '*', // 生产环境中应该设置具体的前端域名
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: '*',
+  credentials: true,
+  preflightContinue: true,
+  optionsSuccessStatus: 200
 }));
 
-// 解析请求体
+// 处理OPTIONS预检请求
+app.options('*', cors());
+
+// 解析请求体 - 增加对multipart/form-data的支持
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+// 添加详细的请求日志中间件
+app.use((req, res, next) => {
+  console.log('收到请求:', req.method, req.url);
+  console.log('请求头:', JSON.stringify(req.headers, null, 2));
+  console.log('Content-Type:', req.headers['content-type']);
+  next();
+});
+
+// 提供静态文件访问，使上传的图片可以通过URL访问
+app.use('/uploads', express.static(uploadDir));
 
 // 健康检查路由
 app.get('/', (req, res) => {
@@ -68,16 +96,15 @@ async function startServer() {
   await initDatabase();
   
   app.listen(PORT, () => {
-    console.log(`服务器运行在 http://localhost:${PORT}`);
-    console.log('API端点:');
-    console.log(`  - 健康检查: GET http://localhost:${PORT}`);
-    console.log(`  - 用户登录: POST http://localhost:${PORT}/api/login`);
-    console.log(`  - 用户注册: POST http://localhost:${PORT}/api/register`);
-    console.log(`  - 获取招领物品列表: GET http://localhost:${PORT}/api/found-items`);
-    console.log(`  - 获取失物物品列表: GET http://localhost:${PORT}/api/lost-items`);
-    console.log(`  - 获取物品详情: GET http://localhost:${PORT}/api/:itemType-items/:itemId`);
-    console.log(`  - 获取物品图片: GET http://localhost:${PORT}/api/images/:itemId`);
-    console.log(`  - 收藏操作: POST http://localhost:${PORT}/api/favorites`);
+     console.log(`服务器运行在 http://10.21.205.135:${PORT}`);
+     console.log(`  - 健康检查: GET http://10.21.205.135:${PORT}`);
+     console.log(`  - 用户登录: POST http://10.21.205.135:${PORT}/api/login`);
+     console.log(`  - 用户注册: POST http://10.21.205.135:${PORT}/api/register`);
+     console.log(`  - 获取招领物品列表: GET http://10.21.205.135:${PORT}/api/found-items`);
+     console.log(`  - 获取失物物品列表: GET http://10.21.205.135:${PORT}/api/lost-items`);
+     console.log(`  - 获取物品详情: GET http://10.21.205.135:${PORT}/api/:itemType-items/:itemId`);
+     console.log(`  - 获取物品图片: GET http://10.21.205.135:${PORT}/api/images/:itemId`);
+     console.log(`  - 收藏操作: POST http://10.21.205.135:${PORT}/api/favorites`);
     console.log('\n默认管理员账户:');
     console.log('  - 用户名: admin');
     console.log('  - 密码: admin123');

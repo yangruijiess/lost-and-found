@@ -176,37 +176,72 @@ exports.getLostItems = async (req, res) => {
 
 // 创建招领物品
 exports.createFoundItem = async (req, res) => {
+  console.log('开始处理招领物品创建请求');
+  console.log('请求体内容:', req.body);
+  console.log('req.file状态:', req.file);
+  
   try {
-    const { title, category, description, location, locationDetail, time, contactName, contactPhone, contactEmail } = req.body;
-    const userId = req.user?.id || 1; // 如果未登录，使用默认用户
+    // 提取表单数据 - 适配数据库实际字段结构
+    const { title, category, description, location, time, contactName, contactPhone, contactEmail } = req.body;
+    console.log('提取的表单数据:', { title, category, description, location, time, contactName, contactPhone, contactEmail });
 
-    // 验证必填字段
-    if (!title || !category || !description || !location || !time || !contactName || !contactPhone) {
+    // 验证必填字段 - 提供更具体的缺失字段信息
+    const missingFields = [];
+    if (!title) missingFields.push('标题');
+    if (!category) missingFields.push('分类');
+    if (!description) missingFields.push('描述');
+    if (!location) missingFields.push('地点');
+    if (!time) missingFields.push('发现时间');
+    
+    if (missingFields.length > 0) {
+      const errorMsg = `请填写以下必填字段: ${missingFields.join('、')}`;
+      console.warn('必填字段缺失:', errorMsg);
       return res.status(400).json({
         success: false,
-        message: '请填写必填字段',
-        errorCode: 'MISSING_FIELDS'
+        message: errorMsg,
+        errorCode: 'MISSING_FIELDS',
+        missingFields: missingFields
       });
     }
 
-    // 处理图片上传（这里简化处理，实际需要使用multer等库）
+    // 获取用户ID，使用可选链避免潜在错误
+    const userId = req.user?.id || 1; // 如果未登录，使用默认用户
+    console.log('用户ID:', userId);
+
+    // 处理图片上传 - 明确记录无图片情况
     let imageUrl = null;
-    if (req.files && req.files.images) {
-      // 这里只是示例，实际应该保存文件并生成URL
-      imageUrl = '/uploads/' + Date.now() + '_' + req.files.images.name;
+    if (req.file) {
+      // 使用multer保存的文件路径
+      imageUrl = '/uploads/' + req.file.filename;
+      console.log('图片上传成功，保存路径:', imageUrl);
+    } else {
+      console.log('没有上传图片');
     }
 
-    // 创建物品记录
-    const [result] = await pool.query(
-      `INSERT INTO found_items 
-       (title, description, category, location, location_detail, found_time, image_url, 
-        contact_name, contact_phone, contact_email, publisher_id, status) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [title, description, category, location, locationDetail, new Date(time), imageUrl,
-       contactName, contactPhone, contactEmail || null, userId, 'pending']
-    );
+    // 创建物品记录 - 适配数据库实际字段结构
+    console.log('准备执行数据库插入操作');
+    const query = `INSERT INTO found_items 
+       (title, description, category, location, found_time, image_url, publisher_id, status) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+    
+    // 将联系方式添加到描述中，因为数据库没有单独的联系字段
+    let enhancedDescription = description;
+    if (contactName || contactPhone || contactEmail) {
+      enhancedDescription += `\n\n联系方式：`;
+      if (contactName) enhancedDescription += `联系人: ${contactName} `;
+      if (contactPhone) enhancedDescription += `电话: ${contactPhone} `;
+      if (contactEmail) enhancedDescription += `邮箱: ${contactEmail}`;
+    }
+    
+    const values = [title, enhancedDescription, category, location, new Date(time), imageUrl, userId, 'approved'];
+    
+    console.log('SQL参数:', values);
+    
+    const [result] = await pool.query(query, values);
+    console.log('数据库插入成功，返回结果:', result);
 
-    res.json({
+    console.log('招领信息发布成功，返回itemId:', result.insertId);
+    res.status(201).json({
       success: true,
       data: {
         itemId: result.insertId
@@ -215,47 +250,85 @@ exports.createFoundItem = async (req, res) => {
     });
   } catch (error) {
     console.error('创建招领物品失败:', error.message);
+    console.error('错误详情:', error);
+    console.error('错误堆栈:', error.stack);
     res.status(500).json({
       success: false,
       message: '发布失败，请稍后重试',
-      errorCode: 'SERVER_ERROR'
+      errorCode: 'SERVER_ERROR',
+      errorDetails: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };
 
 // 创建失物物品
 exports.createLostItem = async (req, res) => {
+  console.log('开始处理失物物品创建请求');
+  console.log('请求体内容:', req.body);
+  console.log('req.file状态:', req.file);
+  
   try {
-    const { title, category, description, location, locationDetail, time, contactName, contactPhone, contactEmail } = req.body;
-    const userId = req.user?.id || 1; // 如果未登录，使用默认用户
+    // 提取表单数据 - 适配数据库实际字段结构
+    const { title, category, description, location, time, contactName, contactPhone, contactEmail } = req.body;
+    console.log('提取的表单数据:', { title, category, description, location, time, contactName, contactPhone, contactEmail });
 
-    // 验证必填字段
-    if (!title || !category || !description || !location || !time || !contactName || !contactPhone) {
+    // 验证必填字段 - 提供更具体的缺失字段信息
+    const missingFields = [];
+    if (!title) missingFields.push('标题');
+    if (!category) missingFields.push('分类');
+    if (!description) missingFields.push('描述');
+    if (!location) missingFields.push('地点');
+    if (!time) missingFields.push('丢失时间');
+    
+    if (missingFields.length > 0) {
+      const errorMsg = `请填写以下必填字段: ${missingFields.join('、')}`;
+      console.warn('必填字段缺失:', errorMsg);
       return res.status(400).json({
         success: false,
-        message: '请填写必填字段',
-        errorCode: 'MISSING_FIELDS'
+        message: errorMsg,
+        errorCode: 'MISSING_FIELDS',
+        missingFields: missingFields
       });
     }
 
-    // 处理图片上传（这里简化处理，实际需要使用multer等库）
+    // 获取用户ID，使用可选链避免潜在错误
+    const userId = req.user?.id || 1; // 如果未登录，使用默认用户
+    console.log('用户ID:', userId);
+
+    // 处理图片上传 - 明确记录无图片情况
     let imageUrl = null;
-    if (req.files && req.files.images) {
-      // 这里只是示例，实际应该保存文件并生成URL
-      imageUrl = '/uploads/' + Date.now() + '_' + req.files.images.name;
+    if (req.file) {
+      // 使用multer保存的文件路径
+      imageUrl = '/uploads/' + req.file.filename;
+      console.log('图片上传成功，保存路径:', imageUrl);
+    } else {
+      console.log('没有上传图片');
     }
 
-    // 创建物品记录
-    const [result] = await pool.query(
-      `INSERT INTO lost_items 
-       (title, description, category, location, location_detail, lost_time, image_url, 
-        contact_name, contact_phone, contact_email, publisher_id, status) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [title, description, category, location, locationDetail, new Date(time), imageUrl,
-       contactName, contactPhone, contactEmail || null, userId, 'pending']
-    );
+    // 创建物品记录 - 适配数据库实际字段结构
+    console.log('准备执行数据库插入操作');
+    const query = `INSERT INTO lost_items 
+       (title, description, category, location, lost_time, image_url, publisher_id, status) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+    
+    // 将联系方式添加到描述中，因为数据库没有单独的联系字段
+    let enhancedDescription = description;
+    if (contactName || contactPhone || contactEmail) {
+      enhancedDescription += `\n\n联系方式：`;
+      if (contactName) enhancedDescription += `联系人: ${contactName} `;
+      if (contactPhone) enhancedDescription += `电话: ${contactPhone} `;
+      if (contactEmail) enhancedDescription += `邮箱: ${contactEmail}`;
+    }
+    
+    const values = [title, enhancedDescription, category, location, new Date(time), imageUrl, userId, 'approved'];
+    
+    console.log('SQL参数:', values);
+    
+    const [result] = await pool.query(query, values);
+    console.log('数据库插入成功，返回结果:', result);
 
-    res.json({
+    console.log('失物信息发布成功，返回itemId:', result.insertId);
+    res.status(201).json({
       success: true,
       data: {
         itemId: result.insertId
@@ -264,10 +337,13 @@ exports.createLostItem = async (req, res) => {
     });
   } catch (error) {
     console.error('创建失物物品失败:', error.message);
+    console.error('错误详情:', error);
+    console.error('错误堆栈:', error.stack);
     res.status(500).json({
       success: false,
       message: '发布失败，请稍后重试',
-      errorCode: 'SERVER_ERROR'
+      errorCode: 'SERVER_ERROR',
+      errorDetails: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };

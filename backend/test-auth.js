@@ -48,7 +48,7 @@ async function runTests() {
     
     // 测试用户名: administrator, 密码: password
     const adminLoginOptions = {
-      hostname: 'localhost',
+      hostname: '10.21.205.135',
       port: 3000,
       path: '/api/login',
       method: 'POST',
@@ -110,7 +110,7 @@ async function runTests() {
     console.log('----------------------------');
     
     const usersOptions = {
-      hostname: 'localhost',
+      hostname: '10.21.205.135',
       port: 3000,
       path: '/api/users',
       method: 'GET',
@@ -138,11 +138,11 @@ async function runTests() {
     console.log('\n重要信息:');
     console.log('- 管理员账户: administrator / password');
     console.log('- 默认管理员: admin / admin123');
-    console.log('- 后端服务运行在: http://localhost:3000');
+    console.log('- 后端服务运行在: http://10.21.205.135:3000');
     
   } catch (error) {
     console.error('\n❌ 测试过程中发生错误:', error.message);
-    console.log('\n请确保后端服务正在运行在 http://localhost:3000');
+    console.log('\n请确保后端服务正在运行在 http://10.21.205.135:3000');
   }
 }
 
