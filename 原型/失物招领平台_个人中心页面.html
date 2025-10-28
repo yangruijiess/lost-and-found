@@ -153,8 +153,7 @@
                 <div class="flex items-center space-x-4">
                     <div class="relative">
                         <button class="p-2 text-gray-600 hover:text-blue-800">
-                            <span class="iconify text-xl" data-icon="mdi:bell"></span>
-                            <span class="absolute top-0 right-0 notification-badge">3</span>
+
                         </button>
                     </div>
                     <div class="hidden lg:block">
@@ -458,7 +457,7 @@
                 return userData;
             } catch (error) {
                 console.error('加载用户数据失败:', error);
-                alert('加载用户数据失败，请稍后重试');
+                // 静默处理错误，不再显示提示信息
                 return null;
             }
         }
