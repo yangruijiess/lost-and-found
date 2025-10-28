@@ -3,6 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const authRoutes = require('./routes/authRoutes');
 const itemsRoutes = require('./routes/itemsRoutes');
+const verificationRoutes = require('./routes/verificationRoutes');
 const dotenv = require('dotenv');
 const { testConnection, createDatabase } = require('./config/database');
 
@@ -48,6 +49,9 @@ app.use('/api', authRoutes);
 // 物品相关路由
 app.use('/api', itemsRoutes);
 
+// 验证相关路由
+app.use('/api', verificationRoutes);
+
 // 404处理
 app.use((req, res) => {
   res.status(404).json({
@@ -78,6 +82,8 @@ async function startServer() {
     console.log(`  - 获取物品详情: GET http://localhost:${PORT}/api/:itemType-items/:itemId`);
     console.log(`  - 获取物品图片: GET http://localhost:${PORT}/api/images/:itemId`);
     console.log(`  - 收藏操作: POST http://localhost:${PORT}/api/favorites`);
+    console.log(`  - 生成验证问题: POST http://localhost:${PORT}/api/generate-verification`);
+    console.log(`  - 验证用户答案: POST http://localhost:${PORT}/api/verify-answer`);
     console.log('\n默认管理员账户:');
     console.log('  - 用户名: admin');
     console.log('  - 密码: admin123');
