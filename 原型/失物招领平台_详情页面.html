@@ -576,7 +576,15 @@
         // 返回按钮功能
         function setupBackButton() {
             document.getElementById('backButton').addEventListener('click', function() {
-                window.history.back();
+                const params = getQueryParams();
+                const itemType = params.type || 'lost'; // 默认返回失物页面
+                
+                // 根据物品类型跳转到对应的列表页面
+                if (itemType === 'found') {
+                    window.location.href = '失物招领平台_招领页面.html';
+                } else {
+                    window.location.href = '失物招领平台_失物页面.html';
+                }
             });
         }
 
