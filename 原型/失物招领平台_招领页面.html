@@ -196,7 +196,7 @@
                 </div>
 
                 <!-- 信息卡片网格 -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div id="items-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     <!-- 卡片将通过JavaScript动态生成 -->
                 </div>
 
@@ -236,31 +236,43 @@
                 if (filters.search) params.append('search', filters.search);
 
                 // 显示加载状态
-                const cardsContainer = document.querySelector('.grid.grid-cols-1.sm\:grid-cols-2.lg\:grid-cols-3');
+                const cardsContainer = document.getElementById('items-container');
                 cardsContainer.innerHTML = '<div class="col-span-full text-center py-12"><span class="iconify text-4xl text-blue-800 animate-pulse" data-icon="mdi:loading"></span><p class="mt-4">加载中...</p></div>';
 
-                // 调用后端API
-                const response = await fetch(`/api/found-items?${params.toString()}`);
+                // 调用后端API - 使用完整URL避免跨域问题
+                const response = await fetch(`http://localhost:3000/api/found-items?${params.toString()}`);
 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
-                const data = await response.json();
-                console.log('获取招领物品数据成功:', data);
-
-                // 更新总页数（实际应从API返回）
-                totalPages = data.totalPages || 3;
+                const result = await response.json();
+                console.log('获取招领物品数据成功:', result);
+                
+                // 检查响应结构并提取正确的数据
+                const items = result.data && result.data.items ? result.data.items : [];
+                const pagination = result.data && result.data.pagination ? result.data.pagination : {};
+                
+                // 更新总页数（从API返回的pagination中获取）
+                totalPages = pagination.totalPages || 0;
 
                 // 渲染招领物品卡片
-                renderFoundItems(data.items || []);
+                renderFoundItems(items);
+                
+                // 构建返回对象以保持兼容性
+                const returnData = {
+                    items: items,
+                    total: pagination.total || 0,
+                    page: pagination.page || 1,
+                    totalPages: pagination.totalPages || 0
+                };
 
-                return data;
+                return returnData;
             } catch (error) {
                 console.error('获取招领物品数据失败:', error);
 
                 // 显示错误信息
-                const cardsContainer = document.querySelector('.grid.grid-cols-1.sm\:grid-cols-2.lg\:grid-cols-3');
+                const cardsContainer = document.getElementById('items-container');
                 cardsContainer.innerHTML = `
                     <div class="col-span-full text-center py-12">
                         <span class="iconify text-4xl text-red-500" data-icon="mdi:alert-circle"></span>
@@ -272,17 +284,16 @@
                 // 添加重试按钮事件
                 document.getElementById('retryBtn').addEventListener('click', () => fetchFoundItems(page, filters));
 
-                // 模拟数据
-                const mockItems = getMockFoundItems();
-
-                // 返回模拟数据，确保页面可以显示内容
-                return { items: mockItems, total: mockItems.length, page: 1, pages: 1 };
+                // 移除模拟数据
+                
+                // 返回空数据，确保页面显示正确的错误提示
+                return { items: [], total: 0, page: 1, pages: 1 };
             }
         }
 
         // 渲染招领物品卡片
         function renderFoundItems(items) {
-            const cardsContainer = document.querySelector('.grid.grid-cols-1.sm\:grid-cols-2.lg\:grid-cols-3');
+            const cardsContainer = document.getElementById('items-container');
             cardsContainer.innerHTML = '';
 
             if (items.length === 0) {
@@ -302,14 +313,23 @@
                 card.setAttribute('data-id', item.id);
 
                 // 构建卡片HTML，从后端API获取图片URL
-                const imageUrl = item.imageUrl || `/api/images/${item.id}?type=found`;
+                const imageUrl = item.image_url || `/api/images/${item.id}?type=found`;
+                // 处理本地图片路径
+                const finalImageUrl = imageUrl.startsWith('/uploads') ? `http://localhost:3000${imageUrl}` : imageUrl;
+
+                // 格式化日期
+                const formatDate = (dateString) => {
+                    if (!dateString) return '未知日期';
+                    const date = new Date(dateString);
+                    return date.toLocaleDateString('zh-CN');
+                };
 
                 // 构建卡片HTML
                 card.innerHTML = `
                     <div class="relative h-48 bg-gray-100">
                         <img 
-                            src="${imageUrl}" 
-                            alt="${item.name || '招领物品'}" 
+                            src="${finalImageUrl}" 
+                            alt="${item.title || '招领物品'}" 
                             class="w-full h-full object-cover" 
                             loading="lazy"
                             onerror="this.onerror=null;this.src='/images/placeholder.jpg';"
@@ -320,14 +340,14 @@
                         </button>
                     </div>
                     <div class="p-4">
-                        <h3 class="font-bold text-lg mb-2 text-gray-800">${item.name || '未命名物品'}</h3>
+                        <h3 class="font-bold text-lg mb-2 text-gray-800">${item.title || '未命名物品'}</h3>
                         <p class="text-gray-600 mb-3 line-clamp-2">${item.description || '暂无描述'}</p>
                         <div class="text-sm text-gray-500 space-y-1 mb-4">
                             <div class="flex items-center"><span class="iconify text-gray-400 mr-1" data-icon="mdi:map-marker"></span> ${item.location || '未知地点'}</div>
-                            <div class="flex items-center"><span class="iconify text-gray-400 mr-1" data-icon="mdi:calendar"></span> ${item.date || '未知日期'}</div>
+                            <div class="flex items-center"><span class="iconify text-gray-400 mr-1" data-icon="mdi:calendar"></span> ${formatDate(item.found_time)}</div>
                             <div class="flex items-center">
                                 <span class="iconify text-gray-400 mr-1" data-icon="mdi:account"></span> 
-                                <span class="text-blue-800 cursor-pointer" data-publisher="${item.publisher || '匿名用户'}">${item.publisher || '匿名用户'}</span>
+                                <span class="text-blue-800 cursor-pointer" data-publisher="${item.publisher_id || '匿名用户'}">用户${item.publisher_id || '匿名'}</span>
                             </div>
                         </div>
                         <div class="flex space-x-2">
@@ -740,9 +760,15 @@
 
         // 获取当前筛选条件
         function getCurrentFilters() {
-            const itemCategory = document.querySelector('select:nth-of-type(1)').value;
-            const timeRange = document.querySelector('select:nth-of-type(2)').value;
-            const locationArea = document.querySelector('select:nth-of-type(3)').value;
+            // 安全地获取筛选元素，避免null引用错误
+            const categorySelect = document.querySelector('select:nth-of-type(1)');
+            const timeSelect = document.querySelector('select:nth-of-type(2)');
+            const locationSelect = document.querySelector('select:nth-of-type(3)');
+            
+            // 检查元素是否存在，不存在则使用默认值
+            const itemCategory = categorySelect ? categorySelect.value : '全部类别';
+            const timeRange = timeSelect ? timeSelect.value : '全部时间';
+            const locationArea = locationSelect ? locationSelect.value : '全部区域';
 
             return {
                 category: itemCategory !== '全部类别' ? itemCategory : '',

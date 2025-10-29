@@ -96,15 +96,15 @@ async function startServer() {
   await initDatabase();
   
   app.listen(PORT, () => {
-     console.log(`服务器运行在 http://10.21.205.135:${PORT}`);
-     console.log(`  - 健康检查: GET http://10.21.205.135:${PORT}`);
-     console.log(`  - 用户登录: POST http://10.21.205.135:${PORT}/api/login`);
-     console.log(`  - 用户注册: POST http://10.21.205.135:${PORT}/api/register`);
-     console.log(`  - 获取招领物品列表: GET http://10.21.205.135:${PORT}/api/found-items`);
-     console.log(`  - 获取失物物品列表: GET http://10.21.205.135:${PORT}/api/lost-items`);
-     console.log(`  - 获取物品详情: GET http://10.21.205.135:${PORT}/api/:itemType-items/:itemId`);
-     console.log(`  - 获取物品图片: GET http://10.21.205.135:${PORT}/api/images/:itemId`);
-     console.log(`  - 收藏操作: POST http://10.21.205.135:${PORT}/api/favorites`);
+     console.log(`服务器运行在 http://localhost:${PORT}`);
+     console.log(`  - 健康检查: GET http://localhost:${PORT}`);
+     console.log(`  - 用户登录: POST http://localhost:${PORT}/api/login`);
+     console.log(`  - 用户注册: POST http://localhost:${PORT}/api/register`);
+     console.log(`  - 获取招领物品列表: GET http://localhost:${PORT}/api/found-items`);
+     console.log(`  - 获取失物物品列表: GET http://localhost:${PORT}/api/lost-items`);
+     console.log(`  - 获取物品详情: GET http://localhost:${PORT}/api/:itemType-items/:itemId`);
+     console.log(`  - 获取物品图片: GET http://localhost:${PORT}/api/images/:itemId`);
+     console.log(`  - 收藏操作: POST http://localhost:${PORT}/api/favorites`);
     console.log('\n默认管理员账户:');
     console.log('  - 用户名: admin');
     console.log('  - 密码: admin123');
