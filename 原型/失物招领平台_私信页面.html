@@ -72,7 +72,7 @@
         }
         .chat-sidebar {
             border-right: 1px solid #e2e8f0;
-            height: calc(100vh - 132px);
+            height: 600px; /* 使用固定高度 */
         }
         .chat-item {
             border-bottom: 1px solid #f1f5f9;
@@ -87,7 +87,7 @@
             background-color: #eef2ff;
         }
         .chat-content {
-            height: calc(100vh - 132px);
+            height: 600px; /* 使用固定高度 */
             display: flex;
             flex-direction: column;
         }
@@ -99,6 +99,8 @@
         .message-input-area {
             border-top: 1px solid #e2e8f0;
             padding: 1rem;
+            background-color: white;
+            position: relative;
         }
         /* 头像样式优化 */
         .avatar-container {
@@ -174,12 +176,17 @@
             text-align: right;
             margin-top: 0.25rem;
         }
+        
+        .message-status {
+            font-size: 0.7rem;
+            margin-left: 4px;
+        }
         .message-list {
             display: flex;
             flex-direction: column;
             overflow-y: auto;
             padding: 1rem;
-            height: calc(100% - 80px);
+            height: calc(100% - 100px); /* 为输入区域预留空间 */
         }
         .unread-badge {
             background-color: #ef4444;
@@ -229,13 +236,12 @@
                     </div>
                 </div>
             </div>
-        </div>
     </header>
 
     <!-- 主体内容 -->
     <main class="container mx-auto px-6 py-8 max-w-7xl">
         <div class="bg-white card overflow-hidden">
-            <div class="flex flex-col lg:flex-row h-[calc(100vh-220px)]">
+            <div class="flex flex-col lg:flex-row h-auto max-h-[80vh]">
                 <!-- 左侧聊天列表 -->
                 <div class="chat-sidebar w-full lg:w-80 p-0">
                     <!-- 搜索框 -->
@@ -247,111 +253,14 @@
                     </div>
                     
                     <!-- 对话列表 -->
-                    <div class="overflow-y-auto h-full">
-                        <!-- 对话项1 - 活跃状态 -->
-                        <div class="chat-item p-4 flex items-center active" data-id="1" data-name="李明" data-avatar="https://randomuser.me/api/portraits/women/44.jpg" data-status="online">
-                            <div class="avatar-container-wrapper">
-                                <div class="avatar-container">
-                                    <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="用户头像" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23cbd5e1%22><path d=%22M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z%22/></svg>';">
-                                </div>
-                                <span class="avatar-status"></span>
-                            </div>
-                            <div class="flex-1">
-                                <div class="flex justify-between items-center mb-1">
-                                    <h3 class="font-medium text-gray-900">李明</h3>
-                                    <span class="text-xs text-gray-500">15:30</span>
-                                </div>
-                                <p class="text-sm text-gray-600 truncate">您好，我在平台上看到您发布的黑色钱包招领信息，我想确认一下是不是我的...</p>
-                            </div>
-                        </div>
-                        
-                        <!-- 对话项2 - 有未读消息 -->
-                        <div class="chat-item p-4 flex items-center" data-id="2" data-name="王芳" data-avatar="https://randomuser.me/api/portraits/men/32.jpg" data-status="offline">
-                            <div class="avatar-container-wrapper">
-                                <div class="avatar-container">
-                                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="用户头像" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23cbd5e1%22><path d=%22M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z%22/></svg>';">
-                                </div>
-                            </div>
-                            <div class="flex-1">
-                                <div class="flex justify-between items-center mb-1">
-                                    <h3 class="font-medium text-gray-900">王芳</h3>
-                                    <div class="flex items-center">
-                                        <span class="text-xs text-gray-500 mr-2">昨天</span>
-                                        <span class="unread-badge">2</span>
-                                    </div>
-                                </div>
-                                <p class="text-sm font-medium text-gray-700 truncate">我找到了您丢失的蓝色书包</p>
-                            </div>
-                        </div>
-                        
-                        <!-- 对话项3 -->
-                        <div class="chat-item p-4 flex items-center" data-id="3" data-name="张伟" data-avatar="https://randomuser.me/api/portraits/men/75.jpg" data-status="offline">
-                            <div class="avatar-container-wrapper">
-                                <div class="avatar-container">
-                                    <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="用户头像" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23cbd5e1%22><path d=%22M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z%22/></svg>';">
-                                </div>
-                            </div>
-                            <div class="flex-1">
-                                <div class="flex justify-between items-center mb-1">
-                                    <h3 class="font-medium text-gray-900">张伟</h3>
-                                    <span class="text-xs text-gray-500">周一</span>
-                                </div>
-                                <p class="text-sm text-gray-600 truncate">谢谢您，我已经收到了失物，非常感谢您的帮助！</p>
-                            </div>
-                        </div>
-                        
-                        <!-- 对话项4 -->
-                        <div class="chat-item p-4 flex items-center" data-id="4" data-name="陈静" data-avatar="https://randomuser.me/api/portraits/women/68.jpg" data-status="offline">
-                            <div class="avatar-container-wrapper">
-                                <div class="avatar-container">
-                                    <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="用户头像" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23cbd5e1%22><path d=%22M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z%22/></svg>';">
-                                </div>
-                            </div>
-                            <div class="flex-1">
-                                <div class="flex justify-between items-center mb-1">
-                                    <h3 class="font-medium text-gray-900">陈静</h3>
-                                    <span class="text-xs text-gray-500">上周</span>
-                                </div>
-                                <p class="text-sm text-gray-600 truncate">关于我丢失的身份证，请问有什么进展吗？</p>
-                            </div>
-                        </div>
-                        
-                        <!-- 对话项5 -->
-                        <div class="chat-item p-4 flex items-center" data-id="5" data-name="刘强" data-avatar="https://randomuser.me/api/portraits/men/22.jpg" data-status="offline">
-                            <div class="avatar-container-wrapper">
-                                <div class="avatar-container">
-                                    <img src="https://randomuser.me/api/portraits/men/22.jpg" alt="用户头像" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23cbd5e1%22><path d=%22M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z%22/></svg>';">
-                                </div>
-                            </div>
-                            <div class="flex-1">
-                                <div class="flex justify-between items-center mb-1">
-                                    <h3 class="font-medium text-gray-900">刘强</h3>
-                                    <span class="text-xs text-gray-500">上周</span>
-                                </div>
-                                <p class="text-sm text-gray-600 truncate">我在操场捡到了一个篮球，请问是您的吗？</p>
-                            </div>
-                        </div>
-                        
-                        <!-- 对话项6 -->
-                        <div class="chat-item p-4 flex items-center" data-id="6" data-name="赵琳" data-avatar="https://randomuser.me/api/portraits/women/54.jpg" data-status="offline">
-                            <div class="avatar-container-wrapper">
-                                <div class="avatar-container">
-                                    <img src="https://randomuser.me/api/portraits/women/54.jpg" alt="用户头像" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23cbd5e1%22><path d=%22M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z%22/></svg>';">
-                                </div>
-                            </div>
-                            <div class="flex-1">
-                                <div class="flex justify-between items-center mb-1">
-                                    <h3 class="font-medium text-gray-900">赵琳</h3>
-                                    <span class="text-xs text-gray-500">两周前</span>
-                                </div>
-                                <p class="text-sm text-gray-600 truncate">您好，我想咨询一下关于物品认领的流程</p>
-                            </div>
-                        </div>
+                    <div class="overflow-y-auto h-full" id="conversation-list">
+                        <!-- 对话列表将通过JavaScript动态生成 -->
+                        <div class="text-center text-gray-500 py-8">加载中...</div>
                     </div>
                 </div>
                 
                 <!-- 右侧聊天内容 -->
-                <div class="chat-content w-full">
+                <div class="chat-content w-full flex flex-col">
                     <!-- 聊天头部 -->
                     <div class="p-4 border-b flex items-center justify-between">
                         <div class="flex items-center">
@@ -378,45 +287,13 @@
                     </div>
                     
                     <!-- 聊天内容区域 -->
-                    <div class="message-list">
-                        <!-- 系统消息 -->
-                        <div class="text-center mb-6">
-                            <span class="text-xs bg-gray-100 text-gray-600 py-1 px-3 rounded-full">今天 14:25</span>
-                        </div>
-                        
-                        <!-- 收到的消息 -->
-                        <div class="message-bubble received">
-                            <p>您好，我在平台上看到您发布的黑色钱包招领信息，我想确认一下是不是我的</p>
-                            <div class="message-time">14:25</div>
-                        </div>
-                        
-                        <!-- 发送的消息 -->
-                        <div class="message-bubble sent">
-                            <p>您好，我确实捡到了一个黑色钱包，请问您能描述一下钱包的具体特征吗？比如品牌、里面有什么物品等</p>
-                            <div class="message-time">14:27</div>
-                        </div>
-                        
-                        <!-- 收到的消息 -->
-                        <div class="message-bubble received">
-                            <p>钱包是Coach品牌的，黑色皮质，里面有我的身份证（姓名：李明）、一张工商银行信用卡、一张饭卡和200元现金</p>
-                            <div class="message-time">14:30</div>
-                        </div>
-                        
-                        <!-- 发送的消息 -->
-                        <div class="message-bubble sent">
-                            <p>描述基本符合，请问您什么时候方便来认领？我现在在图书馆二楼自习室</p>
-                            <div class="message-time">14:32</div>
-                        </div>
-                        
-                        <!-- 收到的消息 -->
-                        <div class="message-bubble received">
-                            <p>太好了！我大约半小时后可以到图书馆，我们在二楼大厅见面可以吗？</p>
-                            <div class="message-time">15:30</div>
-                        </div>
+                    <div class="message-list flex-grow overflow-y-auto">
+                        <!-- 消息列表将通过JavaScript动态生成 -->
+                        <div class="text-center text-gray-500 py-12">请选择一个对话开始聊天</div>
                     </div>
                     
                     <!-- 输入区域 -->
-                    <div class="message-input-area">
+                    <div class="message-input-area p-4 border-t" style="z-index: 10;">
                         <div class="flex space-x-3">
                             <div class="flex items-center space-x-2 text-gray-500">
                                 <button class="p-2 hover:text-blue-800 hover:bg-blue-50 rounded-full">
@@ -432,7 +309,7 @@
                             <div class="flex-1 relative">
                                 <textarea placeholder="输入消息..." class="w-full p-3 border rounded-lg resize-none focus:ring-0" rows="2"></textarea>
                             </div>
-                            <button class="btn-primary self-end">发送</button>
+                            <button id="send-message-btn" class="btn-primary self-end">发送</button>
                         </div>
                     </div>
                 </div>
@@ -494,190 +371,752 @@
 
     <!-- 聊天功能 -->
     <script>
-        // 模拟聊天数据
-        const chatData = {
-            1: {
-                messages: [
-                    { text: '您好，我在平台上看到您发布的黑色钱包招领信息，我想确认一下是不是我的', time: '14:25', sender: 'received' },
-                    { text: '您好，我确实捡到了一个黑色钱包，请问您能描述一下钱包的具体特征吗？比如品牌、里面有什么物品等', time: '14:27', sender: 'sent' },
-                    { text: '钱包是Coach品牌的，黑色皮质，里面有我的身份证（姓名：李明）、一张工商银行信用卡、一张饭卡和200元现金', time: '14:30', sender: 'received' },
-                    { text: '描述基本符合，请问您什么时候方便来认领？我现在在图书馆二楼自习室', time: '14:32', sender: 'sent' },
-                    { text: '太好了！我大约半小时后可以到图书馆，我们在二楼大厅见面可以吗？', time: '15:30', sender: 'received' }
-                ],
-                date: '今天'
-            },
-            2: {
-                messages: [
-                    { text: '您好，请问您发布的是蓝色书包的招领信息吗？', time: '昨天 19:45', sender: 'sent' },
-                    { text: '是的，我在教学楼A栋捡到了一个蓝色书包', time: '昨天 19:50', sender: 'received' },
-                    { text: '我找到了您丢失的蓝色书包', time: '昨天 19:55', sender: 'received' }
-                ],
-                date: '昨天'
-            },
-            3: {
-                messages: [
-                    { text: '非常感谢您捡到了我的笔记本电脑！', time: '周一 13:20', sender: 'sent' },
-                    { text: '不客气，很高兴能帮到您！', time: '周一 13:30', sender: 'received' },
-                    { text: '谢谢您，我已经收到了失物，非常感谢您的帮助！', time: '周一 15:40', sender: 'sent' }
-                ],
-                date: '周一'
-            },
-            4: {
-                messages: [
-                    { text: '您好，我想咨询一下关于我丢失的身份证的情况', time: '上周 10:15', sender: 'sent' },
-                    { text: '我们已经在系统中登记了您的失物信息，如果有消息会第一时间通知您', time: '上周 10:20', sender: 'received' },
-                    { text: '关于我丢失的身份证，请问有什么进展吗？', time: '上周 16:30', sender: 'sent' }
-                ],
-                date: '上周'
-            },
-            5: {
-                messages: [
-                    { text: '我在操场捡到了一个篮球，请问是您的吗？', time: '上周 17:45', sender: 'received' },
-                    { text: '您好，我确实在操场丢失了一个篮球，能描述一下它的特征吗？', time: '上周 18:00', sender: 'sent' }
-                ],
-                date: '上周'
-            },
-            6: {
-                messages: [
-                    { text: '您好，我想咨询一下关于物品认领的流程', time: '两周前 09:30', sender: 'received' },
-                    { text: '您好，认领流程很简单，您需要提供物品的详细描述并出示有效证件确认身份', time: '两周前 09:40', sender: 'sent' }
-                ],
-                date: '两周前'
-            }
-        };
+        // 当前用户信息（实际应该从登录状态获取）
+        let currentUserId = 1; // 模拟当前用户ID
+        let currentConversationId = null;
+        let currentReceiverId = null;
         
-        // 加载聊天历史消息
-        function loadChatMessages(chatId) {
+        // 获取JWT令牌
+        function getToken() {
+            return localStorage.getItem('token');
+        }
+        
+        // 格式化时间
+        function formatMessageTime(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffTime = Math.abs(now - date);
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            
+            let datePrefix = '';
+            if (diffDays === 0) {
+                datePrefix = '今天';
+            } else if (diffDays === 1) {
+                datePrefix = '昨天';
+            } else if (diffDays < 7) {
+                const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+                datePrefix = weekdays[date.getDay()];
+            } else if (diffDays < 14) {
+                datePrefix = '上周';
+            } else if (diffDays < 21) {
+                datePrefix = '两周前';
+            } else {
+                datePrefix = date.toLocaleDateString('zh-CN');
+            }
+            
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            
+            return { prefix: datePrefix, time: `${hours}:${minutes}` };
+        }
+        
+        // 加载对话列表
+        async function loadConversations() {
+            try {
+                const token = getToken();
+                const response = await fetch('http://localhost:3000/api/conversations', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('获取对话列表失败');
+                }
+                
+                const data = await response.json();
+                const conversations = data.conversations;
+                
+                // 更新对话列表UI
+                const conversationList = document.querySelector('.overflow-y-auto');
+                conversationList.innerHTML = '';
+                
+                if (conversations.length === 0) {
+                    conversationList.innerHTML = '<div class="p-4 text-center text-gray-500">暂无对话</div>';
+                    return;
+                }
+                
+                conversations.forEach((conversation, index) => {
+                    const isActive = index === 0;
+                    
+                    const chatItem = document.createElement('div');
+                    chatItem.className = `chat-item p-4 flex items-center ${isActive ? 'active' : ''}`;
+                    chatItem.setAttribute('data-id', conversation.id);
+                    chatItem.setAttribute('data-name', conversation.otherUsername);
+                    chatItem.setAttribute('data-other-id', conversation.otherUserId);
+                    
+                    // 生成默认头像
+                    const avatarColor = '#' + Math.floor(Math.random()*16777215).toString(16);
+                    const initial = conversation.otherUsername.charAt(0).toUpperCase();
+                    const defaultAvatar = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${avatarColor}"><text x="50%" y="50%" font-family="Arial" font-size="16" fill="white" text-anchor="middle" dy=".3em">${initial}</text></svg>`;
+                    
+                    chatItem.setAttribute('data-avatar', defaultAvatar);
+                    chatItem.setAttribute('data-status', 'offline');
+                    
+                    // 计算时间显示
+                    let timeDisplay = '未知时间';
+                    if (conversation.lastMessageTime) {
+                        const timeInfo = formatMessageTime(conversation.lastMessageTime);
+                        timeDisplay = timeInfo.prefix === '今天' ? timeInfo.time : timeInfo.prefix;
+                    }
+                    
+                    let unreadBadge = '';
+                    if (conversation.unreadCount > 0) {
+                        unreadBadge = `<span class="unread-badge">${conversation.unreadCount}</span>`;
+                    }
+                    
+                    chatItem.innerHTML = `
+                        <div class="avatar-container-wrapper">
+                            <div class="avatar-container">
+                                <img src="${defaultAvatar}" alt="${conversation.otherUsername}的头像">
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-center mb-1">
+                                <h3 class="font-medium text-gray-900">${conversation.otherUsername}</h3>
+                                <div class="flex items-center">
+                                    <span class="text-xs text-gray-500 mr-2">${timeDisplay}</span>
+                                    ${unreadBadge}
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-600 truncate">${conversation.lastMessage || '暂无消息'}</p>
+                        </div>
+                    `;
+                    
+                    conversationList.appendChild(chatItem);
+                    
+                    // 添加点击事件
+                    chatItem.addEventListener('click', () => selectConversation(chatItem));
+                });
+                
+                // 默认选中第一个对话
+                if (conversations.length > 0) {
+                    selectConversation(conversationList.querySelector('.chat-item'));
+                }
+            } catch (error) {
+                console.error('加载对话列表失败:', error);
+                // 显示模拟数据
+                showMockConversations();
+            }
+        }
+        
+        // 显示模拟数据（当API不可用时）
+        function showMockConversations() {
+            const mockData = [
+                { id: 1, otherUsername: '李', otherUserId: 2, lastMessage: '您好，我在平台上看到您发布的黑色钱包招领信息...', lastMessageTime: new Date(), unreadCount: 0 },
+                { id: 2, otherUsername: '王', otherUserId: 3, lastMessage: '我找到了您丢失的蓝色书包', lastMessageTime: new Date(Date.now() - 86400000), unreadCount: 2 },
+                { id: 3, otherUsername: '张', otherUserId: 4, lastMessage: '谢谢您，我已经收到了失物，非常感谢您的帮助！', lastMessageTime: new Date(Date.now() - 172800000), unreadCount: 0 },
+                { id: 4, otherUsername: '刘', otherUserId: 5, lastMessage: '我可能看到了您丢失的物品', lastMessageTime: new Date(Date.now() - 259200000), unreadCount: 0 },
+                { id: 5, otherUsername: '陈', otherUserId: 6, lastMessage: '请问您的物品有什么特征？', lastMessageTime: new Date(Date.now() - 345600000), unreadCount: 1 },
+                { id: 6, otherUsername: '郑', otherUserId: 7, lastMessage: '您好，可以详细描述一下您丢失的物品吗？', lastMessageTime: new Date(Date.now() - 432000000), unreadCount: 0 }
+            ];
+            
+            const conversationList = document.querySelector('.overflow-y-auto');
+            conversationList.innerHTML = '';
+            
+            mockData.forEach((conversation, index) => {
+                const isActive = index === 0;
+                
+                const chatItem = document.createElement('div');
+                chatItem.className = `chat-item p-4 flex items-center ${isActive ? 'active' : ''}`;
+                chatItem.setAttribute('data-id', conversation.id);
+                chatItem.setAttribute('data-name', conversation.otherUsername);
+                chatItem.setAttribute('data-other-id', conversation.otherUserId);
+                
+                // 生成默认头像
+                const avatarColor = '#' + Math.floor(Math.random()*16777215).toString(16);
+                const initial = conversation.otherUsername.charAt(0).toUpperCase();
+                const defaultAvatar = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${avatarColor}"><text x="50%" y="50%" font-family="Arial" font-size="16" fill="white" text-anchor="middle" dy=".3em">${initial}</text></svg>`;
+                
+                chatItem.setAttribute('data-avatar', defaultAvatar);
+                chatItem.setAttribute('data-status', 'offline');
+                
+                // 计算时间显示
+                let timeDisplay = '未知时间';
+                if (conversation.lastMessageTime) {
+                    const timeInfo = formatMessageTime(conversation.lastMessageTime);
+                    timeDisplay = timeInfo.prefix === '今天' ? timeInfo.time : timeInfo.prefix;
+                }
+                
+                let unreadBadge = '';
+                if (conversation.unreadCount > 0) {
+                    unreadBadge = `<span class="unread-badge">${conversation.unreadCount}</span>`;
+                }
+                
+                chatItem.innerHTML = `
+                    <div class="avatar-container-wrapper">
+                        <div class="avatar-container">
+                            <img src="${defaultAvatar}" alt="${conversation.otherUsername}的头像">
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-center mb-1">
+                            <h3 class="font-medium text-gray-900">${conversation.otherUsername}</h3>
+                            <div class="flex items-center">
+                                <span class="text-xs text-gray-500 mr-2">${timeDisplay}</span>
+                                ${unreadBadge}
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-600 truncate">${conversation.lastMessage || '暂无消息'}</p>
+                    </div>
+                `;
+                
+                conversationList.appendChild(chatItem);
+                
+                // 添加点击事件
+                chatItem.addEventListener('click', () => selectConversation(chatItem, true));
+            });
+            
+            // 默认选中第一个对话
+            if (mockData.length > 0) {
+                selectConversation(conversationList.querySelector('.chat-item'), true);
+            }
+        }
+        
+        // 选择对话
+        async function selectConversation(chatItem, isMock = false) {
+            // 停止当前的消息轮询
+            stopMessagePolling();
+            
+            // 移除所有项的活跃状态
+            document.querySelectorAll('.chat-item').forEach(el => el.classList.remove('active'));
+            // 添加当前项的活跃状态
+            chatItem.classList.add('active');
+            
+            // 获取当前聊天项的数据
+            currentConversationId = chatItem.getAttribute('data-id');
+            const name = chatItem.getAttribute('data-name');
+            const avatar = chatItem.getAttribute('data-avatar');
+            const status = chatItem.getAttribute('data-status');
+            currentReceiverId = chatItem.getAttribute('data-other-id');
+            
+            // 更新聊天头部信息
+            document.getElementById('current-chat-name').textContent = name;
+            const avatarElement = document.getElementById('current-chat-avatar');
+            avatarElement.src = avatar;
+            avatarElement.className = 'avatar-small mr-3';
+            
+            // 更新在线状态
+            const statusElement = document.getElementById('current-chat-status');
+            if (status === 'online') {
+                statusElement.className = 'text-xs text-green-500 flex items-center';
+                statusElement.innerHTML = '<span class="w-2 h-2 bg-green-500 rounded-full mr-1 inline-block"></span>在线';
+            } else {
+                statusElement.className = 'text-xs text-gray-500 flex items-center';
+                statusElement.innerHTML = '<span class="w-2 h-2 bg-gray-400 rounded-full mr-1 inline-block"></span>离线';
+            }
+            
+            // 加载聊天历史
+            if (isMock) {
+                loadMockMessages(currentConversationId);
+            } else {
+                await loadMessages(currentConversationId);
+            }
+            
+            // 移除未读消息标记（如果有）
+            const unreadBadge = chatItem.querySelector('.unread-badge');
+            if (unreadBadge) {
+                unreadBadge.remove();
+            }
+            
+            // 为新选中的对话启动消息轮询
+            startMessagePolling();
+        }
+        
+        // 加载聊天消息
+        async function loadMessages(conversationId) {
+            try {
+                const token = getToken();
+                const response = await fetch(`http://localhost:3000/api/conversations/${conversationId}/messages`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('获取消息历史失败');
+                }
+                
+                const data = await response.json();
+                const messages = data.messages;
+                
+                renderMessages(messages);
+            } catch (error) {
+                console.error('加载消息失败:', error);
+                loadMockMessages(conversationId);
+            }
+        }
+        
+        // 加载模拟消息
+        function loadMockMessages(conversationId) {
+            const mockMessages = {
+                1: [
+                    { sender_id: 2, content: '您好，我在平台上看到您发布的黑色钱包招领信息，我想确认一下是不是我的', created_at: new Date(Date.now() - 3600000) },
+                    { sender_id: 1, content: '您好，我确实捡到了一个黑色钱包，请问您能描述一下钱包的具体特征吗？比如品牌、里面有什么物品等', created_at: new Date(Date.now() - 3540000) },
+                    { sender_id: 2, content: '钱包是Coach品牌的，黑色皮质，里面有我的身份证（姓名：李明）、一张工商银行信用卡、一张饭卡和200元现金', created_at: new Date(Date.now() - 3420000) },
+                    { sender_id: 1, content: '描述基本符合，请问您什么时候方便来认领？我现在在图书馆二楼自习室', created_at: new Date(Date.now() - 3300000) },
+                    { sender_id: 2, content: '太好了！我大约半小时后可以到图书馆，我们在二楼大厅见面可以吗？', created_at: new Date(Date.now() - 1800000) }
+                ],
+                2: [
+                    { sender_id: 1, content: '您好，请问您发布的是蓝色书包的招领信息吗？', created_at: new Date(Date.now() - 86400000) },
+                    { sender_id: 3, content: '是的，我在教学楼A栋捡到了一个蓝色书包', created_at: new Date(Date.now() - 86100000) },
+                    { sender_id: 3, content: '我找到了您丢失的蓝色书包', created_at: new Date(Date.now() - 85800000) }
+                ],
+                3: [
+                    { sender_id: 1, content: '非常感谢您捡到了我的笔记本电脑！', created_at: new Date(Date.now() - 172800000) },
+                    { sender_id: 4, content: '不客气，很高兴能帮到您！', created_at: new Date(Date.now() - 172200000) },
+                    { sender_id: 1, content: '谢谢您，我已经收到了失物，非常感谢您的帮助！', created_at: new Date(Date.now() - 171600000) }
+                ]
+            };
+            
+            const messages = mockMessages[conversationId] || [];
+            renderMessages(messages);
+        }
+        
+        // 渲染消息
+        function renderMessages(messages) {
             const messageList = document.querySelector('.message-list');
-            const chatHistory = chatData[chatId] || { messages: [], date: '今天' };
             
             // 清空当前消息列表
             messageList.innerHTML = '';
             
-            // 添加日期信息
-            const dateElement = document.createElement('div');
-            dateElement.className = 'text-center mb-6';
-            dateElement.innerHTML = `<span class="text-xs bg-gray-100 text-gray-600 py-1 px-3 rounded-full">${chatHistory.date} ${chatHistory.messages.length > 0 ? chatHistory.messages[0].time.split(' ')[0] : ''}</span>`;
-            messageList.appendChild(dateElement);
+            if (messages.length === 0) {
+                messageList.innerHTML = '<div class="text-center text-gray-500 mt-8">暂无消息</div>';
+                return;
+            }
             
-            // 添加消息
-            chatHistory.messages.forEach(msg => {
-                const messageBubble = document.createElement('div');
-                messageBubble.className = `message-bubble ${msg.sender}`;
+            // 更新最后消息计数
+            lastMessageCount = messages.length;
+            
+            // 按日期分组消息
+            const messagesByDate = {};
+            messages.forEach(msg => {
+                const date = new Date(msg.created_at);
+                const dateKey = date.toDateString();
                 
-                messageBubble.innerHTML = `
-                    <p>${msg.text}</p>
-                    <div class="message-time">${msg.time.split(' ')[1] || msg.time}</div>
-                `;
+                if (!messagesByDate[dateKey]) {
+                    messagesByDate[dateKey] = [];
+                }
+                messagesByDate[dateKey].push(msg);
+            });
+            
+            // 遍历每个日期的消息组
+            Object.keys(messagesByDate).forEach(dateKey => {
+                const dateMessages = messagesByDate[dateKey];
+                const firstMessageTime = formatMessageTime(dateMessages[0].created_at);
                 
-                messageList.appendChild(messageBubble);
+                // 添加日期信息
+                const dateElement = document.createElement('div');
+                dateElement.className = 'text-center mb-6';
+                dateElement.innerHTML = `<span class="text-xs bg-gray-100 text-gray-600 py-1 px-3 rounded-full">${firstMessageTime.prefix}</span>`;
+                messageList.appendChild(dateElement);
+                
+                // 添加消息
+                dateMessages.forEach(msg => {
+                    const isSent = msg.sender_id == currentUserId;
+                    const timeInfo = formatMessageTime(msg.created_at);
+                    
+                    const messageBubble = document.createElement('div');
+                    messageBubble.className = `message-bubble ${isSent ? 'sent' : 'received'}`;
+                    messageBubble.setAttribute('data-id', msg.id || 'msg-' + Date.now());
+                    
+                    // 对于发送的消息，可以添加已读状态
+                    let statusHtml = '';
+                    if (isSent && msg.read) {
+                        statusHtml = ' <span class="text-green-500 text-xs">已读</span>';
+                    }
+                    
+                    messageBubble.innerHTML = `
+                        <p>${msg.content}</p>
+                        <div class="message-time">${timeInfo.time}${statusHtml}</div>
+                    `;
+                    
+                    messageList.appendChild(messageBubble);
+                });
             });
             
             // 滚动到底部
             messageList.scrollTop = messageList.scrollHeight;
         }
         
-        // 点击不同聊天项切换聊天内容
-        document.querySelectorAll('.chat-item').forEach(item => {
-            item.addEventListener('click', function() {
-                // 移除所有项的活跃状态
-                document.querySelectorAll('.chat-item').forEach(el => el.classList.remove('active'));
-                // 添加当前项的活跃状态
-                this.classList.add('active');
+        // 发送消息
+        async function sendMessage(content) {
+            console.log('sendMessage函数被调用:', content);
+            console.log('检查条件:', !content.trim(), !currentReceiverId, !currentConversationId);
+            
+            if (!content.trim() || !currentReceiverId || !currentConversationId) {
+                console.log('条件不满足，返回');
+                console.log('content.trim():', content.trim());
+                console.log('currentReceiverId:', currentReceiverId);
+                console.log('currentConversationId:', currentConversationId);
+                return;
+            }
+            
+            const trimmedContent = content.trim();
+            const now = new Date();
+            const timeInfo = formatMessageTime(now);
+            
+            // 先在界面上显示发送的消息（乐观更新）
+            const messageList = document.querySelector('.message-list');
+            
+            // 检查是否需要添加新的日期标签
+            addDateSeparatorIfNeeded(now);
+            
+            // 添加发送的消息
+            const sentBubble = document.createElement('div');
+            sentBubble.className = 'message-bubble sent';
+            sentBubble.setAttribute('data-id', 'temp-' + Date.now()); // 临时ID
+            sentBubble.setAttribute('data-status', 'sending');
+            sentBubble.innerHTML = `
+                <p>${trimmedContent}</p>
+                <div class="message-time">
+                    ${timeInfo.time} <span class="message-status">发送中...</span>
+                </div>
+            `;
+            messageList.appendChild(sentBubble);
+            messageList.scrollTop = messageList.scrollHeight;
+            
+            try {
+                const token = getToken();
+                const response = await fetch('http://localhost:3000/api/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        receiverId: currentReceiverId,
+                        content: trimmedContent
+                    })
+                });
                 
-                // 获取当前聊天项的数据
-                const chatId = this.getAttribute('data-id');
-                const name = this.getAttribute('data-name');
-                const avatar = this.getAttribute('data-avatar');
-                const status = this.getAttribute('data-status');
-                
-                // 更新聊天头部信息
-                document.getElementById('current-chat-name').textContent = name;
-                const avatarElement = document.getElementById('current-chat-avatar');
-                avatarElement.src = avatar;
-                // 确保头像使用正确的样式类
-                avatarElement.className = 'avatar-small mr-3';
-                
-                // 更新在线状态
-                const statusElement = document.getElementById('current-chat-status');
-                if (status === 'online') {
-                    statusElement.className = 'text-xs text-green-500 flex items-center';
-                    statusElement.innerHTML = '<span class="w-2 h-2 bg-green-500 rounded-full mr-1 inline-block"></span>在线';
-                } else {
-                    statusElement.className = 'text-xs text-gray-500 flex items-center';
-                    statusElement.innerHTML = '<span class="w-2 h-2 bg-gray-400 rounded-full mr-1 inline-block"></span>离线';
+                if (!response.ok) {
+                    throw new Error('发送消息失败');
                 }
                 
-                // 更新头像容器样式
-                const avatarContainer = avatarElement.parentElement;
-                if (avatarContainer && avatarContainer.classList.contains('flex')) {
-                    avatarContainer.style.alignItems = 'center';
-                    avatarContainer.style.justifyContent = 'center';
+                const result = await response.json();
+                
+                // 更新消息状态为已发送
+                const statusElement = sentBubble.querySelector('.message-status');
+                if (statusElement) {
+                    statusElement.textContent = '已发送';
+                    statusElement.className = 'message-status text-green-500';
+                }
+                sentBubble.setAttribute('data-status', 'sent');
+                
+                // 如果服务器返回了消息ID，更新它
+                if (result.message && result.message.id) {
+                    sentBubble.setAttribute('data-id', result.message.id);
                 }
                 
-                // 加载聊天历史
-                loadChatMessages(chatId);
+                // 更新对话列表中的最后消息
+                updateConversationLastMessage(trimmedContent, now);
                 
-                // 移除未读消息标记（如果有）
-                const unreadBadge = this.querySelector('.unread-badge');
-                if (unreadBadge) {
-                    unreadBadge.remove();
+                // 启动轮询检查新消息
+                startMessagePolling();
+                
+            } catch (error) {
+                console.error('发送消息失败:', error);
+                
+                // 更新消息状态为发送失败
+                const statusElement = sentBubble.querySelector('.message-status');
+                if (statusElement) {
+                    statusElement.textContent = '发送失败';
+                    statusElement.className = 'message-status text-red-500 cursor-pointer hover:underline';
+                    statusElement.onclick = function() {
+                        // 重试发送
+                        statusElement.textContent = '发送中...';
+                        statusElement.className = 'message-status';
+                        setTimeout(() => sendMessage(content), 500);
+                    };
+                }
+                sentBubble.setAttribute('data-status', 'failed');
+            }
+        }
+        
+        // 添加日期分隔符（如果需要）
+        function addDateSeparatorIfNeeded(date) {
+            const messageList = document.querySelector('.message-list');
+            const dateKey = date.toDateString();
+            
+            // 检查最后一个日期分隔符是否与当前日期相同
+            const dateSeparators = messageList.querySelectorAll('.text-center span');
+            if (dateSeparators.length > 0) {
+                const lastSeparator = dateSeparators[dateSeparators.length - 1];
+                const lastDatePrefix = lastSeparator.textContent.trim();
+                const currentDatePrefix = formatMessageTime(date).prefix;
+                
+                if (lastDatePrefix === currentDatePrefix) {
+                    return; // 已存在相同日期的分隔符
+                }
+            }
+            
+            // 添加新的日期分隔符
+            const dateElement = document.createElement('div');
+            dateElement.className = 'text-center mb-6';
+            dateElement.innerHTML = `<span class="text-xs bg-gray-100 text-gray-600 py-1 px-3 rounded-full">${formatMessageTime(date).prefix}</span>`;
+            messageList.appendChild(dateElement);
+        }
+        
+        // 更新对话列表中的最后消息
+        function updateConversationLastMessage(content, timestamp) {
+            const conversationItem = document.querySelector(`.chat-item[data-id="${currentConversationId}"]`);
+            if (conversationItem) {
+                // 更新最后消息文本
+                const messagePreview = conversationItem.querySelector('p');
+                if (messagePreview) {
+                    messagePreview.textContent = content.length > 50 ? content.substring(0, 50) + '...' : content;
+                    messagePreview.className = 'text-sm text-gray-600 truncate';
+                }
+                
+                // 更新时间
+                const timeElement = conversationItem.querySelector('.text-xs.text-gray-500');
+                if (timeElement) {
+                    const timeInfo = formatMessageTime(timestamp);
+                    timeElement.textContent = timeInfo.prefix === '今天' ? timeInfo.time : timeInfo.prefix;
+                }
+                
+                // 移动到列表顶部
+                const parent = conversationItem.parentNode;
+                parent.insertBefore(conversationItem, parent.firstChild);
+                
+                // 移除其他项的活跃状态，保持当前项的活跃状态
+                document.querySelectorAll('.chat-item').forEach(el => {
+                    if (el.getAttribute('data-id') !== currentConversationId) {
+                        el.classList.remove('active');
+                    }
+                });
+                conversationItem.classList.add('active');
+            }
+        }
+        
+        // 轮询检查新消息
+        let pollingInterval = null;
+        let lastMessageCount = 0;
+        
+        function startMessagePolling() {
+            // 先清除之前的轮询
+            if (pollingInterval) {
+                clearInterval(pollingInterval);
+            }
+            
+            // 记录当前消息数量
+            lastMessageCount = document.querySelectorAll('.message-bubble').length;
+            
+            // 设置新的轮询
+            pollingInterval = setInterval(async () => {
+                if (currentConversationId) {
+                    try {
+                        const token = getToken();
+                        const response = await fetch(`http://localhost:3000/api/conversations/${currentConversationId}/messages`, {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                        
+                        if (!response.ok) {
+                            throw new Error('获取消息失败');
+                        }
+                        
+                        const data = await response.json();
+                        const messages = data.messages;
+                        
+                        // 如果有新消息
+                        if (messages.length > lastMessageCount) {
+                            // 获取新消息
+                            const newMessages = messages.slice(lastMessageCount);
+                            
+                            // 在界面上显示新消息
+                            const messageList = document.querySelector('.message-list');
+                            
+                            newMessages.forEach(msg => {
+                                if (msg.sender_id != currentUserId) { // 只显示接收到的新消息
+                                    // 检查是否需要添加日期分隔符
+                                    addDateSeparatorIfNeeded(new Date(msg.created_at));
+                                    
+                                    const timeInfo = formatMessageTime(msg.created_at);
+                                    const messageBubble = document.createElement('div');
+                                    messageBubble.className = 'message-bubble received';
+                                    messageBubble.setAttribute('data-id', msg.id || 'new-' + Date.now());
+                                    
+                                    messageBubble.innerHTML = `
+                                        <p>${msg.content}</p>
+                                        <div class="message-time">${timeInfo.time}</div>
+                                    `;
+                                    
+                                    messageList.appendChild(messageBubble);
+                                }
+                            });
+                            
+                            // 更新最后消息数量
+                            lastMessageCount = messages.length;
+                            
+                            // 滚动到底部
+                            messageList.scrollTop = messageList.scrollHeight;
+                        }
+                    } catch (error) {
+                        console.error('轮询新消息失败:', error);
+                        // 轮询出错时停止
+                        stopMessagePolling();
+                    }
+                }
+            }, 3000); // 每3秒检查一次新消息
+        }
+        
+        function stopMessagePolling() {
+            if (pollingInterval) {
+                clearInterval(pollingInterval);
+                pollingInterval = null;
+            }
+        }
+        
+        // 发送消息按钮点击事件
+        // 为发送按钮添加点击事件（使用ID选择器）
+        const sendButton = document.getElementById('send-message-btn');
+        const messageTextarea = document.querySelector('.message-input-area textarea');
+        
+        // 确保变量初始化
+        if (!currentConversationId) currentConversationId = '1';
+        if (!currentReceiverId) currentReceiverId = '2';
+        
+        if (sendButton && messageTextarea) {
+            console.log('找到发送按钮和文本框');
+            sendButton.addEventListener('click', function() {
+                console.log('发送按钮被点击');
+                const messageText = messageTextarea.value.trim();
+                
+                console.log('消息内容:', messageText);
+                console.log('当前会话ID:', currentConversationId);
+                console.log('当前接收者ID:', currentReceiverId);
+                
+                if (messageText && currentConversationId && currentReceiverId) {
+                    // 立即设置必要的会话变量，确保发送消息时可用
+                    const activeChatItem = document.querySelector('.chat-item.active') || document.querySelector('.chat-item');
+                    if (activeChatItem) {
+                        currentConversationId = activeChatItem.getAttribute('data-id') || '1';
+                        currentReceiverId = activeChatItem.getAttribute('data-other-id') || '2';
+                    }
+                    
+                    sendMessage(messageText);
+                    messageTextarea.value = '';
+                    // 重置文本框高度
+                    messageTextarea.style.height = 'auto';
+                    messageTextarea.style.height = Math.min(messageTextarea.scrollHeight, 120) + 'px';
                 }
             });
-        });
-        
-        // 发送消息功能
-        document.querySelector('.message-input-area button').addEventListener('click', function() {
-            const textarea = document.querySelector('.message-input-area textarea');
-            const messageText = textarea.value.trim();
-            
-            if (messageText) {
-                const messageList = document.querySelector('.message-list');
-                
-                // 创建新消息元素
-                const messageBubble = document.createElement('div');
-                messageBubble.className = 'message-bubble sent';
-                
-                const now = new Date();
-                const hours = now.getHours().toString().padStart(2, '0');
-                const minutes = now.getMinutes().toString().padStart(2, '0');
-                const timeString = `${hours}:${minutes}`;
-                
-                messageBubble.innerHTML = `
-                    <p>${messageText}</p>
-                    <div class="message-time">${timeString}</div>
-                `;
-                
-                // 添加到消息列表
-                messageList.appendChild(messageBubble);
-                
-                // 清空输入框
-                textarea.value = '';
-                
-                // 滚动到底部
-                messageList.scrollTop = messageList.scrollHeight;
-                
-                // 在实际应用中，这里会发送消息到服务器
-                // 这里为了演示简化处理，模拟自动回复
-                setTimeout(() => {
-                    const replyBubble = document.createElement('div');
-                    replyBubble.className = 'message-bubble received';
-                    replyBubble.innerHTML = `
-                        <p>感谢您的回复，我会尽快查看！</p>
-                        <div class="message-time">${timeString}</div>
-                    `;
-                    messageList.appendChild(replyBubble);
-                    messageList.scrollTop = messageList.scrollHeight;
-                }, 1000);
-            }
-        });
+        } else {
+            console.error('未找到发送按钮或文本框');
+        }
         
         // 按Enter发送消息
         document.querySelector('.message-input-area textarea').addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                document.querySelector('.message-input-area button').click();
+                const messageText = this.value.trim();
+                if (messageText) {
+                    sendMessage(messageText);
+                    this.value = '';
+                    // 重置文本框高度
+                    this.style.height = 'auto';
+                    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+                }
             }
+        });
+        
+        // 自动调整文本框高度
+        document.querySelector('.message-input-area textarea').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px'; // 限制最大高度
+        });
+        
+        // 处理URL参数并自动选择对应的对话
+        function handleUrlParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const recipientName = urlParams.get('recipient');
+            const recipientId = urlParams.get('recipientId');
+            
+            console.log('URL参数:', { recipientName, recipientId });
+            
+            if (recipientId || recipientName) {
+                // 尝试根据ID或名称找到对应的聊天项
+                let targetChatItem = null;
+                
+                if (recipientId) {
+                    targetChatItem = document.querySelector(`.chat-item[data-other-id="${recipientId}"]`);
+                }
+                
+                if (!targetChatItem && recipientName) {
+                    // 如果没有找到ID匹配的，尝试根据名称匹配
+                    const chatItems = document.querySelectorAll('.chat-item');
+                    for (let item of chatItems) {
+                        const name = item.querySelector('.chat-name')?.textContent;
+                        if (name && name.includes(recipientName)) {
+                            targetChatItem = item;
+                            break;
+                        }
+                    }
+                }
+                
+                // 如果找到对应的聊天项，选择它
+                if (targetChatItem) {
+                    console.log('根据URL参数找到对话项，自动选择');
+                    selectConversation(targetChatItem, true);
+                    return true;
+                } else {
+                    console.log('未找到匹配的对话项');
+                }
+            }
+            
+            return false;
+        }
+        
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 模拟用户登录（实际应该从登录状态获取）
+            // 这里为了演示，使用模拟token
+            if (!localStorage.getItem('token')) {
+                localStorage.setItem('token', 'mock-jwt-token');
+            }
+            
+            // 初始化时加载对话列表
+            loadConversations();
+            
+            // 处理URL参数并自动选择对应的对话
+            setTimeout(() => {
+                // 首先尝试根据URL参数选择对话
+                const urlHandled = handleUrlParams();
+                
+                // 如果URL参数处理失败，选择默认对话
+                if (!urlHandled) {
+                    const activeChatItem = document.querySelector('.chat-item.active') || document.querySelector('.chat-item');
+                    if (activeChatItem) {
+                        console.log('自动选择默认对话');
+                        selectConversation(activeChatItem, true);
+                        console.log('选择对话后 - currentConversationId:', currentConversationId);
+                        console.log('选择对话后 - currentReceiverId:', currentReceiverId);
+                    } else {
+                        console.error('未找到对话项');
+                    }
+                }
+            }, 100);
+            
+            // 为所有聊天项添加点击事件
+            document.querySelectorAll('.chat-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    selectConversation(this, true);
+                });
+            });
+            
+            // 页面关闭或离开时停止轮询
+            window.addEventListener('beforeunload', function() {
+                stopMessagePolling();
+            });
         });
     </script>
 

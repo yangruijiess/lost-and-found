@@ -5,6 +5,7 @@ const path = require('path');
 const fs = require('fs');
 const authRoutes = require('./routes/authRoutes');
 const itemsRoutes = require('./routes/itemsRoutes');
+const messageRoutes = require('./routes/messageRoutes');
 const dotenv = require('dotenv');
 const { testConnection, createDatabase } = require('./config/database');
 
@@ -26,8 +27,161 @@ if (!fs.existsSync(uploadDir)) {
 // 初始化数据库
 async function initDatabase() {
   try {
+    // 确保导入bcrypt用于密码哈希
+    const bcrypt = require('bcrypt');
+    // 获取数据库连接对象
+    const db = require('./config/database');
+    
     await testConnection();
-    console.log('数据库初始化完成');
+    console.log('数据库连接测试成功');
+    
+    // 初始化数据库表
+    try {
+      // 使用正确的数据库连接对象
+      const connection = await db.getConnection();
+      try {
+        // 创建用户表
+        await connection.query(`
+          CREATE TABLE IF NOT EXISTS users (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            username VARCHAR(50) NOT NULL UNIQUE,
+            password VARCHAR(255) NOT NULL,
+            email VARCHAR(100) NOT NULL UNIQUE,
+            phone VARCHAR(20),
+            avatar VARCHAR(255),
+            role ENUM('user', 'admin') DEFAULT 'user',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+          );
+        `);
+        
+        // 创建物品表
+        await connection.query(`
+          CREATE TABLE IF NOT EXISTS items (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            title VARCHAR(255) NOT NULL,
+            description TEXT NOT NULL,
+            category VARCHAR(50) NOT NULL,
+            status ENUM('lost', 'found', 'returned') NOT NULL,
+            location VARCHAR(255) NOT NULL,
+            contact_info VARCHAR(255) NOT NULL,
+            image_urls TEXT,
+            user_id INT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+          );
+        `);
+        
+        // 创建评论表
+        await connection.query(`
+          CREATE TABLE IF NOT EXISTS comments (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            item_id INT NOT NULL,
+            user_id INT NOT NULL,
+            content TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+          );
+        `);
+        
+        // 创建对话表
+        await connection.query(`
+          CREATE TABLE IF NOT EXISTS conversations (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user1_id INT NOT NULL,
+            user2_id INT NOT NULL,
+            last_message TEXT,
+            last_message_time DATETIME,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            UNIQUE KEY unique_users (user1_id, user2_id),
+            FOREIGN KEY (user1_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (user2_id) REFERENCES users(id) ON DELETE CASCADE
+          );
+        `);
+        
+        // 创建消息表
+        await connection.query(`
+          CREATE TABLE IF NOT EXISTS messages (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            conversation_id INT NOT NULL,
+            sender_id INT NOT NULL,
+            receiver_id INT NOT NULL,
+            content TEXT NOT NULL,
+            is_read BOOLEAN DEFAULT FALSE,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE,
+            FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE
+          );
+        `);
+        
+        // 创建消息已读状态表
+        await connection.query(`
+          CREATE TABLE IF NOT EXISTS message_read_status (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            message_id INT NOT NULL,
+            user_id INT NOT NULL,
+            is_read BOOLEAN DEFAULT FALSE,
+            read_at DATETIME,
+            FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE CASCADE,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            UNIQUE KEY unique_message_user (message_id, user_id)
+          );
+        `);
+        
+        // 创建索引以提高查询性能
+        await connection.query('CREATE INDEX IF NOT EXISTS idx_conversations_user1 ON conversations(user1_id)');
+        await connection.query('CREATE INDEX IF NOT EXISTS idx_conversations_user2 ON conversations(user2_id)');
+        await connection.query('CREATE INDEX IF NOT EXISTS idx_messages_conversation ON messages(conversation_id)');
+        await connection.query('CREATE INDEX IF NOT EXISTS idx_messages_sender ON messages(sender_id)');
+        await connection.query('CREATE INDEX IF NOT EXISTS idx_messages_receiver ON messages(receiver_id)');
+        await connection.query('CREATE INDEX IF NOT EXISTS idx_messages_created_at ON messages(created_at)');
+        
+        // 创建默认管理员账户（如果不存在）
+        const [existingAdmin] = await connection.query(
+          'SELECT id FROM users WHERE username = ?',
+          ['admin']
+        );
+        
+        if (existingAdmin.length === 0) {
+          await connection.query(
+            'INSERT INTO users (username, password, email, role) VALUES (?, ?, ?, ?)',
+            ['admin', bcrypt.hashSync('admin123', 10), 'admin@example.com', 'admin']
+          );
+          console.log('默认管理员账户已创建: 用户名: admin, 密码: admin123');
+        }
+        
+        // 创建一些测试用户（如果不存在）
+        const testUsers = [
+          { username: 'user1', password: 'password1', email: 'user1@example.com' },
+          { username: '李明', password: 'password1', email: 'liming@example.com' },
+          { username: '王芳', password: 'password1', email: 'wangfang@example.com' },
+          { username: '张伟', password: 'password1', email: 'zhangwei@example.com' }
+        ];
+        
+        for (const user of testUsers) {
+          const [existing] = await connection.query('SELECT id FROM users WHERE username = ?', [user.username]);
+          if (existing.length === 0) {
+            await connection.query(
+              'INSERT INTO users (username, password, email) VALUES (?, ?, ?)',
+              [user.username, bcrypt.hashSync(user.password, 10), user.email]
+            );
+            console.log(`测试用户已创建: ${user.username}`);
+          }
+        }
+        
+        console.log('数据库初始化完成，包括私信功能相关表');
+      } finally {
+        connection.release();
+      }
+    } catch (error) {
+      console.error('数据库表初始化失败:', error);
+      // 继续运行，不因为数据库初始化失败而停止服务
+    }
   } catch (error) {
     console.error('数据库初始化失败:', error.message);
   }
@@ -143,6 +297,9 @@ app.use('/api', authRoutes);
 
 // 物品相关路由
 app.use('/api', itemsRoutes);
+
+// 消息相关路由
+app.use('/api', messageRoutes);
 
 // 404处理
 app.use((req, res) => {

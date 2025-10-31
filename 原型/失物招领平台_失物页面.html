@@ -554,16 +554,25 @@
             }
 
             // 设置发布者链接点击事件
-            function setupPublisherLinks() {
-                document.querySelectorAll('.text-blue-800.cursor-pointer').forEach((username) => {
-                    username.addEventListener('click', function (e) {
-                        e.stopPropagation(); // 阻止冒泡，避免触发卡片点击事件
-                        const publisherName = this.getAttribute('data-publisher') || this.textContent;
-                        // 跳转到私信页面并传递发布者信息
-                        window.location.href = `失物招领平台_私信页面.html?recipient=${encodeURIComponent(publisherName)}`;
-                    });
+        function setupPublisherLinks() {
+            document.querySelectorAll('.text-blue-800.cursor-pointer').forEach((username) => {
+                username.addEventListener('click', function (e) {
+                    e.stopPropagation(); // 阻止冒泡，避免触发卡片点击事件
+                    const publisherName = this.getAttribute('data-publisher') || this.textContent;
+                    // 为演示目的，根据发布者名称生成一个唯一ID（实际应用中应从数据中获取）
+                    let publisherId = '2'; // 默认ID
+                    if (publisherName.includes('李')) publisherId = '2';
+                    else if (publisherName.includes('王')) publisherId = '3';
+                    else if (publisherName.includes('张')) publisherId = '4';
+                    else if (publisherName.includes('刘')) publisherId = '5';
+                    else if (publisherName.includes('陈')) publisherId = '6';
+                    else if (publisherName.includes('郑')) publisherId = '7';
+                    
+                    // 跳转到私信页面并传递发布者ID和名称
+                    window.location.href = `失物招领平台_私信页面.html?recipient=${encodeURIComponent(publisherName)}&recipientId=${publisherId}`;
                 });
-            }
+            });
+        }
 
             // 获取当前筛选条件
             function getCurrentFilters() {
