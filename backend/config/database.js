@@ -3,8 +3,8 @@ require('dotenv').config();
 
 // 创建数据库连接池
 const pool = mysql.createPool({
-  host: '10.21.205.135',
-  port: 3306,
+  host: '18.tcp.vip.cpolar.cn',
+  port: 13376,
   user: 'newadmin',
   password: 'newpassword',
   database: 'lostfound',

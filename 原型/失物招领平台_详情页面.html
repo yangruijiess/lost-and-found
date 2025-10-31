@@ -392,8 +392,10 @@
         // 从后端API获取物品详情
         async function fetchItemDetails(itemId, itemType) {
             try {
-                // 调用后端API获取详情数据
-                const response = await fetch(`/api/${itemType}-items/${itemId}`);
+                // 调用后端API获取详情数据，使用完整URL确保能够连接到后端服务器
+                const apiUrl = `http://localhost:3000/api/${itemType}-items/${itemId}`;
+                console.log('请求API:', apiUrl);
+                const response = await fetch(apiUrl);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -449,21 +451,53 @@
         // 标准化API返回的数据结构
         function normalizeItemData(item, itemType) {
             // 确保数据结构一致，处理可能的字段差异
+            // 从API返回的数据中提取字段，适应后端返回的格式
+            const responseData = item.data || item; // 处理API返回的嵌套结构
+            
+            // 格式化时间字段
+            const timeField = itemType === 'lost' ? 'lost_time' : 'found_time';
+            const formattedTime = responseData[timeField] ? 
+                new Date(responseData[timeField]).toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }).replace(/\//g, '-') : '未知时间';
+                
+            // 格式化发布日期
+            const publishDate = responseData.publish_date ? 
+                new Date(responseData.publish_date).toLocaleDateString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit'
+                }).replace(/\//g, '-') : '未知日期';
+            
+            // 生成特征列表
+            const generateFeatures = () => {
+                const features = [];
+                if (responseData.category) features.push(responseData.category);
+                if (responseData.location) features.push(`地点：${responseData.location}`);
+                if (formattedTime) features.push(`时间：${formattedTime}`);
+                if (features.length === 0) features.push(responseData.description || '无特征描述');
+                return features;
+            };
+            
             return {
-                id: item.id,
-                title: item.title || item.name || '未命名物品',
-                description: item.description || '暂无描述',
-                category: item.category || '其他',
-                location: item.location || '未知地点',
-                time: item.time || item.date || '未知时间',
-                features: item.features || [item.description],
-                publishDate: item.publishDate || item.date || '未知日期',
+                id: responseData.id,
+                title: responseData.title || responseData.name || '未命名物品',
+                description: responseData.description || '暂无描述',
+                category: responseData.category || '其他',
+                location: responseData.location || '未知地点',
+                time: formattedTime,
+                features: generateFeatures(),
+                publishDate: publishDate,
                 publisher: {
-                    name: item.publisher?.name || item.publisherName || '匿名用户',
-                    info: item.publisher?.info || '未知信息'
+                    name: responseData.user?.username || responseData.publisher_name || '匿名用户',
+                    info: responseData.user?.college || `${responseData.user?.department || '未知院系'} · 未知年级`
                 },
-                publisherName: item.publisher?.name || item.publisherName || '匿名用户',
-                images: item.images || (item.imageUrl ? [item.imageUrl] : ['/images/placeholder.jpg'])
+                publisherName: responseData.user?.username || responseData.publisher_name || '匿名用户',
+                images: responseData.images || (responseData.image_url ? [responseData.image_url] : ['/images/placeholder.jpg'])
             };
         }
 
@@ -476,6 +510,8 @@
                 const params = getQueryParams();
                 const itemId = params.id || '1';
                 const itemType = params.type || 'lost'; // 'lost' 或 'found'
+                
+                console.log('加载详情页面，参数:', { itemId, itemType });
                 
                 // 验证物品类型
                 if (!['lost', 'found'].includes(itemType)) {
@@ -491,6 +527,22 @@
                 
                 // 标准化数据结构
                 const normalizedItem = normalizeItemData(item, itemType);
+                console.log('标准化后的物品数据:', normalizedItem);
+                
+                // 检查是否有必要的字段
+                if (!normalizedItem.title || !normalizedItem.description) {
+                    console.warn('数据缺少必要字段，使用模拟数据补充');
+                    // 尝试使用模拟数据补充
+                    const mockItem = fallbackMockItems[itemType]?.[itemId];
+                    if (mockItem) {
+                        // 合并API数据和模拟数据
+                        Object.assign(normalizedItem, {
+                            title: normalizedItem.title || mockItem.title,
+                            description: normalizedItem.description || mockItem.description,
+                            features: normalizedItem.features.length > 0 ? normalizedItem.features : mockItem.features
+                        });
+                    }
+                }
                 
                 // 更新页面内容
                 document.getElementById('itemTitle').textContent = normalizedItem.title;
@@ -514,24 +566,37 @@
                 
                 // 更新图片
                 const mainImage = document.getElementById('mainImage');
-                mainImage.src = normalizedItem.images[0];
+                if (normalizedItem.images && normalizedItem.images.length > 0) {
+                    mainImage.src = normalizedItem.images[0];
+                } else {
+                    mainImage.src = 'https://modao.cc/ai/uploads/ai_pics/30/302277/aigp_1758618096.jpeg';
+                }
                 mainImage.alt = normalizedItem.title;
                 
                 // 更新缩略图
                 const gallery = document.querySelector('.image-gallery');
                 gallery.innerHTML = '';
-                normalizedItem.images.forEach((imgSrc, index) => {
-                    const img = document.createElement('img');
-                    img.src = imgSrc;
-                    img.alt = `${normalizedItem.title} ${index + 1}`;
-                    img.className = `h-20 object-cover cursor-pointer ${index === 0 ? 'border-2 border-blue-800' : ''}`;
-                    img.addEventListener('click', function() {
-                        mainImage.src = this.src;
-                        gallery.querySelectorAll('img').forEach(i => i.classList.remove('border-2', 'border-blue-800'));
-                        this.classList.add('border-2', 'border-blue-800');
+                if (normalizedItem.images && normalizedItem.images.length > 0) {
+                    normalizedItem.images.forEach((imgSrc, index) => {
+                        const img = document.createElement('img');
+                        img.src = imgSrc;
+                        img.alt = `${normalizedItem.title} ${index + 1}`;
+                        img.className = `h-20 object-cover cursor-pointer ${index === 0 ? 'border-2 border-blue-800' : ''}`;
+                        img.addEventListener('click', function() {
+                            mainImage.src = this.src;
+                            gallery.querySelectorAll('img').forEach(i => i.classList.remove('border-2', 'border-blue-800'));
+                            this.classList.add('border-2', 'border-blue-800');
+                        });
+                        gallery.appendChild(img);
                     });
+                } else {
+                    // 添加默认图片
+                    const img = document.createElement('img');
+                    img.src = 'https://modao.cc/ai/uploads/ai_pics/30/302277/aigp_1758618096.jpeg';
+                    img.alt = normalizedItem.title;
+                    img.className = 'h-20 object-cover cursor-pointer border-2 border-blue-800';
                     gallery.appendChild(img);
-                });
+                }
                 
                 // 根据类型更新标签和按钮
                 const tagElement = document.getElementById('itemTag');
@@ -545,11 +610,20 @@
                     contactButton.innerHTML = '<span class="iconify mr-2" data-icon="mdi:message"></span>联系发布者';
                 }
                 
-                console.log('加载物品详情:', { itemId, itemType, item: normalizedItem });
+                console.log('加载物品详情完成:', { itemId, itemType, item: normalizedItem });
                 
             } catch (error) {
                 console.error('加载物品详情失败:', error);
-                showError(error.message || '加载失败，请稍后重试');
+                // 更友好的错误提示
+                let errorMessage;
+                if (error.message.includes('未找到')) {
+                    errorMessage = '未找到该物品信息，请检查物品ID是否正确';
+                } else if (error.message.includes('HTTP error')) {
+                    errorMessage = '服务器连接失败，请检查网络或稍后重试';
+                } else {
+                    errorMessage = error.message || '加载失败，请稍后重试';
+                }
+                showError(errorMessage);
             } finally {
                 // 隐藏加载状态
                 hideLoading();

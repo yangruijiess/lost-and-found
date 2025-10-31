@@ -349,9 +349,8 @@
                                 <span class="text-blue-800 cursor-pointer" data-publisher="${item.publisher_id || '匿名用户'}">用户${item.publisher_id || '匿名'}</span>
                             </div>
                         </div>
-                        <div class="flex space-x-2">
-                            <button class="btn-secondary flex-1 py-2 rounded text-sm" data-id="${item.id}">查看详情</button>
-                            <button class="btn-primary flex-1 py-2 rounded text-sm">联系认领</button>
+                        <div>
+                            <button class="btn-primary w-full py-2 rounded text-sm" data-id="${item.id}">查看详情</button>
                         </div>
                     </div>
                 `;
@@ -494,7 +493,7 @@
 
         // 查看详情功能
         function setupViewDetailButtons() {
-            document.querySelectorAll('.btn-secondary:not(.flex)').forEach((btn) => {
+            document.querySelectorAll('.btn-primary.w-full').forEach((btn) => {
                 const itemId = btn.getAttribute('data-id');
                 if (!itemId) {
                     console.warn('按钮缺少data-id属性');
@@ -503,8 +502,12 @@
 
                 btn.addEventListener('click', function () {
                     console.log('查看详情:', itemId);
-                    // 跳转到详情页面，并传递物品ID和类型
-                    window.location.href = `失物招领平台_详情页面.html?id=${itemId}&type=found`;
+                    // 获取物品图片URL
+                    const card = this.closest('.bg-white.rounded-lg.shadow-md');
+                    const itemImage = card ? card.querySelector('img') : null;
+                    const imageUrl = itemImage ? itemImage.src : '';
+                    // 使用绝对路径跳转到验证页面，验证通过后再查看详情
+                    window.location.href = `/原型/失物招领平台_验证页面.html?id=${itemId}&type=found&imageUrl=${encodeURIComponent(imageUrl)}`;
                 });
             });
         }
@@ -519,8 +522,8 @@
                     const itemImage = card.querySelector('img');
                     const imageUrl = itemImage ? itemImage.src : '';
                     
-                    // 跳转到验证页面，验证通过后再联系认领
-                    window.location.href = `失物招领平台_验证页面.html?id=${itemId}&type=found&imageUrl=${encodeURIComponent(imageUrl)}`;
+                    // 使用绝对路径跳转到验证页面，验证通过后再联系认领
+                    window.location.href = `/原型/失物招领平台_验证页面.html?id=${itemId}&type=found&imageUrl=${encodeURIComponent(imageUrl)}`;
                 });
             });
         }

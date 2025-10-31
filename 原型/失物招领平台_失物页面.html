@@ -217,8 +217,9 @@
 
     <!-- 交互脚本 -->
     <script>
-        // 收藏功能实现
         document.addEventListener('DOMContentLoaded', function () {
+            console.log('页面加载完成，开始初始化...');
+            
             // 从localStorage获取已收藏的项目
             let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
 
@@ -443,9 +444,8 @@
                                     <span class="text-blue-800 cursor-pointer" data-publisher="${item.publisher_id || '匿名用户'}">用户${item.publisher_id || '匿名'}</span>
                                 </div>
                             </div>
-                            <div class="flex space-x-2">
-                                <button class="btn-secondary flex-1 py-2 rounded text-sm" data-id="${item.id}">查看详情</button>
-                                <button class="btn-primary flex-1 py-2 rounded text-sm">提供线索</button>
+                            <div>
+                                <button class="btn-secondary w-full py-2 rounded text-sm" data-id="${item.id}">查看详情</button>
                             </div>
                         </div>
                     `;
@@ -454,6 +454,7 @@
                 });
 
                 // 重新初始化收藏按钮状态和事件
+                console.log('加载数据后初始化交互事件...');
                 initFavoriteButtons();
                 setupViewDetailButtons();
                 setupContactButtons();
@@ -504,21 +505,41 @@
                 });
             }
 
-            // 设置查看详情按钮事件
+            // 设置查看详情按钮事件 - 简化版本
             function setupViewDetailButtons() {
-                document.querySelectorAll('.btn-secondary:not(.flex)').forEach((btn) => {
-                    const itemId = btn.getAttribute('data-id');
-                    if (!itemId) {
-                        console.warn('按钮缺少data-id属性');
-                        return;
+                console.log('开始设置查看详情按钮事件');
+                
+                // 直接查找卡片中的按钮，使用更通用的选择器
+                const cards = document.querySelectorAll('.card');
+                console.log('找到的卡片数量:', cards.length);
+                
+                cards.forEach((card, index) => {
+                    // 为每个卡片分配唯一ID（如果没有）
+                    const cardId = card.getAttribute('data-id') || (index + 1).toString();
+                    card.setAttribute('data-id', cardId);
+                    
+                    // 查找卡片中的查看详情按钮
+                    const detailButton = card.querySelector('.btn-primary.w-full');
+                    if (detailButton) {
+                        console.log(`为卡片ID:${cardId} 设置详情按钮`);
+                        
+                        // 为按钮设置ID
+                        detailButton.setAttribute('data-id', cardId);
+                        
+                        // 使用简单直接的点击事件绑定
+                        detailButton.onclick = function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            console.log('详情按钮被点击！卡片ID:', cardId);
+                            
+                            // 直接执行页面跳转
+                            window.location.href = `失物招领平台_详情页面.html?id=${cardId}&type=lost`;
+                            return false; // 确保不会被其他事件干扰
+                        };
                     }
-
-                    btn.addEventListener('click', function () {
-                        console.log('查看详情:', itemId);
-                        // 跳转到详情页面，并传递物品ID和类型
-                        window.location.href = `失物招领平台_详情页面.html?id=${itemId}&type=lost`;
-                    });
                 });
+                
+                console.log('查看详情按钮事件设置完成');
             }
 
             // 设置提供线索按钮事件
@@ -806,27 +827,8 @@
         });
 
         // 查看详情按钮
-        // 为每个详情按钮添加data-id属性并绑定事件
-        document.querySelectorAll('.btn-secondary:not(.flex)').forEach((btn, index) => {
-            // 为每个按钮添加data-id属性
-            btn.setAttribute('data-id', (index + 1).toString());
-            btn.addEventListener('click', function () {
-                const itemId = this.getAttribute('data-id') || '1';
-                console.log('查看详情:', itemId);
-                // 跳转到详情页面，并传递物品ID和类型
-                window.location.href = `失物招领平台_详情页面.html?id=${itemId}&type=lost`;
-            });
-        });
-
-        // 提供线索按钮
-        document.querySelectorAll('.btn-primary:not(.flex):not(.w-full)').forEach(button => {
-            button.addEventListener('click', function () {
-                const itemName = this.closest('.card').querySelector('h3').textContent;
-                alert(`为"${itemName}"提供线索`);
-                // 在实际应用中，这里会跳转到提供线索的表单页面
-            });
-        });
-
+        // 删除错误嵌套的旧代码
+        
         // 分页功能
         document.querySelectorAll('.page-btn').forEach(button => {
             button.addEventListener('click', function () {
@@ -845,25 +847,74 @@
                 alert(`切换到第${page}页`);
                 // 在实际应用中，这里会加载对应页的数据
             });
-        });
-
+        }); // 闭合forEach循环
+        
         // 下一页按钮
-        document.querySelector('.next-page').addEventListener('click', function () {
-            alert('下一页');
-            // 在实际应用中，这里会加载下一页的数据
-        });
+        const nextPageBtn = document.querySelector('.next-page');
+        if (nextPageBtn) {
+            nextPageBtn.addEventListener('click', function () {
+                alert('下一页');
+                // 在实际应用中，这里会加载下一页的数据
+            });
+        }
 
         // 搜索功能
-        document.querySelector('input[placeholder="搜索物品或地点..."]').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                const searchText = this.value.trim();
-                if (searchText) {
-                    console.log('搜索:', searchText);
-                    alert(`搜索：${searchText}`);
-                    // 在实际应用中，这里会执行搜索逻辑
+        const searchInput = document.querySelector('input[placeholder="搜索物品或地点..."]');
+        if (searchInput) {
+            searchInput.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    const searchText = this.value.trim();
+                    if (searchText) {
+                        console.log('搜索:', searchText);
+                        alert(`搜索：${searchText}`);
+                        // 在实际应用中，这里会执行搜索逻辑
+                    }
                 }
-            }
-        });
+            });
+        }
+        
+        // 页面加载时直接执行setupViewDetailButtons，确保所有按钮都被绑定
+        console.log('页面初始加载时绑定详情按钮事件...');
+        
+        // 直接在当前作用域中定义并调用查看详情按钮设置函数
+        function setupViewDetailButtons() {
+            console.log('开始设置查看详情按钮事件');
+            
+            // 直接查找卡片中的按钮，使用更通用的选择器
+            const cards = document.querySelectorAll('.card');
+            console.log('找到的卡片数量:', cards.length);
+            
+            cards.forEach((card, index) => {
+                // 为每个卡片分配唯一ID（如果没有）
+                const cardId = card.getAttribute('data-id') || (index + 1).toString();
+                card.setAttribute('data-id', cardId);
+                
+                // 查找卡片中的查看详情按钮
+                const detailButton = card.querySelector('.btn-primary.w-full');
+                if (detailButton) {
+                    console.log(`为卡片ID:${cardId} 设置详情按钮`);
+                    
+                    // 为按钮设置ID
+                    detailButton.setAttribute('data-id', cardId);
+                    
+                    // 使用简单直接的点击事件绑定
+                    detailButton.onclick = function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('详情按钮被点击！卡片ID:', cardId);
+                        
+                        // 使用绝对路径进行页面跳转，确保正确定位到详情页面
+                        window.location.href = `/原型/失物招领平台_详情页面.html?id=${cardId}&type=lost`;
+                        return false; // 确保不会被其他事件干扰
+                    };
+                }
+            });
+            
+            console.log('查看详情按钮事件设置完成');
+        }
+        
+        // 立即调用函数
+        setupViewDetailButtons();
     </script>
 
     <!-- 页脚区域 -->

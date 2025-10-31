@@ -61,6 +61,74 @@ app.use((req, res, next) => {
 // 提供静态文件访问，使上传的图片可以通过URL访问
 app.use('/uploads', express.static(uploadDir));
 
+// 提供原型目录的静态文件访问 - 修复版本
+const prototypeDir = path.join(__dirname, '..', '原型');
+console.log('=== 原型目录路径 ===:', prototypeDir);
+
+// 立即检查目录和文件
+fs.access(prototypeDir, fs.constants.F_OK, (err) => {
+    if (err) {
+        console.error('❌ 原型目录不存在:', err.message);
+    } else {
+        console.log('✅ 原型目录存在');
+        // 直接测试simple-test.html文件是否存在
+        const testFilePath = path.join(prototypeDir, 'simple-test.html');
+        fs.access(testFilePath, fs.constants.F_OK, (err) => {
+            if (err) {
+                console.error('❌ simple-test.html不存在:', err.message);
+            } else {
+                console.log('✅ simple-test.html文件存在');
+            }
+        });
+    }
+});
+
+// 创建一个更通用的静态文件处理中间件，处理URL编码和查询参数问题
+app.use((req, res, next) => {
+    // 检查请求URL是否包含原型目录（编码或未编码）
+    const decodedUrl = decodeURI(req.url);
+    console.log('🔍 收到请求:', req.url, '(解码后:', decodedUrl, ')');
+    
+    if (decodedUrl.startsWith('/原型/')) {
+        // 提取相对路径并移除查询参数
+        let relativePath = decodedUrl.substring('/原型/'.length);
+        // 移除URL查询参数部分
+        const queryIndex = relativePath.indexOf('?');
+        if (queryIndex !== -1) {
+            relativePath = relativePath.substring(0, queryIndex);
+            console.log('⚠️  移除查询参数，使用纯文件路径:', relativePath);
+        }
+        
+        console.log('相对路径:', relativePath);
+        
+        // 构建完整文件路径
+        const filePath = path.join(prototypeDir, relativePath);
+        console.log('📁 完整文件路径:', filePath);
+        
+        // 检查文件是否存在
+        if (fs.existsSync(filePath)) {
+            console.log('✅ 文件存在，准备发送:', filePath);
+            // 直接发送文件
+            res.sendFile(filePath, (err) => {
+                if (err) {
+                    console.error('❌ 发送文件失败:', err.message);
+                    res.status(500).json({ error: '发送文件失败', message: err.message });
+                } else {
+                    console.log('✅ 文件发送成功:', relativePath);
+                }
+            });
+        } else {
+            console.log('❌ 文件不存在:', filePath);
+            res.status(404).json({ error: '文件不存在', path: filePath });
+        }
+    } else {
+        // 不是原型目录的请求，继续处理
+        next();
+    }
+});
+
+console.log('🌐 原型目录文件服务已重新配置');
+
 // 健康检查路由
 app.get('/', (req, res) => {
   res.json({
