@@ -261,12 +261,12 @@ const aiController = {
         // 确保questions是数组且有内容
         if (!Array.isArray(questions) || questions.length === 0) {
           console.warn('AI返回的问题数组为空或无效');
-          // 生成备用问题
-          questions = [
-            { id: 1, question: '请描述该物品的颜色？', expectedKeywords: keywords.slice(0, 2) },
-            { id: 2, question: '请描述该物品的主要特征？', expectedKeywords: keywords.slice(2, 4) }
-          ];
+          // 不再使用备用问题，让系统返回空数组，前端会处理这种情况
+          questions = [];
         }
+        
+        // 确保只返回前2个问题
+        questions = questions.slice(0, 2);
         
         // 确保每个问题都有必要的字段
         questions = questions.map((q, index) => ({
