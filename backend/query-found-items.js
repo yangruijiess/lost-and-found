@@ -10,11 +10,12 @@ async function queryFoundItems() {
     try {
         // 创建数据库连接 - 使用硬编码的正确参数
         connection = await mysql.createConnection({
-            host: '10.21.205.135',
-            port: 3306,
+            host: '18.tcp.vip.cpolar.cn',
+            port: 13376,
             user: 'newadmin',
             password: 'newpassword',
-            database: 'lostfound'
+            database: 'lostfound',
+            connectTimeout: 30000
         });
 
         console.log('成功连接到数据库');

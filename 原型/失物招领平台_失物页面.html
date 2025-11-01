@@ -472,7 +472,9 @@
                         }
                         const itemId = this.getAttribute('data-id');
                         if (itemId) {
-                            window.location.href = `失物招领平台_详情页面.html?id=${itemId}&type=lost`;
+                            // 失物类型物品直接跳转到详情页面
+                            window.location.href = `/原型/失物招领平台_详情页面.html?id=${itemId}&type=lost`;
+                            console.log('点击失物卡片，直接跳转到详情页面');
                         }
                     });
                 });
@@ -505,41 +507,17 @@
                 });
             }
 
-            // 设置查看详情按钮事件 - 简化版本
+            // 设置查看详情按钮事件
             function setupViewDetailButtons() {
-                console.log('开始设置查看详情按钮事件');
-                
-                // 直接查找卡片中的按钮，使用更通用的选择器
-                const cards = document.querySelectorAll('.card');
-                console.log('找到的卡片数量:', cards.length);
-                
-                cards.forEach((card, index) => {
-                    // 为每个卡片分配唯一ID（如果没有）
-                    const cardId = card.getAttribute('data-id') || (index + 1).toString();
-                    card.setAttribute('data-id', cardId);
-                    
-                    // 查找卡片中的查看详情按钮
-                    const detailButton = card.querySelector('.btn-primary.w-full');
-                    if (detailButton) {
-                        console.log(`为卡片ID:${cardId} 设置详情按钮`);
-                        
-                        // 为按钮设置ID
-                        detailButton.setAttribute('data-id', cardId);
-                        
-                        // 使用简单直接的点击事件绑定
-                        detailButton.onclick = function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            console.log('详情按钮被点击！卡片ID:', cardId);
-                            
-                            // 直接执行页面跳转
-                            window.location.href = `失物招领平台_详情页面.html?id=${cardId}&type=lost`;
-                            return false; // 确保不会被其他事件干扰
-                        };
-                    }
+                document.querySelectorAll('.btn-secondary[data-id]').forEach(button => {
+                    button.addEventListener('click', function(e) {
+                        e.stopPropagation(); // 阻止冒泡
+                        const itemId = this.getAttribute('data-id');
+                        // 失物类型物品直接跳转到详情页面
+                        window.location.href = `/原型/失物招领平台_详情页面.html?id=${itemId}&type=lost`;
+                        console.log('点击查看详情按钮，直接跳转到详情页面');
+                    });
                 });
-                
-                console.log('查看详情按钮事件设置完成');
             }
 
             // 设置提供线索按钮事件

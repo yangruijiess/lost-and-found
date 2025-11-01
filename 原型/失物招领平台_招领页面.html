@@ -381,7 +381,7 @@
                     
                     if (itemId) {
                         // 修改跳转逻辑，先跳转到验证页面
-                        window.location.href = `失物招领平台_验证页面.html?id=${itemId}&type=found&imageUrl=${encodeURIComponent(imageUrl)}`;
+                    window.location.href = `失物招领平台_验证页面.html?itemId=${itemId}&type=found`;
                     }
                 });
             });
@@ -509,30 +509,25 @@
                     return;
                 }
 
-                btn.addEventListener('click', function () {
+                btn.addEventListener('click', function (e) {
+                    e.stopPropagation(); // 阻止冒泡
                     console.log('查看详情:', itemId);
-                    // 获取物品图片URL
-                    const card = this.closest('.bg-white.rounded-lg.shadow-md');
-                    const itemImage = card ? card.querySelector('img') : null;
-                    const imageUrl = itemImage ? itemImage.src : '';
-                    // 使用绝对路径跳转到验证页面，验证通过后再查看详情
-                    window.location.href = `/原型/失物招领平台_验证页面.html?id=${itemId}&type=found&imageUrl=${encodeURIComponent(imageUrl)}`;
+                    // 跳转到验证页面，验证通过后再查看详情
+                    window.location.href = `失物招领平台_验证页面.html?itemId=${itemId}&type=found`;
                 });
             });
         }
 
-        // 联系认领按钮
+        // 设置联系认领按钮事件
         function setupContactButtons() {
-            document.querySelectorAll('.btn-primary:not(.flex):not(.w-full)').forEach(button => {
-                button.addEventListener('click', function () {
-                    const card = this.closest('.card');
-                    const itemId = card.getAttribute('data-id');
-                    // 获取物品图片URL（从卡片的图片元素中提取）
-                    const itemImage = card.querySelector('img');
-                    const imageUrl = itemImage ? itemImage.src : '';
-                    
-                    // 使用绝对路径跳转到验证页面，验证通过后再联系认领
-                    window.location.href = `/原型/失物招领平台_验证页面.html?id=${itemId}&type=found&imageUrl=${encodeURIComponent(imageUrl)}`;
+            document.querySelectorAll('.btn-primary').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation(); // 阻止冒泡
+                    const itemId = this.getAttribute('data-id') || (this.closest('[data-id]') && this.closest('[data-id]').getAttribute('data-id'));
+                    if (itemId) {
+                        // 跳转到验证页面而不是直接到详情页面
+                        window.location.href = `失物招领平台_验证页面.html?itemId=${itemId}&type=found`;
+                    }
                 });
             });
         }

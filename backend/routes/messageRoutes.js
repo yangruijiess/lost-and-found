@@ -16,19 +16,16 @@ function authMiddleware(req, res, next) {
   }
 }
 
-// 应用认证中间件
-router.use(authMiddleware);
+// 获取对话列表 - 应用认证中间件
+router.get('/conversations', authMiddleware, messageController.getConversations);
 
-// 获取对话列表
-router.get('/conversations', messageController.getConversations);
+// 获取消息历史 - 应用认证中间件
+router.get('/conversations/:conversationId/messages', authMiddleware, messageController.getMessages);
 
-// 获取消息历史
-router.get('/conversations/:conversationId/messages', messageController.getMessages);
+// 发送消息 - 应用认证中间件
+router.post('/messages', authMiddleware, messageController.sendMessage);
 
-// 发送消息
-router.post('/messages', messageController.sendMessage);
-
-// 创建新对话
-router.post('/conversations', messageController.createConversation);
+// 创建新对话 - 应用认证中间件
+router.post('/conversations', authMiddleware, messageController.createConversation);
 
 module.exports = router;

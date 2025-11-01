@@ -653,11 +653,11 @@
                 const params = getQueryParams();
                 const itemType = params.type || 'lost'; // 默认返回失物页面
                 
-                // 根据物品类型跳转到对应的列表页面
+                // 根据物品类型跳转到对应的列表页面，使用统一的路径格式
                 if (itemType === 'found') {
-                    window.location.href = '失物招领平台_招领页面.html';
+                    window.location.href = '/原型/失物招领平台_招领页面.html';
                 } else {
-                    window.location.href = '失物招领平台_失物页面.html';
+                    window.location.href = '/原型/失物招领平台_失物页面.html';
                 }
             });
         }
@@ -667,8 +667,9 @@
             document.getElementById('contactPublisher').addEventListener('click', function() {
                 const params = getQueryParams();
                 const publisherName = document.getElementById('publisherName').textContent;
-                // 跳转到私信页面并传递发布者信息
-                window.location.href = `失物招领平台_私信页面.html?recipient=${encodeURIComponent(publisherName)}`;
+                // 跳转到私信页面并传递发布者信息，使用统一的路径格式
+                window.location.href = `/原型/失物招领平台_私信页面.html?recipient=${encodeURIComponent(publisherName)}`;
+                console.log('跳转到私信页面，目标用户:', publisherName);
             });
         }
 
@@ -677,9 +678,73 @@
         // 初始化页面
         document.addEventListener('DOMContentLoaded', init);
         
+        // 验证用户是否已通过验证
+        function isVerified(itemId, itemType) {
+            try {
+                // 从URL参数检查验证状态
+                const params = getQueryParams();
+                if (params.verified === 'true') {
+                    console.log('从URL参数验证通过');
+                    return true;
+                }
+                
+                // 从本地存储检查验证状态
+                const verifiedItems = JSON.parse(localStorage.getItem('verifiedItems') || '{}');
+                const itemKey = `${itemType}_${itemId}`;
+                
+                if (verifiedItems[itemKey] === true) {
+                    console.log('从本地存储验证通过');
+                    return true;
+                }
+                
+                console.log('未通过验证，需要重定向到验证页面');
+                return false;
+            } catch (error) {
+                console.error('验证检查出错:', error);
+                return false;
+            }
+        }
+
+        // 保存验证状态
+        function saveVerification(itemId, itemType) {
+            try {
+                const verifiedItems = JSON.parse(localStorage.getItem('verifiedItems') || '{}');
+                const itemKey = `${itemType}_${itemId}`;
+                verifiedItems[itemKey] = true;
+                localStorage.setItem('verifiedItems', JSON.stringify(verifiedItems));
+                console.log('验证状态已保存');
+            } catch (error) {
+                console.error('保存验证状态失败:', error);
+            }
+        }
+
         // 主初始化函数
         async function init() {
-            // 加载物品详情
+            const params = getQueryParams();
+            const itemId = params.id || '1';
+            const itemType = params.type || 'lost';
+            
+            console.log('初始化详情页面:', { itemId, itemType });
+            
+            // 只有招领类型的物品需要验证，失物类型可以直接访问
+            if (itemType === 'found') {
+                // 检查用户是否已通过验证
+                if (!isVerified(itemId, itemType)) {
+                    // 未通过验证，重定向到验证页面
+                    console.log(`招领物品未通过验证，重定向到验证页面: 物品ID=${itemId}`);
+                    window.location.href = `/原型/失物招领平台_验证页面.html?id=${itemId}&type=${itemType}`;
+                    return;
+                }
+                
+                // 如果是通过验证后跳转过来的，保存验证状态到本地存储
+                if (params.verified === 'true') {
+                    saveVerification(itemId, itemType);
+                }
+            } else {
+                console.log('失物类型物品无需验证，直接加载详情');
+            }
+            
+            // 通过验证，加载物品详情
             await loadItemDetails();
             
             // 设置返回按钮事件
