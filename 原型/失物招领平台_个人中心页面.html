@@ -206,8 +206,8 @@
                 <div class="bg-white card p-4">
                     <h3 class="font-bold text-lg mb-4">个人中心</h3>
                     <ul class="space-y-1">
-                        <li><a href="失物招领平台_发布历史页面.html" class="sidebar-link" onclick="event.preventDefault(); window.location.href='失物招领平台_发布历史页面.html';"><span class="iconify mr-3" data-icon="mdi:clipboard-list"></span>发布历史</a></li>
-                        <li><a href="失物招领平台_我的收藏页面.html" class="sidebar-link" onclick="event.preventDefault(); window.location.href='失物招领平台_我的收藏页面.html';"><span class="iconify mr-3" data-icon="mdi:heart"></span>我的收藏</a></li>
+                        <li><a href="失物招领平台_发布历史页面.html" class="sidebar-link"><span class="iconify mr-3" data-icon="mdi:clipboard-list"></span>发布历史</a></li>
+                        <li><a href="失物招领平台_我的收藏页面.html" class="sidebar-link"><span class="iconify mr-3" data-icon="mdi:heart"></span>我的收藏</a></li>
                         <li class="mt-6 pt-4 border-t border-gray-200">
                             <a href="index.html" class="sidebar-link text-red-600 hover:bg-red-50"><span class="iconify mr-3" data-icon="mdi:logout"></span>退出登录</a>
                         </li>
@@ -222,6 +222,7 @@
                     <div class="flex flex-wrap border-b">
                         <button class="tab-btn px-4 py-2 font-medium text-blue-800 border-b-2 border-blue-800" data-tab="basic-info">基本信息</button>
                         <button class="tab-btn px-4 py-2 font-medium text-gray-600" data-tab="contact-info">联系方式</button>
+                        <button class="tab-btn px-4 py-2 font-medium text-gray-600" data-tab="my-favorites">我的收藏</button>
                         <button class="tab-btn px-4 py-2 font-medium text-gray-600" data-tab="privacy-settings">隐私设置</button>
                     </div>
                 </div>
@@ -307,6 +308,27 @@
                     </form>
                 </div>
                 
+                <!-- 我的收藏选项卡内容 -->
+                <div id="my-favorites" class="tab-content bg-white card p-6 mb-6">
+                    <h3 class="font-bold text-lg mb-6">我的收藏</h3>
+                    <div class="flex flex-wrap gap-3 mb-6">
+                        <button class="btn-secondary active px-4 py-2 bg-blue-50 text-blue-800 border-blue-200" data-filter="all">全部</button>
+                        <button class="btn-secondary px-4 py-2" data-filter="lost">失物信息</button>
+                        <button class="btn-secondary px-4 py-2" data-filter="found">招领信息</button>
+                    </div>
+                    
+                    <!-- 收藏列表 -->
+                    <div id="favorites-container" class="space-y-6">
+                        <!-- 这里将通过JavaScript动态加载收藏内容 -->
+                        <div class="empty-state">
+                            <span class="iconify text-6xl mb-4 block opacity-50" data-icon="mdi:heart-outline"></span>
+                            <h3 class="text-lg font-medium mb-2">暂无收藏</h3>
+                            <p class="mb-4">您还没有收藏任何物品信息</p>
+                            <a href="失物招领平台_招领页面.html" class="btn-primary inline-block">去看看</a>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- 隐私设置选项卡内容 -->
                 <div id="privacy-settings" class="tab-content bg-white card p-6 mb-6">
                     <h3 class="font-bold text-lg mb-6">隐私设置</h3>
@@ -439,6 +461,7 @@
         // 模拟用户ID
         const CURRENT_USER_ID = 'user1';
         const USER_DATA_KEY = `user_${CURRENT_USER_ID}`; // 用户数据存储键
+        const FAVORITES_KEY = 'favorites'; // 收藏数据存储键
         
         // 加载用户数据
         async function loadUserData() {
@@ -462,6 +485,76 @@
             }
         }
         
+        // 模拟数据 - 实际应用中应从localStorage获取
+        const mockItems = {
+            // 招领页面物品
+            '1': {
+                type: 'found',
+                title: '黑色皮质钱包',
+                description: '在图书馆二楼自习室发现，内有身份证、银行卡等贵重物品',
+                location: '图书馆二楼',
+                date: '9月22日',
+                image: 'https://modao.cc/ai/uploads/ai_pics/30/302276/aigp_1758618094.jpeg'
+            },
+            '2': {
+                type: 'found',
+                title: '一串钥匙',
+                description: '在食堂门口拾得，包含三把钥匙和一个蓝色小熊挂件',
+                location: '第一食堂',
+                date: '9月21日',
+                image: 'https://modao.cc/ai/uploads/ai_pics/30/302278/aigp_1758618097.jpeg'
+            },
+            '3': {
+                type: 'found',
+                title: '黄色雨伞',
+                description: '在二号教学楼门口拾得，伞柄有特殊定制刻字',
+                location: '二号教学楼',
+                date: '9月23日',
+                image: 'https://modao.cc/ai/uploads/ai_pics/30/302280/aigp_1758618100.jpeg'
+            },
+            '4': {
+                type: 'found',
+                title: '白色无线耳机',
+                description: '在体育馆看台下拾得，带有充电盒，品牌为AirPods Pro',
+                location: '体育馆',
+                date: '9月21日',
+                image: 'https://img.alicdn.com/imgextra/i1/4611686018427382574/O1CN01XwFcbv1wmM6hgdAFs_!!4611686018427382574-0-rate.jpg_960x960.jpg_.webp'
+            },
+            // 失物页面物品
+            'lost1': {
+                type: 'lost',
+                title: '丢失红色雨伞',
+                description: '在去往教学楼的路上丢失一把红色折叠伞，伞柄上有小熊图案。',
+                location: '教学楼',
+                date: '9月23日',
+                image: 'https://picsum.photos/seed/umbrella123/300/200'
+            },
+            'lost2': {
+                type: 'lost',
+                title: '丢失耳机',
+                description: '在图书馆二楼丢失一副白色蓝牙耳机，带有充电盒。',
+                location: '图书馆',
+                date: '9月22日',
+                image: 'https://picsum.photos/seed/earphone123/300/200'
+            },
+            'lost3': {
+                type: 'lost',
+                title: '丢失学生证',
+                description: '在食堂附近丢失学生证，姓名：张小明，请拾到者联系。',
+                location: '第二食堂',
+                date: '9月21日',
+                image: 'https://picsum.photos/seed/student123/300/200'
+            },
+            'lost4': {
+                type: 'lost',
+                title: '丢失笔记本电脑',
+                description: '在自习室丢失一台黑色笔记本电脑，联想品牌，请拾到者归还。',
+                location: '第三教学楼',
+                date: '9月20日',
+                image: 'https://picsum.photos/seed/laptop123/300/200'
+            }
+        };
+
         // 从本地存储加载用户数据
         function loadUserDataFromLocalStorage() {
             // 尝试从本地存储获取数据
@@ -501,6 +594,11 @@
         
         // 获取默认用户数据
         function getDefaultUserData() {
+            // 初始化一些模拟的收藏数据，方便演示
+            if (!localStorage.getItem(FAVORITES_KEY)) {
+                localStorage.setItem(FAVORITES_KEY, JSON.stringify(['1', '2', 'lost1']));
+            }
+            
             return {
                 id: CURRENT_USER_ID,
                 username: '陈静',
@@ -528,40 +626,235 @@
             };
         }
         
+        // 从localStorage获取收藏数据并显示
+        function loadFavorites(filter = 'all') {
+            // 从localStorage获取收藏的项目
+            const favorites = JSON.parse(localStorage.getItem(FAVORITES_KEY)) || [];
+            const container = document.getElementById('favorites-container');
+            
+            // 清空容器
+            container.innerHTML = '';
+            
+            // 如果没有收藏，显示空状态
+            if (favorites.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <span class="iconify text-6xl mb-4 block opacity-50" data-icon="mdi:heart-outline"></span>
+                        <h3 class="text-lg font-medium mb-2">暂无收藏</h3>
+                        <p class="mb-4">您还没有收藏任何物品信息</p>
+                        <a href="失物招领平台_招领页面.html" class="btn-primary inline-block">去看看</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            // 过滤收藏项
+            let filteredFavorites = favorites;
+            if (filter !== 'all') {
+                filteredFavorites = favorites.filter(itemId => {
+                    return mockItems[itemId] && mockItems[itemId].type === filter;
+                });
+            }
+            
+            // 如果过滤后没有结果，显示空状态
+            if (filteredFavorites.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <span class="iconify text-6xl mb-4 block opacity-50" data-icon="mdi:heart-outline"></span>
+                        <h3 class="text-lg font-medium mb-2">暂无${filter === 'lost' ? '失物' : '招领'}收藏</h3>
+                        <p class="mb-4">您还没有收藏此类物品信息</p>
+                        <a href="失物招领平台_${filter === 'lost' ? '失物' : '招领'}页面.html" class="btn-primary inline-block">去看看</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            // 创建收藏列表
+            filteredFavorites.forEach(itemId => {
+                // 检查是否存在模拟数据
+                if (mockItems[itemId]) {
+                    const item = mockItems[itemId];
+                    const isLost = item.type === 'lost';
+                    
+                    const card = document.createElement('div');
+                    // 根据类型添加不同的边框颜色，方便区分失物和招领
+                    card.className = `item-card bg-white ${isLost ? 'border-l-4 border-red-500' : 'border-l-4 border-green-500'}`;
+                    card.innerHTML = `
+                        <div class="md:flex">
+                            <div class="md:w-1/4">
+                                <img src="${item.image}" alt="${item.title}" class="h-48 w-full object-cover md:h-full">
+                            </div>
+                            <div class="p-5 md:w-3/4">
+                                <div class="flex items-start mb-2">
+                                    <div class="flex items-center">
+                                        <span class="tag ${isLost ? 'tag-lost bg-red-100 text-red-700' : 'tag-found bg-green-100 text-green-700'} px-2 py-1 rounded-full text-sm mr-2">${isLost ? '失物' : '招领'}</span>
+                                        <h3 class="font-bold text-lg">${item.title}</h3>
+                                    </div>
+                                </div>
+                                <p class="text-gray-600 mb-3 line-clamp-2">${item.description}</p>
+                                <div class="flex items-center text-sm text-gray-500 mb-3">
+                                    <span class="iconify mr-1" data-icon="mdi:map-marker"></span>
+                                    <span>${item.location}</span>
+                                    <span class="mx-2">·</span>
+                                    <span class="iconify mr-1" data-icon="mdi:clock"></span>
+                                    <span>${item.date}</span>
+                                </div>
+                                <div class="flex justify-end">
+                                    <button class="favorite-btn p-2 rounded-full hover:bg-gray-100" data-id="${itemId}">
+                                        <span class="iconify text-xl text-red-500" data-icon="mdi:heart"></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    container.appendChild(card);
+                }
+            });
+            
+            // 添加取消收藏的点击事件
+            document.querySelectorAll('.favorite-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    
+                    const itemId = this.getAttribute('data-id');
+                    console.log('点击取消收藏，ID:', itemId);
+                    
+                    // 从localStorage获取最新收藏列表
+                    let updatedFavorites = JSON.parse(localStorage.getItem(FAVORITES_KEY)) || [];
+                    
+                    // 取消收藏
+                    updatedFavorites = updatedFavorites.filter(id => id !== itemId);
+                    
+                    // 保存到localStorage
+                    localStorage.setItem(FAVORITES_KEY, JSON.stringify(updatedFavorites));
+                    console.log('更新后收藏列表:', updatedFavorites);
+                    
+                    // 获取当前活动的筛选器
+                    const activeFilter = document.querySelector('[data-filter].bg-blue-50').getAttribute('data-filter');
+                    
+                    // 重新加载收藏列表
+                    loadFavorites(activeFilter);
+                    
+                    // 更新收藏数量统计
+                    updateFavoritesCount();
+                    
+                    // 显示通知
+                    showNotification('已取消收藏');
+                });
+            });
+            
+            // 移除了查看详情功能
+        }
+        
+        // 显示通知函数
+        function showNotification(message) {
+            // 检查是否已有通知元素
+            let notification = document.getElementById('notification');
+            if (!notification) {
+                // 创建通知元素
+                notification = document.createElement('div');
+                notification.id = 'notification';
+                notification.className = 'fixed bottom-5 right-5 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg opacity-0 transition-opacity duration-300 z-50';
+                document.body.appendChild(notification);
+            }
+            
+            // 设置消息内容
+            notification.textContent = message;
+            
+            // 显示通知
+            setTimeout(() => {
+                notification.style.opacity = '1';
+            }, 10);
+            
+            // 3秒后隐藏通知
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 3000);
+        }
+        
+        // 更新收藏数量统计
+        function updateFavoritesCount() {
+            const favorites = JSON.parse(localStorage.getItem(FAVORITES_KEY)) || [];
+            const stats = document.querySelectorAll('.profile-stats .text-2xl');
+            if (stats.length >= 3) {
+                stats[2].textContent = favorites.length;
+            }
+        }
+        
         // 更新用户界面
         function updateUserProfileUI(userData) {
-            // 更新用户基本信息
-            document.querySelector('.avatar-upload img').src = userData.avatar;
-            document.querySelector('.avatar-upload h2').textContent = userData.username;
-            document.querySelector('.avatar-upload p').textContent = userData.role;
+            // 添加空值检查
+            if (!userData) {
+                console.error('用户数据为空');
+                return;
+            }
             
-            // 更新统计数据
-            const stats = document.querySelectorAll('.profile-stats .text-2xl');
-            stats[0].textContent = userData.stats.posts;
-            stats[1].textContent = userData.stats.recovered;
-            stats[2].textContent = userData.stats.favorites;
-            
-            // 更新基本信息表单
-            const basicInfoForm = document.querySelector('#basic-info form');
-            basicInfoForm.querySelector('input[value="陈静"]').value = userData.username;
-            basicInfoForm.querySelector('input[type="text"]:nth-of-type(2)').value = userData.nickname;
-            basicInfoForm.querySelector(`input[name="gender"][value="${userData.gender}"]`).checked = true;
-            basicInfoForm.querySelector('input[type="date"]').value = userData.birthday;
-            basicInfoForm.querySelector('textarea').value = userData.bio;
-            
-            // 更新联系方式表单
-            const contactInfoForm = document.querySelector('#contact-info form');
-            contactInfoForm.querySelector('input[type="tel"]').value = userData.phone;
-            contactInfoForm.querySelector('input[type="email"]').value = userData.email;
-            contactInfoForm.querySelector('input[value="chen_jing2023"]').value = userData.wechat;
-            contactInfoForm.querySelector('textarea').value = userData.address;
-            
-            // 更新隐私设置表单
-            const privacyForm = document.querySelector('#privacy-settings form');
-            privacyForm.querySelector('select:nth-of-type(1)').value = userData.privacySettings.profileVisibility;
-            privacyForm.querySelector('select:nth-of-type(2)').value = userData.privacySettings.messagePermission;
-            privacyForm.querySelector('input[type="checkbox"]:nth-of-type(1)').checked = userData.privacySettings.searchablePosts;
-            privacyForm.querySelector('input[type="checkbox"]:nth-of-type(2)').checked = userData.privacySettings.defaultAnonymous;
+            try {
+                // 更新用户基本信息
+                const avatarImg = document.querySelector('.avatar-upload img');
+                const avatarName = document.querySelector('.avatar-upload h2');
+                const avatarRole = document.querySelector('.avatar-upload p');
+                
+                if (avatarImg) avatarImg.src = userData.avatar;
+                if (avatarName) avatarName.textContent = userData.username;
+                if (avatarRole) avatarRole.textContent = userData.role;
+                
+                // 更新统计数据
+                const stats = document.querySelectorAll('.profile-stats .text-2xl');
+                if (stats.length > 0 && userData.stats) stats[0].textContent = userData.stats.posts || 0;
+                if (stats.length > 1 && userData.stats) stats[1].textContent = userData.stats.recovered || 0;
+                if (stats.length > 2 && userData.stats) stats[2].textContent = userData.stats.favorites || 0;
+                
+                // 更新基本信息表单
+                const basicInfoForm = document.querySelector('#basic-info form');
+                if (basicInfoForm) {
+                    const usernameInput = basicInfoForm.querySelector('input[value="陈静"]') || basicInfoForm.querySelector('input[type="text"]:first-of-type');
+                    const nicknameInput = basicInfoForm.querySelector('input[type="text"]:nth-of-type(2)');
+                    const genderInput = userData.gender ? basicInfoForm.querySelector(`input[name="gender"][value="${userData.gender}"]`) : null;
+                    const birthdayInput = basicInfoForm.querySelector('input[type="date"]');
+                    const bioTextarea = basicInfoForm.querySelector('textarea');
+                    
+                    if (usernameInput) usernameInput.value = userData.username;
+                    if (nicknameInput) nicknameInput.value = userData.nickname;
+                    if (genderInput) genderInput.checked = true;
+                    if (birthdayInput) birthdayInput.value = userData.birthday;
+                    if (bioTextarea) bioTextarea.value = userData.bio;
+                }
+                
+                // 更新联系方式表单
+                const contactInfoForm = document.querySelector('#contact-info form');
+                if (contactInfoForm) {
+                    const phoneInput = contactInfoForm.querySelector('input[type="tel"]');
+                    const emailInput = contactInfoForm.querySelector('input[type="email"]');
+                    const wechatInput = contactInfoForm.querySelector('input[value="chen_jing2023"]') || contactInfoForm.querySelector('input[type="text"]:nth-of-type(3)');
+                    const addressTextarea = contactInfoForm.querySelector('textarea');
+                    
+                    if (phoneInput) phoneInput.value = userData.phone;
+                    if (emailInput) emailInput.value = userData.email;
+                    if (wechatInput) wechatInput.value = userData.wechat;
+                    if (addressTextarea) addressTextarea.value = userData.address;
+                }
+                
+                // 更新隐私设置表单
+                const privacyForm = document.querySelector('#privacy-settings form');
+                if (privacyForm && userData.privacySettings) {
+                    const select1 = privacyForm.querySelector('select:nth-of-type(1)');
+                    const select2 = privacyForm.querySelector('select:nth-of-type(2)');
+                    if (select1) select1.value = userData.privacySettings.profileVisibility;
+                    if (select2) select2.value = userData.privacySettings.messagePermission;
+                    const checkbox1 = privacyForm.querySelector('input[type="checkbox"]');
+                    const checkbox2 = privacyForm.querySelector('input[type="checkbox"]:nth-of-type(2)');
+                    if (checkbox1) checkbox1.checked = userData.privacySettings.searchablePosts;
+                    if (checkbox2) checkbox2.checked = userData.privacySettings.defaultAnonymous;
+                }
+            } catch (error) {
+                console.error('更新用户界面失败:', error);
+            }
         }
         
         // 保存用户数据
@@ -806,6 +1099,42 @@
             
             // 设置电子邮箱修改
             setupEmailEdit();
+            
+            // 更新收藏数量统计
+            updateFavoritesCount();
+            
+            // 添加收藏相关的样式
+            const style = document.createElement('style');
+            style.textContent = `
+                .tag {
+                    padding: 2px 8px;
+                    border-radius: 12px;
+                    font-size: 0.75rem;
+                }
+                .tag-found {
+                    background-color: #dcfce7;
+                    color: #166534;
+                }
+                .tag-lost {
+                    background-color: #ffedd5;
+                    color: #9a3412;
+                }
+                .item-card {
+                    border: 1px solid #e2e8f0;
+                    border-radius: 10px;
+                    overflow: hidden;
+                    transition: all 0.3s ease;
+                }
+                .item-card:hover {
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                }
+                .empty-state {
+                    text-align: center;
+                    padding: 60px 20px;
+                    color: #94a3b8;
+                }
+            `;
+            document.head.appendChild(style);
         }
         
         // 设置选项卡切换
@@ -830,7 +1159,31 @@
                     // 显示对应的选项卡内容
                     const tabId = this.getAttribute('data-tab');
                     document.getElementById(tabId).classList.add('active');
+                    
+                    // 如果切换到收藏选项卡，加载收藏数据
+                    if (tabId === 'my-favorites') {
+                        loadFavorites();
+                    }
                 });
+            });
+            
+            // 设置收藏筛选按钮
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('[data-filter]')) {
+                    const btn = e.target.closest('[data-filter]');
+                    const filter = btn.getAttribute('data-filter');
+                    
+                    // 移除所有筛选按钮的活跃状态
+                    document.querySelectorAll('[data-filter]').forEach(b => {
+                        b.classList.remove('bg-blue-50', 'text-blue-800', 'border-blue-200');
+                    });
+                    
+                    // 添加当前按钮的活跃状态
+                    btn.classList.add('bg-blue-50', 'text-blue-800', 'border-blue-200');
+                    
+                    // 执行筛选
+                    loadFavorites(filter);
+                }
             });
         }
         

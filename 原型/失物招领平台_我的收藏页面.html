@@ -307,7 +307,7 @@
         };
         
         // 从localStorage获取收藏数据并显示
-        function loadFavorites() {
+        function loadFavorites(filterType = 'all') {
             // 从localStorage获取收藏的项目
             const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
             const container = document.getElementById('favorites-container');
@@ -315,13 +315,22 @@
             // 清空容器
             container.innerHTML = '';
             
-            // 如果没有收藏，显示空状态
-            if (favorites.length === 0) {
+            // 过滤收藏项
+            let filteredFavorites = favorites;
+            if (filterType !== 'all') {
+                filteredFavorites = favorites.filter(itemId => {
+                    const item = mockItems[itemId];
+                    return item && item.type === filterType;
+                });
+            }
+            
+            // 如果没有符合条件的收藏，显示空状态
+            if (filteredFavorites.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
                         <span class="iconify text-6xl mb-4 block opacity-50" data-icon="mdi:heart-outline"></span>
                         <h3 class="text-lg font-medium mb-2">暂无收藏</h3>
-                        <p class="mb-4">您还没有收藏任何物品信息</p>
+                        <p class="mb-4">${filterType === 'all' ? '您还没有收藏任何物品信息' : `您还没有收藏任何${filterType === 'lost' ? '失物' : '招领'}信息`}</p>
                         <a href="失物招领平台_招领页面.html" class="btn-primary inline-block">去看看</a>
                     </div>
                 `;
@@ -329,7 +338,7 @@
             }
             
             // 创建收藏列表
-            favorites.forEach(itemId => {
+            filteredFavorites.forEach(itemId => {
                 // 检查是否存在模拟数据
                 if (mockItems[itemId]) {
                     const item = mockItems[itemId];
@@ -402,13 +411,20 @@
             document.querySelectorAll('.btn-secondary:not(.favorite-btn):not([class*="active"])').forEach(btn => {
                 btn.addEventListener('click', function(e) {
                     e.stopPropagation();
-                    const itemId = this.closest('.item-card').querySelector('.favorite-btn').getAttribute('data-id');
-                    const item = mockItems[itemId];
-                    const typeParam = item.type === 'lost' ? 'lost' : 'found';
-                    
-                    console.log('查看详情:', itemId, '类型:', typeParam);
+                    const itemCard = this.closest('.item-card');
+                    if (itemCard) {
+                        const favoriteBtn = itemCard.querySelector('.favorite-btn');
+                        if (favoriteBtn) {
+                            const itemId = favoriteBtn.getAttribute('data-id');
+                            const item = mockItems[itemId];
+                            const typeParam = item?.type === 'lost' ? 'lost' : 'found';
+                             
+                            console.log('查看详情:', itemId, '类型:', typeParam);
+                            // 在实际应用中，这里会跳转到详情页面
+                            alert(`查看ID为${itemId}的${item.type === 'lost' ? '失物' : '招领'}信息详情`);
+                        }
+                    }
                     // 在实际应用中，这里会跳转到详情页面
-                    alert(`查看ID为${itemId}的${item.type === 'lost' ? '失物' : '招领'}信息详情`);
                 });
             });
         }
@@ -443,27 +459,36 @@
         }
         
         // 筛选按钮点击事件
-        document.querySelectorAll('.btn-secondary').forEach(btn => {
-            btn.addEventListener('click', function() {
-                // 如果不是操作按钮（查看详情），则执行筛选逻辑
-                if (!this.textContent.includes('查看详情')) {
-                    // 移除所有筛选按钮的活跃状态
-                    document.querySelectorAll('.btn-secondary').forEach(b => {
-                        if (!b.classList.contains('favorite-btn') && !b.textContent.includes('查看详情')) {
-                            b.classList.remove('bg-blue-50', 'text-blue-800', 'border-blue-200');
-                        }
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取筛选按钮
+            const filterButtons = document.querySelectorAll('.btn-secondary.px-4.py-2');
+            
+            // 为每个筛选按钮添加点击事件
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // 移除所有按钮的激活状态
+                    filterButtons.forEach(btn => {
+                        btn.classList.remove('active', 'bg-blue-50', 'text-blue-800', 'border-blue-200');
                     });
                     
-                    // 添加当前按钮的活跃状态
-                    this.classList.add('bg-blue-50', 'text-blue-800', 'border-blue-200');
+                    // 为当前按钮添加激活状态
+                    this.classList.add('active', 'bg-blue-50', 'text-blue-800', 'border-blue-200');
                     
-                    // 这里可以添加实际的筛选逻辑
-                    console.log('筛选条件:', this.textContent);
-                }
+                    // 获取筛选类型
+                    let filterType = 'all';
+                    if (this.textContent.trim() === '失物信息') {
+                        filterType = 'lost';
+                    } else if (this.textContent.trim() === '招领信息') {
+                        filterType = 'found';
+                    }
+                    
+                    // 应用筛选
+                    loadFavorites(filterType);
+                });
             });
+            
+            // 页面加载完成后加载收藏
+            loadFavorites();
         });
-        
-        // 页面加载完成后加载收藏
-        document.addEventListener('DOMContentLoaded', loadFavorites);
     </script>
 </body></html>
